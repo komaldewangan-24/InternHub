@@ -1,0 +1,40 @@
+
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 16 modules transformed.
+[31m✗[39m Build failed in 1.49s
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 2 errors:
+C:/Users/Hp/Desktop/InternHub/frontend/src/pages/AdminAnalyticsDashboard.jsx:25:2: ERROR: Unexpected closing "Link" tag does not match opening "a" tag
+C:/Users/Hp/Desktop/InternHub/frontend/src/pages/AdminAnalyticsDashboard.jsx:54:2: ERROR: Unexpected closing "aside" tag does not match opening "Linkside" tag[31m
+file: [36mC:/Users/Hp/Desktop/InternHub/frontend/src/pages/AdminAnalyticsDashboard.jsx:25:2[31m
+[33m
+[33mUnexpected closing "Link" tag does not match opening "a" tag[33m
+23 |  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">dashboard</span>
+24 |  <span className="text-sm font-medium">Dashboard</span>
+25 |  </Link>
+   |    ^
+26 |  <Link className="flex items-center gap-3 px-3 py-2.5 text-slate-custom hover:bg-slate-50 dark:hover:bg-slate-800 roun...
+27 |  <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">group</span>
+
+[33mUnexpected closing "aside" tag does not match opening "Linkside" tag[33m
+52 |  </div>
+53 |  </div>
+54 |  </aside>
+   |    ^
+55 |  
+56 |  <main className="flex-1 flex flex-col min-w-0">
+[31m
+    at failureErrorWithLog (C:\Users\Hp\Desktop\InternHub\frontend\node_modules\esbuild\lib\main.js:1467:15)
+    at C:\Users\Hp\Desktop\InternHub\frontend\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (C:\Users\Hp\Desktop\InternHub\frontend\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (C:\Users\Hp\Desktop\InternHub\frontend\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (C:\Users\Hp\Desktop\InternHub\frontend\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
