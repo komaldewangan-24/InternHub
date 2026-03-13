@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function InternshipDetailsPage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       
@@ -70,10 +88,12 @@ export default function InternshipDetailsPage() {
 <div className="h-8 w-[1px] bg-slate-200 dark:border-slate-700 mx-1"></div>
 <div className="flex items-center gap-3 cursor-pointer group">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-semibold text-slate-900 dark:text-white">Alex Rivera</p>
-<p className="text-xs text-slate-500">Candidate Profile</p>
+<p className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500">{user?.role || 'Candidate Profile'}</p>
 </div>
-<img className="w-10 h-10 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800" data-alt="Candidate profile headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXtippBmNauAlim8UhimLwWfA0RqQh-NI-I0Pzb43Zbl_gvooCKunRvkl4d20YF_uXZbd3O0blzH3XbeETZQ6SLR_ECopm00RTG1IN831JkszqOIyWlELcZm4-zkCykJZ3N24nEWkB6z-Zou61VSJ5OWeoGeozehK-eicqPqDOVYAq5B5G3ShyxG0llzEIWTbGXkdUn4tM7CSDJYgVKPCJREkARJrh_CX7ePUkCdMEIFF9C62-1vzj6uKCfEl-M2zQ6y2I-8Y8VQ"/>
+<div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-800">
+<img className="w-full h-full object-cover" alt={user?.name || "User"} src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Alex')} />
+</div>
 </div>
 </div>
 </header>

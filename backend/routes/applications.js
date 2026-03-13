@@ -11,13 +11,21 @@ router.get('/', protect, async (req, res) => {
         let applications;
 
         if (req.user.role === 'admin') {
-            applications = await Application.find().populate('internship user');
+            applications = await Application.find().populate({
+                path: 'internship',
+                populate: { path: 'company', select: 'name logoUrl' }
+            }).populate('user');
         } else if (req.user.role === 'student') {
-            applications = await Application.find({ user: req.user.id }).populate('internship');
+            applications = await Application.find({ user: req.user.id }).populate({
+                path: 'internship',
+                populate: { path: 'company', select: 'name logoUrl' }
+            });
         } else {
-            // For Recruiter/Faculty - need complex query to find applications for their internships
-            // Skipping complex query for simplicity right now; returning all for testing
-            applications = await Application.find().populate('internship user');
+            // For Recruiter/Faculty
+            applications = await Application.find().populate({
+                path: 'internship',
+                populate: { path: 'company', select: 'name logoUrl' }
+            }).populate('user');
         }
 
         res.status(200).json({

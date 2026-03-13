@@ -1,8 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, userAPI } from '../services/api';
 
 export default function AdminAnalyticsDashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [stats, setStats] = useState(null);
+
+  useEffect(() => {
+    fetchUser();
+    fetchStats();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const { data } = await userAPI.getStats();
+      if (data.success) {
+        setStats(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
+
   return (
     <>
       
@@ -74,10 +106,12 @@ export default function AdminAnalyticsDashboard() {
 <div className="h-8 w-px bg-slate-200 dark:border-slate-800"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-bold leading-none">Admin User</p>
-<p className="text-xs text-slate-custom mt-1">System Controller</p>
+<p className="text-sm font-bold leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-custom mt-1">{user?.role || 'System Controller'}</p>
 </div>
-<div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center border border-slate-300 dark:border-slate-600" data-alt="Admin user profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border border-slate-300 dark:border-slate-600">
+<img src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Admin')} className="w-full h-full object-cover" />
+</div>
 </div>
 </div>
 </header>
@@ -110,27 +144,27 @@ export default function AdminAnalyticsDashboard() {
 <span className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">+12%</span>
 </div>
 <p className="text-slate-custom dark:text-slate-400 text-sm font-medium">Total Students</p>
-<p className="text-2xl font-black mt-1">2,450</p>
+<p className="text-2xl font-black mt-1">{stats?.totalStudents || '0'}</p>
 </div>
 <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
 <div className="flex items-center justify-between mb-4">
 <div className="size-12 bg-purple-50 dark:bg-purple-900/20 text-purple-600 rounded-lg flex items-center justify-center">
 <span className="material-symbols-outlined text-2xl">verified</span>
 </div>
-<span className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">+5.2%</span>
+<span className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">{stats?.placedRate}%</span>
 </div>
 <p className="text-slate-custom dark:text-slate-400 text-sm font-medium">Placement Rate</p>
-<p className="text-2xl font-black mt-1">88.5%</p>
+<p className="text-2xl font-black mt-1">{stats?.placedRate}%</p>
 </div>
 <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
 <div className="flex items-center justify-between mb-4">
 <div className="size-12 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg flex items-center justify-center">
-<span className="material-symbols-outlined text-2xl">payments</span>
+<span className="material-symbols-outlined text-2xl">work</span>
 </div>
 <span className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded-full">+8%</span>
 </div>
-<p className="text-slate-custom dark:text-slate-400 text-sm font-medium">Avg Stipend</p>
-<p className="text-2xl font-black mt-1">$1,200/mo</p>
+<p className="text-slate-custom dark:text-slate-400 text-sm font-medium">Total Internships</p>
+<p className="text-2xl font-black mt-1">{stats?.totalInternships || '0'}</p>
 </div>
 <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
 <div className="flex items-center justify-between mb-4">
@@ -140,7 +174,7 @@ export default function AdminAnalyticsDashboard() {
 <span className="text-red-500 text-xs font-bold bg-red-500/10 px-2 py-1 rounded-full">-2%</span>
 </div>
 <p className="text-slate-custom dark:text-slate-400 text-sm font-medium">Active Partners</p>
-<p className="text-2xl font-black mt-1">142</p>
+<p className="text-2xl font-black mt-1">{stats?.totalCompanies || '0'}</p>
 </div>
 </div>
 

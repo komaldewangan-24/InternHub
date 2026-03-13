@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       
@@ -43,6 +61,10 @@ export default function AdminDashboard() {
 <span className="material-symbols-outlined">bar_chart</span>
                     Analytics
                 </Link>
+<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/message_page">
+<span className="material-symbols-outlined">chat_bubble</span>
+                    Messages
+                </Link>
 <Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="#">
 <span className="material-symbols-outlined">settings</span>
                     Settings
@@ -51,7 +73,7 @@ export default function AdminDashboard() {
 <div className="p-4 mt-auto">
 <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4">
 <p className="text-sm font-medium text-slate-900 dark:text-white">Admin Account</p>
-<p className="text-xs text-slate-500 truncate">admin@university.edu</p>
+<p className="text-xs text-slate-500 truncate">{user?.email || 'admin@university.edu'}</p>
 <button className="w-full mt-3 bg-primary text-white text-sm font-bold py-2 rounded-xl hover:bg-primary/90 transition-all">
                         Post Internship
                     </button>
@@ -79,8 +101,8 @@ export default function AdminDashboard() {
 <div className="w-full h-full bg-cover bg-center" data-alt="Administrator user profile picture" style={{backgroundImage: 'url(\'https'}}></div>
 </div>
 <div className="hidden lg:block text-left">
-<p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Prof. Anderson</p>
-<p className="text-xs text-slate-500 mt-1">Dean of Career Services</p>
+<p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{user?.name || 'Admin'}</p>
+<p className="text-xs text-slate-500 mt-1">Administrator</p>
 </div>
 </div>
 </div>
@@ -222,13 +244,13 @@ export default function AdminDashboard() {
 <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
 <td className="px-6 py-4">
 <div className="flex items-center gap-3">
-<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https://api.dicebear.com/7.x/avataaars/svg?seed=Arjun\')'}}></div>
 <span className="font-medium text-slate-900 dark:text-slate-100">Arjun Sharma</span>
 </div>
 </td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Google Inc.</td>
+<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Tata Consultancy Services</td>
 <td className="px-6 py-4 text-slate-600 dark:text-slate-400">Software Engineer Intern</td>
-<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">$4,500/mo</td>
+<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">₹45,000/mo</td>
 <td className="px-6 py-4">
 <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full">Accepted</span>
 </td>
@@ -237,13 +259,13 @@ export default function AdminDashboard() {
 <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
 <td className="px-6 py-4">
 <div className="flex items-center gap-3">
-<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
-<span className="font-medium text-slate-900 dark:text-slate-100">Siddharth V.</span>
+<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https://api.dicebear.com/7.x/avataaars/svg?seed=Siddharth\')'}}></div>
+<span className="font-medium text-slate-900 dark:text-slate-100">Siddharth Verma</span>
 </div>
 </td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Microsoft</td>
+<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Infosys</td>
 <td className="px-6 py-4 text-slate-600 dark:text-slate-400">Cloud Architect</td>
-<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">$3,200/mo</td>
+<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">₹32,000/mo</td>
 <td className="px-6 py-4">
 <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-full">Offered</span>
 </td>
@@ -252,13 +274,13 @@ export default function AdminDashboard() {
 <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
 <td className="px-6 py-4">
 <div className="flex items-center gap-3">
-<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya\')'}}></div>
 <span className="font-medium text-slate-900 dark:text-slate-100">Ananya Roy</span>
 </div>
 </td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Stripe</td>
+<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Wipro</td>
 <td className="px-6 py-4 text-slate-600 dark:text-slate-400">Product Designer</td>
-<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">$5,100/mo</td>
+<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">₹51,000/mo</td>
 <td className="px-6 py-4">
 <span className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-full">Interviewing</span>
 </td>
@@ -267,13 +289,13 @@ export default function AdminDashboard() {
 <tr className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
 <td className="px-6 py-4">
 <div className="flex items-center gap-3">
-<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="w-8 h-8 rounded-full bg-slate-200" data-alt="Student profile avatar" style={{backgroundImage: 'url(\'https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul\')'}}></div>
 <span className="font-medium text-slate-900 dark:text-slate-100">Rahul Kapoor</span>
 </div>
 </td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400">Amazon</td>
+<td className="px-6 py-4 text-slate-600 dark:text-slate-400">HCL Technologies</td>
 <td className="px-6 py-4 text-slate-600 dark:text-slate-400">Backend Dev</td>
-<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">$2,800/mo</td>
+<td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">₹28,000/mo</td>
 <td className="px-6 py-4">
 <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded-full">Declined</span>
 </td>

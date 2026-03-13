@@ -111,11 +111,12 @@ export default function RegisterPage() {
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Department</label>
 <select className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all appearance-none">
-<option>Computer Science</option>
-<option>Electrical Engineering</option>
+<option>Computer Science & Engineering</option>
+<option>Electronics & Communication</option>
+<option>Information Technology</option>
 <option>Mechanical Engineering</option>
-<option>Business Administration</option>
-<option>Design &amp; Arts</option>
+<option>Civil Engineering</option>
+<option>MBA (Marketing/Finance)</option>
 </select>
 </div>
 <div className="flex flex-col gap-2">
@@ -142,11 +143,11 @@ export default function RegisterPage() {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Company Name</label>
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Tech Innovations Ltd" type="text" value={cName} onChange={(e)=>setCName(e.target.value)}/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Infosys Limited" type="text" value={cName} onChange={(e)=>setCName(e.target.value)}/>
 </div>
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Recruiter Name</label>
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Jane Smith" type="text" value={cRecruiterName} onChange={(e)=>setCRecruiterName(e.target.value)}/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Rahul Sharma" type="text" value={cRecruiterName} onChange={(e)=>setCRecruiterName(e.target.value)}/>
 </div>
 </div>
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -156,7 +157,7 @@ export default function RegisterPage() {
 </div>
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Phone</label>
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="+1 (555) 000-0000" type="text" value={cPhone} onChange={(e)=>setCPhone(e.target.value)}/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="+91 98765-43210" type="text" value={cPhone} onChange={(e)=>setCPhone(e.target.value)}/>
 </div>
 </div>
 <div className="flex flex-col gap-2">

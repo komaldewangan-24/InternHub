@@ -1,10 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, userAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function StudentManagementAdmin() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUser();
+    fetchStudents();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const { data } = await userAPI.getAll();
+      if (data.success) {
+        // Filter only students or show all? Let's show all for now or filter role === 'student'
+        setStudents(data.data.filter(u => u.role === 'student'));
+      }
+    } catch (error) {
+      console.error('Failed to fetch students', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this student?')) {
+      try {
+        await userAPI.delete(id);
+        toast.success('Student deleted successfully');
+        setStudents(students.filter(s => s._id !== id));
+      } catch (error) {
+        toast.error('Failed to delete student');
+      }
+    }
+  };
+
   return (
     <>
+      <ToastContainer position="top-right" />
       
 <div className="flex h-screen overflow-hidden">
 
@@ -69,11 +121,11 @@ export default function StudentManagementAdmin() {
 <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
 <div className="flex items-center gap-3 pl-2">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-semibold text-slate-900 dark:text-white leading-none">Admin User</p>
-<p className="text-xs text-slate-500 mt-1">Placement Head</p>
+<p className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500 mt-1">{user?.role || 'Placement Head'}</p>
 </div>
 <div className="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center overflow-hidden">
-<img alt="Admin Avatar" className="w-full h-full object-cover" data-alt="Professional avatar portrait of a man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC43wpihn0W0Xdud1-NOG15fHkUbBd4aAncBzU2MHIzo1MBetPa7-sf0zpsy6R11MKGLpnt4DGicHIg839hv1ntLJm412fxfWVIiBxeBCALhaWvFD9h8VDtIyUdu6r1grX8NAW9WmU9RKoVO3BZ2ta3NLXMA3h-zT8szWHJFYNjckntobFimEAsmT2zcjvQ8iFXFAcB_5D4NIJpQ_9n_KOYhyvsOY_tyxHJWeg5Nre1b1VXtwxrTyEzAfTnCTPGU8QYo2VAqqgMOA"/>
+<img alt="Admin Avatar" className="w-full h-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Admin')} />
 </div>
 </div>
 </div>
@@ -177,122 +229,45 @@ export default function StudentManagementAdmin() {
 </tr>
 </thead>
 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-
-<tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4">
-<div className="flex items-center gap-3">
-<img alt="Student" className="w-10 h-10 rounded-full bg-slate-100" data-alt="Avatar of student Aria" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiGchISM-zjvPGkMdZl8K9blEer2_4xJI3rRrGZJsK3uTihBie0cIAplGJQF3Wkx5wT1Oz-UQpgb-eKbqG_tihw9sR15SMPdcbY4k0YTpXKda3JdEInt21DgVchvtml2dSM4dtHMF9BgfyUzdT9WxIdw_Ze0m3IGW78CHAzrWU8jz1RF1dZWXEtxlSfijlYAyE5l6wjpArEr4N9aW8Jk0n6uDQMmEBWJq_yRlstQOVtjkmbe4LqCi1TrJdW9T7FHVSXsmCrZqcCg"/>
-<div>
-<p className="text-sm font-bold text-slate-900 dark:text-white">Aria Montgomery</p>
-<p className="text-xs text-slate-500">ID: 2024CS102</p>
-</div>
-</div>
-</td>
-<td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Computer Science</td>
-<td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">9.45</td>
-<td className="px-6 py-4">
-<div className="flex flex-wrap gap-1">
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">React</span>
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">Node.js</span>
-</div>
-</td>
-<td className="px-6 py-4">
-<span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full">Placed</span>
-</td>
-<td className="px-6 py-4 text-right space-x-3">
-<button className="text-primary hover:text-primary/80 text-sm font-semibold transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>View Profile</button>
-<button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-<span className="material-symbols-outlined text-lg">edit</span>
-</button>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4">
-<div className="flex items-center gap-3">
-<img alt="Student" className="w-10 h-10 rounded-full bg-slate-100" data-alt="Avatar of student Leo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFYlTzb1y4pYDxzrH_YzAbaobZG_lQGwJjQu3kxpCbK4NR4E-oeHi_XObfPuszPkM3IUQR6k5BZI8JZHz7iTzgl9ZLX8BQIHGWF-pGrbFzY4RTG96tjIE-dUqnnUBSiqG2moE9Ky6ku-mnXNibom3M-XXC6Dw4lfcSgjI5Qx3YHVgLq3EgYO-Uam6No3iWs4aSGna99GYWhH52Q5cKKJwMe_rXQIB0f-AHzPygiKe6RGb8djoEy-Ke5w7s8_C4racX7C7kZnwPnQ"/>
-<div>
-<p className="text-sm font-bold text-slate-900 dark:text-white">Leo Fitzgerald</p>
-<p className="text-xs text-slate-500">ID: 2024EC405</p>
-</div>
-</div>
-</td>
-<td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Electronics</td>
-<td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">8.12</td>
-<td className="px-6 py-4">
-<div className="flex flex-wrap gap-1">
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">Python</span>
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">Embedded C</span>
-</div>
-</td>
-<td className="px-6 py-4">
-<span className="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold rounded-full">Seeking</span>
-</td>
-<td className="px-6 py-4 text-right space-x-3">
-<button className="text-primary hover:text-primary/80 text-sm font-semibold transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>View Profile</button>
-<button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-<span className="material-symbols-outlined text-lg">edit</span>
-</button>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4">
-<div className="flex items-center gap-3">
-<img alt="Student" className="w-10 h-10 rounded-full bg-slate-100" data-alt="Avatar of student Sarah" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJTOekSm6xBGtJo11iF5mkfzONLF2ALLwFYvSlhupsCFCqtRZssVNfFDlUIFYZoJNkk9ZJUYwPMJ70ecYpmPiEI67DG5jlDs6RHrB_SxFherSE4HvBS2NiclsJrmeGRACRkPr8fI-V2K6RHB3AdqwxjagM5_VbGJDzxQVbod0RCI-6qKcxBl-OOOETreRf7R1sXttHshFtZAyfWzcKdAtF1WwO1HCCZAJYc6sHPWUVT23Ki_NCGHK_CaBZtSUwbqQ8-AVJTpjchw"/>
-<div>
-<p className="text-sm font-bold text-slate-900 dark:text-white">Sarah Jenkins</p>
-<p className="text-xs text-slate-500">ID: 2024CS088</p>
-</div>
-</div>
-</td>
-<td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Computer Science</td>
-<td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">7.80</td>
-<td className="px-6 py-4">
-<div className="flex flex-wrap gap-1">
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">UI/UX</span>
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">Figma</span>
-</div>
-</td>
-<td className="px-6 py-4">
-<span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-full">In-Progress</span>
-</td>
-<td className="px-6 py-4 text-right space-x-3">
-<button className="text-primary hover:text-primary/80 text-sm font-semibold transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>View Profile</button>
-<button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-<span className="material-symbols-outlined text-lg">edit</span>
-</button>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4">
-<div className="flex items-center gap-3">
-<img alt="Student" className="w-10 h-10 rounded-full bg-slate-100" data-alt="Avatar of student James" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBmW5RU9dUQAptY5ZKE4T_RZnZzAvGCNSNxDETxGXWrlMRBh9mFxmdHzDGDQmeVHwElIzvFFNFZNplKFu654oCZFHBnPNydGM0bUUf_ii24OzjhgLqX2tviwT-LGl0XJ0rClzCrLFIFvIcsl-URRuJN0QsmTA-QVuqVQKKmmVMEP1cEkl8rvTmBs7wUwes4VDgiG5KdhiIrUEWE_rl5NqxNrbNqTsSAPUVqL___KkfwxFh5YAKQ-yC1hMUVxjjZKqG0qZCexauTA"/>
-<div>
-<p className="text-sm font-bold text-slate-900 dark:text-white">James Wilson</p>
-<p className="text-xs text-slate-500">ID: 2024ME221</p>
-</div>
-</div>
-</td>
-<td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Mechanical</td>
-<td className="px-6 py-4 text-sm font-semibold text-slate-900 dark:text-white">8.67</td>
-<td className="px-6 py-4">
-<div className="flex flex-wrap gap-1">
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">AutoCAD</span>
-<span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-600 dark:text-slate-400 rounded">SolidWorks</span>
-</div>
-</td>
-<td className="px-6 py-4">
-<span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full">Placed</span>
-</td>
-<td className="px-6 py-4 text-right space-x-3">
-<button className="text-primary hover:text-primary/80 text-sm font-semibold transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>View Profile</button>
-<button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-<span className="material-symbols-outlined text-lg">edit</span>
-</button>
-</td>
-</tr>
+{loading ? (
+  <tr>
+    <td colSpan="7" className="px-6 py-10 text-center text-slate-500">Loading students...</td>
+  </tr>
+) : students.length === 0 ? (
+  <tr>
+    <td colSpan="7" className="px-6 py-10 text-center text-slate-500">No students found.</td>
+  </tr>
+) : (
+  students.map((student) => (
+    <tr key={student._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+            <img alt={student.name} className="w-full h-full object-cover" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name}`} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{student.name}</p>
+            <p className="text-xs text-slate-500 mt-1">{student.email}</p>
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{student.profile?.university || 'N/A'}</td>
+      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">{student.profile?.degree || 'N/A'}</td>
+      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">2025</td>
+      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">3.92</td>
+      <td className="px-6 py-4">
+        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Verified</span>
+      </td>
+      <td className="px-6 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
+          <button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
+          <button onClick={() => handleDelete(student._id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
+        </div>
+      </td>
+    </tr>
+  ))
+)}
 </tbody>
 </table>
 </div>

@@ -1,9 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
   
   return (
     <>
@@ -40,6 +57,13 @@ export default function RecruiterDashboard() {
               <span className="material-symbols-outlined">people</span>
               Applicants
             </button>
+            <Link 
+              to="/message_page"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold transition-colors"
+            >
+              <span className="material-symbols-outlined">chat_bubble</span>
+              Messages
+            </Link>
             <button 
               onClick={() => setActiveTab('settings')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-colors ${activeTab === 'settings' ? 'bg-primary/10 text-primary' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
@@ -51,7 +75,7 @@ export default function RecruiterDashboard() {
           <div className="p-4 mt-auto">
             <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4">
               <p className="text-sm font-medium text-slate-900 dark:text-white">Recruiter Account</p>
-              <p className="text-xs text-slate-500 truncate">hr@company.com</p>
+              <p className="text-xs text-slate-500 truncate">{user?.email || 'hr@company.com'}</p>
               <button className="w-full mt-3 bg-primary text-white text-sm font-bold py-2 rounded-xl hover:bg-primary/90 transition-all">
                 Post New Job
               </button>
@@ -75,12 +99,12 @@ export default function RecruiterDashboard() {
               <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold overflow-hidden border-2 border-primary/10">
-                   <div className="w-full h-full bg-cover bg-center" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")'}}></div>
+                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Recruiter'}`} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
                 <div className="hidden lg:block text-left">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sarah Jenkins</p>
-                  <p className="text-xs text-slate-500 mt-1">TechFlow Systems</p>
-                </div>
+<p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500 mt-1">{user?.profile?.degree || 'Recruiter'}</p>
+</div>
               </div>
             </div>
           </header>

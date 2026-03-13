@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema({
         university: String,
         degree: String,
         resumeUrl: String,
+        phone: String,
+        bio: String,
+        location: String,
+        graduationDate: String,
     },
     createdAt: {
         type: Date,

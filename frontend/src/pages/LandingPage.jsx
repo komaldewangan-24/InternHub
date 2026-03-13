@@ -17,7 +17,6 @@ export default function LandingPage() {
 <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
 <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}>How it works</a>
 <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}>Placements</a>
-<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }}>Pricing</a>
 </div>
 <div className="flex gap-3">
 <button className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-bold transition-all hover:bg-slate-300 dark:hover:bg-slate-700" onClick={(e) => { e.preventDefault(); navigate('/login_page'); }}>
@@ -51,27 +50,14 @@ export default function LandingPage() {
 </div>
 </div>
 <div className="lg:w-1/2 w-full">
-<div className="relative w-full aspect-square rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden border border-primary/10">
-<div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
-<div className="w-4/5 h-4/5 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800" data-alt="Modern dashboard interface illustration for internship tracking">
-<div className="p-6 border-b border-slate-100 dark:border-slate-800 flex gap-2">
-<div className="w-3 h-3 rounded-full bg-red-400"></div>
-<div className="w-3 h-3 rounded-full bg-amber-400"></div>
-<div className="w-3 h-3 rounded-full bg-green-400"></div>
-</div>
-<div className="p-6 space-y-6">
-<div className="h-8 bg-slate-100 dark:bg-slate-800 rounded-lg w-1/3"></div>
-<div className="grid grid-cols-2 gap-4">
-<div className="h-24 bg-primary/5 rounded-xl border border-primary/10"></div>
-<div className="h-24 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700"></div>
-</div>
-<div className="space-y-3">
-<div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
-<div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-5/6"></div>
-<div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-4/6"></div>
-</div>
-</div>
-</div>
+<div className="relative w-full aspect-[4/3] rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden border border-primary/10 shadow-2xl group">
+<img 
+  src="/internhub_hero_thematic_1773428794434.png" 
+  alt="Career Bridge Navigation" 
+  className="w-full h-full object-cover rounded-3xl group-hover:scale-105 transition-transform duration-700"
+/>
+<div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+<div className="absolute inset-0 ring-1 ring-inset ring-black/10 rounded-3xl"></div>
 </div>
 </div>
 </div>
@@ -155,19 +141,19 @@ export default function LandingPage() {
 </div>
 <div className="space-y-2">
 <div className="text-4xl md:text-5xl font-black">450+</div>
-<div className="text-primary-100 font-medium opacity-80">Companies Onboarded</div>
+<div className="text-primary-100 font-medium opacity-80">Indian MNCs & Startups</div>
 </div>
 <div className="space-y-2">
 <div className="text-4xl md:text-5xl font-black">92%</div>
 <div className="text-primary-100 font-medium opacity-80">Success Rate</div>
 </div>
 <div className="space-y-2">
-<div className="text-4xl md:text-5xl font-black">1.2k+</div>
-<div className="text-primary-100 font-medium opacity-80">Monthly Internships</div>
+<div className="text-4xl md:text-5xl font-black">₹45LPA</div>
+<div className="text-primary-100 font-medium opacity-80">Highest Package</div>
 </div>
 </div>
 </section>
-<section className="py-24 max-w-4xl mx-auto px-6 text-center" id="pricing">
+<section className="py-24 max-w-4xl mx-auto px-6 text-center">
 <div className="bg-background-light dark:bg-slate-900/40 rounded-3xl p-12 border border-slate-200 dark:border-slate-800 shadow-xl">
 <h2 className="text-3xl font-bold mb-6">Ready to transform your placement cell?</h2>
 <p className="text-slate-600 dark:text-slate-400 mb-10 text-lg">Join hundreds of institutions using InternHub to automate their recruitment processes.</p>

@@ -1,8 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+        // Fallback to localStorage if API fails but token exists might be handled by interceptor
+        const localUser = localStorage.getItem('user');
+        if (localUser) {
+          setUser(JSON.parse(localUser));
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       
@@ -36,7 +58,7 @@ export default function StudentDashboard() {
 <span className="material-symbols-outlined">event</span>
 <span>Interviews</span>
 </Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="#">
+<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/message_page">
 <span className="material-symbols-outlined">chat_bubble</span>
 <span>Messages</span>
 </Link>
@@ -72,11 +94,11 @@ export default function StudentDashboard() {
 <div className="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-bold">Alex Johnson</p>
-<p className="text-xs text-slate-500">CS Senior</p>
+<p className="text-sm font-bold">{user?.name || 'User'}</p>
+<p className="text-xs text-slate-500">{user?.profile?.degree || 'Student'}</p>
 </div>
 <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="Student profile photo with professional smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOqx7JtEjYScIfaCOZxuunqIbMLjDW6hIWLNr_8RtuWy9wjaZwAFPa2nMu1FxF4ukJkXkkGDlAyYn1YgIyIfVSrW8XtRwhCm1vtCLdj5JwXMM71krkK-o1CP3q9ilzvzszk6w_8GIs4koHdxxodrusShkIQx0mPfCFYBcWxyizq3yQsEW5PJ_is6PcwWZ9KI_4Ap-VD626WFkXTGap6EmqNUEbpTq2SUDOgKssylCf1xaHZUZTUu52FkSdYVzeQNVLbRwCmitQUQ"/>
+<img className="w-full h-full object-cover" data-alt="Student profile photo snippet" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Aarav')}/>
 </div>
 </div>
 </div>
@@ -85,7 +107,7 @@ export default function StudentDashboard() {
 
 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
-<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome back, Alex!</h2>
+<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome back, {user?.name ? user.name.split(' ')[0] : 'User'}!</h2>
 <p className="text-slate-500 dark:text-slate-400 mt-1">You have 3 new internship matches and 2 upcoming interviews.</p>
 </div>
 <div className="flex gap-3">
@@ -179,14 +201,14 @@ export default function StudentDashboard() {
 <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">95% Match</span>
 </div>
 <h4 className="font-bold text-lg leading-tight">Software Engineer Intern</h4>
-<p className="text-sm text-slate-500 mb-4">TechFlow Systems • San Francisco (Remote)</p>
+<p className="text-sm text-slate-500 mb-4">Tata Consultancy Services • Bengaluru (Remote)</p>
 <div className="flex gap-2 flex-wrap mb-4">
 <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">React</span>
 <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Node.js</span>
 <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Tailwind</span>
 </div>
 <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-<span className="text-sm font-bold">$4,500/mo</span>
+<span className="text-sm font-bold">₹25,000/mo</span>
 <button className="text-sm font-bold text-primary" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
 </div>
 </div>
@@ -198,13 +220,13 @@ export default function StudentDashboard() {
 <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">88% Match</span>
 </div>
 <h4 className="font-bold text-lg leading-tight">UI/UX Design Intern</h4>
-<p className="text-sm text-slate-500 mb-4">Creative Minds Co. • New York City</p>
+<p className="text-sm text-slate-500 mb-4">Zomato • Gurugram</p>
 <div className="flex gap-2 flex-wrap mb-4">
 <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Figma</span>
 <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Design Systems</span>
 </div>
 <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-<span className="text-sm font-bold">$3,800/mo</span>
+<span className="text-sm font-bold">₹15,000/mo</span>
 <button className="text-sm font-bold text-primary" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
 </div>
 </div>
@@ -265,7 +287,7 @@ export default function StudentDashboard() {
 <span className="text-lg font-black leading-none">12</span>
 </div>
 <div>
-<p className="font-bold text-sm">Google Technical Round</p>
+<p className="font-bold text-sm">Infosys Technical Round</p>
 <p className="text-xs text-slate-500">2:00 PM • Google Meet</p>
 <Link className="text-[10px] font-bold text-primary mt-1 inline-block" to="#">Join Link</Link>
 </div>
@@ -276,7 +298,7 @@ export default function StudentDashboard() {
 <span className="text-lg font-black leading-none">15</span>
 </div>
 <div>
-<p className="font-bold text-sm">Meta Design Review</p>
+<p className="font-bold text-sm">Reliance Design Review</p>
 <p className="text-xs text-slate-500">10:30 AM • Zoom</p>
 <Link className="text-[10px] font-bold text-slate-400 mt-1 inline-block" to="#">Preparation Notes</Link>
 </div>

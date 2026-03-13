@@ -14,6 +14,8 @@ const auth = require('./routes/auth');
 const internships = require('./routes/internships');
 const companies = require('./routes/companies');
 const applications = require('./routes/applications');
+const users = require('./routes/users');
+const messages = require('./routes/messages');
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.use('/api/auth', auth);
 app.use('/api/internships', internships);
 app.use('/api/companies', companies);
 app.use('/api/applications', applications);
+app.use('/api/users', users);
+app.use('/api/messages', messages);
 
 const PORT = process.env.PORT || 5000;
 

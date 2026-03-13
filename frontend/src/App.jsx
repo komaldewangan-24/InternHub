@@ -18,6 +18,7 @@ import StudentManagementAdmin from './pages/StudentManagementAdmin';
 import StudentProfilePage from './pages/StudentProfilePage';
 import FacultyDashboard from './pages/FacultyDashboard';
 import RecruiterDashboard from './pages/RecruiterDashboard';
+import MessagePage from './pages/MessagePage';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         <Route path="/student_profile_page" element={<StudentProfilePage />} />
         <Route path="/faculty_dashboard" element={<FacultyDashboard />} />
         <Route path="/recruiter_dashboard" element={<RecruiterDashboard />} />
+        <Route path="/message_page" element={<MessagePage />} />
       </Routes>
     </Router>
   );

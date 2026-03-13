@@ -1,10 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, companyAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CompanyManagementAdmin() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUser();
+    fetchCompanies();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      const { data } = await companyAPI.getAll();
+      if (data.success) {
+        setCompanies(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch companies', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this company?')) {
+      try {
+        await companyAPI.delete(id);
+        toast.success('Company deleted successfully');
+        setCompanies(companies.filter(c => c._id !== id));
+      } catch (error) {
+        toast.error('Failed to delete company');
+      }
+    }
+  };
+
   return (
     <>
+      <ToastContainer position="top-right" />
       
 <div className="flex h-screen overflow-hidden">
 
@@ -76,11 +127,11 @@ export default function CompanyManagementAdmin() {
 <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
 <div className="flex items-center gap-3 pl-2">
 <div className="text-right hidden sm:block">
-<p className="text-xs font-bold text-slate-900 dark:text-white leading-none">Admin User</p>
-<p className="text-[10px] text-slate-500 font-medium">Super Admin</p>
+<p className="text-xs font-bold text-slate-900 dark:text-white leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-[10px] text-slate-500 font-medium">{user?.role || 'Super Admin'}</p>
 </div>
 <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="Admin user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSa_WvE2pkGGcFq-5qry6ehoM2ilm9OHzHG6mg1bRVtEo5FJ_qCN81NMCnNECLH0YTX4QYxB_k3FuznbDt3xUjd5S_ZiRWuG8zfTJpxthwyDKvELfbJDAufDRA74hiTciOGF3t01T8_lFeX8SV9EqbdGfeHzQzFkwnedxLcfl42Xec4RKLh12KMQ3Gzpp2HU6e7oesQjzOXbIc3tvjNi7anCxFFTPQtam7gRqxducRX6V4j4IoXVyd0xHJZR8KhdDmi9nfJWfKuQ"/>
+<img className="w-full h-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Admin')} />
 </div>
 </div>
 </div>
@@ -151,138 +202,60 @@ export default function CompanyManagementAdmin() {
 <table className="w-full text-left border-collapse">
 <thead>
 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Logo</th>
-<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Company Name</th>
-<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Industry</th>
-<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Registered Date</th>
+<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Company</th>
+<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Internships</th>
+<th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Hired Students</th>
 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
 </tr>
 </thead>
 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-<td className="px-6 py-4">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="TechCorp professional company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD85mbn1SKS-1SurFTiTxW-v6EsmMAWVxG6ivx3QPAFg5BoVqBZg5LwEP1-ToGsSxFxyXu8kw9YyIZNZFT5MkZeFRFPKIoDtNJF_GJpACEUfSeuiLO5UYsr1BMP4Sb3tN6JpQaTybhl1FLUbR1-U7VXC33Iqt-uT3h94Y99yeFOXMcG5Y3eYjMicv2e53WLE_Z2T6mMtUFDWtpxLeOAiyYIxJlyIwzw8EsgzKlAJAh4ET9nDZvlHmy3tZ5fB14cK46dOy-s-qcE6Q"/>
-</div>
-</td>
-<td className="px-6 py-4">
-<div className="font-semibold text-slate-900 dark:text-white">TechCorp Solutions</div>
-<div className="text-xs text-slate-500">techcorp.com</div>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Software &amp; AI</span>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Oct 12, 2023</span>
-</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                            Approved
-                                        </span>
-</td>
-<td className="px-6 py-4 text-right">
-<div className="flex justify-end gap-2">
-<button className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors" onClick={(e) => { e.preventDefault(); navigate('/internship_details_page'); }}>View Details</button>
-<button className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-<span className="material-symbols-outlined text-xl">more_vert</span>
-</button>
-</div>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-<td className="px-6 py-4">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="DataSystems professional company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9AZb4SqQYebqp35vdZo4NnxbAsHKSIAtZUawhmIeQB62hDxiQjlm1ZwtUbSqZqX1j3gBN_DruPBGSrKXmHWxMrSQHwxW_SHeS_G8Id3uXgfmb4qh8vjQS6Uzw4tdnHhRrlyvgX5xpPQ7WFGtXixl7LaY6tiLtR26OSd9OKwGPpoicOpt2uRS0k6-eBw7Z3l2tcgPpszZ6q2Ay06v3LpoxG2rLW7EfN2SVKaSUymRout8VR9uWO7cJVYCTTHI5QXHI063EIy-ukg"/>
-</div>
-</td>
-<td className="px-6 py-4">
-<div className="font-semibold text-slate-900 dark:text-white">DataSystems Inc.</div>
-<div className="text-xs text-slate-500">datasystems.io</div>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Big Data Analytics</span>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Oct 15, 2023</span>
-</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
-                                            Pending
-                                        </span>
-</td>
-<td className="px-6 py-4 text-right">
-<div className="flex justify-end gap-2">
-<button className="px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700">Approve</button>
-<button className="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">Reject</button>
-<button className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg" onClick={(e) => { e.preventDefault(); navigate('/internship_details_page'); }}>Details</button>
-</div>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-<td className="px-6 py-4">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="CloudNet professional company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPNraBI5thJ0IjTz5QZ6f8wao_CcM2Er2krwMkIu-1rl5w9XdnGsBlqA4tPE4dS8mb817bsKxVNgFEiDkT_Jf3_Ho7mk-WOuZS8OYksx_Qy875Veu0eN-qWQqqXx5WM19tK-CtQ7A7MRM2zm7mZNjPjRMUp2Yta0aCw_DkIeCpu-I3uv83kyf9kZ1lX78MONOaVAFjGFEM608hwaG5Qyi-pxUA_pLKYwQEq50opbczTVSrHOizOLy3GAO-wVRsZRUEIyTltJIAoA"/>
-</div>
-</td>
-<td className="px-6 py-4">
-<div className="font-semibold text-slate-900 dark:text-white">CloudNet Global</div>
-<div className="text-xs text-slate-500">cloudnet.net</div>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Networking</span>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Oct 18, 2023</span>
-</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                            Rejected
-                                        </span>
-</td>
-<td className="px-6 py-4 text-right">
-<div className="flex justify-end gap-2">
-<button className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg" onClick={(e) => { e.preventDefault(); navigate('/internship_details_page'); }}>View Details</button>
-<button className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-<span className="material-symbols-outlined text-xl">more_vert</span>
-</button>
-</div>
-</td>
-</tr>
-
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-<td className="px-6 py-4">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="GreenMotion professional company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu2q0I-ph2zlV1TNnN0ZQGCnOZlR2PM0ZdI5uEkVenRu7pD9ZLFcEirqHKfOvAUQQYhCtSv2g3Vb8PLInQWi_yTJBBWVsjeJLPpSc8-HeYJ0NwpllLUZ_n15q9qvoXQNdm2w3q8KN8OXQVKnV1vVEsGvv8m4sksApbjcKN30QPsT3faJ-M6aPK46r0EMBHYFIrfA1U3c_Kj-Owy6Vugqndoyx1MaY7HbR1tbAd5DinGK_MrpDUgdSdkJbZG1oWaHvZbMSqC-IO5A"/>
-</div>
-</td>
-<td className="px-6 py-4">
-<div className="font-semibold text-slate-900 dark:text-white">GreenMotion</div>
-<div className="text-xs text-slate-500">greenmotion.eco</div>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Renewable Energy</span>
-</td>
-<td className="px-6 py-4">
-<span className="text-sm text-slate-600 dark:text-slate-400">Oct 20, 2023</span>
-</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                            Approved
-                                        </span>
-</td>
-<td className="px-6 py-4 text-right">
-<div className="flex justify-end gap-2">
-<button className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 rounded-lg" onClick={(e) => { e.preventDefault(); navigate('/internship_details_page'); }}>View Details</button>
-<button className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-<span className="material-symbols-outlined text-xl">more_vert</span>
-</button>
-</div>
-</td>
-</tr>
+{loading ? (
+  <tr>
+    <td colSpan="5" className="px-6 py-10 text-center text-slate-500">Loading companies...</td>
+  </tr>
+) : companies.length === 0 ? (
+  <tr>
+    <td colSpan="5" className="px-6 py-10 text-center text-slate-500">No companies found.</td>
+  </tr>
+) : (
+  companies.map((company) => (
+    <tr key={company._id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-primary">
+            {company.name?.[0] || 'C'}
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{company.name}</p>
+            <p className="text-xs text-slate-500 mt-1">{company.industry || 'Technology'}</p>
+          </div>
+        </div>
+      </td>
+      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">12</td>
+      <td className="px-6 py-4">
+        <div className="flex -space-x-2">
+          {[1,2,3].map(i => (
+            <div key={i} className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 overflow-hidden">
+               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${company.name+i}`} alt="Hired Student" />
+            </div>
+          ))}
+          <div className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">+9</div>
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <span className="px-2.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[10px] font-bold rounded-full uppercase tracking-wider">Active Partner</span>
+      </td>
+      <td className="px-6 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
+          <button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
+          <button onClick={() => handleDelete(company._id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
+        </div>
+      </td>
+    </tr>
+  ))
+)}
 </tbody>
 </table>
 </div>

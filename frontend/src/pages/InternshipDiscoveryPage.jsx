@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function InternshipDiscoveryPage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       
@@ -73,10 +91,12 @@ export default function InternshipDiscoveryPage() {
 </button>
 <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
 <div className="text-right">
-<p className="text-sm font-semibold leading-none">Alex Chen</p>
-<p className="text-xs text-slate-500">Computer Science Student</p>
+<p className="text-sm font-semibold leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500">{user?.profile?.degree || 'Student'}</p>
 </div>
-<div className="w-10 h-10 rounded-full bg-slate-200" data-alt="Alex Chen user profile avatar" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt={user?.name || "Student"} className="w-full h-full rounded-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Alex')} />
+</div>
 </div>
 </div>
 </header>

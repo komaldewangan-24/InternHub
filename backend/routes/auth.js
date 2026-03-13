@@ -92,4 +92,33 @@ router.get('/me', protect, async (req, res) => {
     }
 });
 
+// @desc      Update user details
+// @route     PUT /api/auth/me
+// @access    Private
+router.put('/me', protect, async (req, res) => {
+    try {
+        const fieldsToUpdate = {
+            name: req.body.name,
+            email: req.body.email,
+        };
+        
+        // Update profile fields
+        if (req.body.profile) {
+            fieldsToUpdate.profile = req.body.profile;
+        }
+
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+            new: true,
+            runValidators: true,
+        });
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;

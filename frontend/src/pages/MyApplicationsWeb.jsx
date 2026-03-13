@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function MyApplicationsWeb() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
-      
-<div className="relative flex h-screen w-full overflow-hidden">
+      <div className="relative flex h-screen w-full overflow-hidden">
 
 <aside className="flex h-full w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-6">
 <div className="flex items-center gap-3 px-2 mb-8">
@@ -66,10 +83,10 @@ export default function MyApplicationsWeb() {
 <div className="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-semibold">Alex Johnson</p>
-<p className="text-xs text-slate-500">Student Portal</p>
+<p className="text-sm font-semibold">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500">{user?.profile?.degree || 'Student Portal'}</p>
 </div>
-<img alt="User profile picture" className="size-10 rounded-full object-cover" data-alt="Professional student headshot for profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUbo1VK3EuHjhgqqxOF3t9OdmjO0N_-53HSlTaf2zVGt0g-4dpplESgKoyAEXyS_nhQF7O5CBvhlbVjf9v3kPKcRu0IfO3W58wCHAf5gPFfuJXKX0zTq-oIsv0frFshtdvgnToEx22u8Y--_Zqpccw2Gi6n4BVkBvCwDhFBTqMQNMfOwdCrYn_R58RFiK6XZ7nweWU-mZIJ0RDwTeDhQBNQwEnW8YwPNfd2h7M7MSAtH7Zed7LJVLNJfbh_aZyu9bloXNb2om_Nw"/>
+<img alt="User profile picture" className="size-10 rounded-full object-cover" data-alt="Professional student headshot for profile picture" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Alex')}/>
 </div>
 </div>
 </header>

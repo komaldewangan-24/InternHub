@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function InterviewScheduleWeb() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
-      
-<div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden">
 
 <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col">
 <div className="p-6 flex items-center gap-3">
@@ -64,11 +81,11 @@ export default function InterviewScheduleWeb() {
 <div className="h-8 w-[1px] bg-slate-200 dark:border-slate-800 mx-2"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-bold leading-none">Alex Chen</p>
-<p className="text-xs text-slate-500 mt-1">Computer Science Student</p>
+<p className="text-sm font-bold leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500 mt-1">{user?.profile?.degree || 'Student'}</p>
 </div>
 <div className="w-10 h-10 rounded-full bg-slate-200" data-alt="Profile avatar of student">
-<img alt="Alex Chen" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUbo1VK3EuHjhgqqxOF3t9OdmjO0N_-53HSlTaf2zVGt0g-4dpplESgKoyAEXyS_nhQF7O5CBvhlbVjf9v3kPKcRu0IfO3W58wCHAf5gPFfuJXKX0zTq-oIsv0frFshtdvgnToEx22u8Y--_Zqpccw2Gi6n4BVkBvCwDhFBTqMQNMfOwdCrYn_R58RFiK6XZ7nweWU-mZIJ0RDwTeDhQBNQwEnW8YwPNfd2h7M7MSAtH7Zed7LJVLNJfbh_aZyu9bloXNb2om_Nw"/>
+<img alt={user?.name || "Student"} className="w-full h-full rounded-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Alex')} />
 </div>
 </div>
 </div>

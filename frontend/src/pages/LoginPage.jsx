@@ -40,6 +40,9 @@ export default function LoginPage() {
                             </p>
 </div>
 <div className="space-y-4">
+<div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-primary/5 border border-primary/10 mb-6">
+  <img src="/login_side_illustration_1773428442164.png" alt="Recruitment Illustration" className="w-full h-full object-cover" />
+</div>
 <div className="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800">
 <div className="bg-primary/10 p-2 rounded-lg">
 <span className="material-symbols-outlined text-primary">verified_user</span>

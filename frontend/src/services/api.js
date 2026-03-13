@@ -22,6 +22,7 @@ export const authAPI = {
     register: (userData) => api.post('/auth/register', userData),
     login: (credentials) => api.post('/auth/login', credentials),
     getMe: () => api.get('/auth/me'),
+    updateMe: (data) => api.put('/auth/me', data),
 };
 
 export const internshipAPI = {
@@ -35,12 +36,28 @@ export const internshipAPI = {
 export const companyAPI = {
     getAll: () => api.get('/companies'),
     create: (data) => api.post('/companies', data),
+    update: (id, data) => api.put(`/companies/${id}`, data),
+    delete: (id) => api.delete(`/companies/${id}`),
+};
+
+export const userAPI = {
+    getAll: () => api.get('/users'),
+    getOne: (id) => api.get(`/users/${id}`),
+    update: (id, data) => api.put(`/users/${id}`, data),
+    delete: (id) => api.delete(`/users/${id}`),
+    getStats: () => api.get('/users/stats'),
 };
 
 export const applicationAPI = {
     getAll: () => api.get('/applications'),
     apply: (internshipId) => api.post(`/applications/${internshipId}`),
     updateStatus: (id, status) => api.put(`/applications/${id}`, { status }),
+};
+
+export const messageAPI = {
+    getAll: () => api.get('/messages'),
+    getConversation: (userId) => api.get(`/messages/conversation/${userId}`),
+    sendMessage: (data) => api.post('/messages', data),
 };
 
 export default api;

@@ -1,10 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, applicationAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ApplicationTrackingAdmin() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUser();
+    fetchApplications();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const { data } = await applicationAPI.getAll();
+      if (data.success) {
+        setApplications(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch applications', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const { data } = await applicationAPI.updateStatus(id, newStatus);
+      if (data.success) {
+        toast.success(`Application moved to ${newStatus}`);
+        setApplications(applications.map(app => app._id === id ? { ...app, status: newStatus } : app));
+      }
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const columns = [
+    { title: 'Applied', status: 'pending' },
+    { title: 'Shortlisted', status: 'shortlisted' },
+    { title: 'Interview', status: 'interview' },
+    { title: 'Selected', status: 'selected' },
+  ];
+
   return (
     <>
+      <ToastContainer position="top-right" />
       
 <div className="flex h-screen overflow-hidden">
 
@@ -78,10 +136,12 @@ export default function ApplicationTrackingAdmin() {
 <div className="h-8 w-px bg-neutral-border dark:bg-slate-800 mx-2"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-bold text-slate-900 dark:text-white leading-none">Admin User</p>
-<p className="text-xs text-slate-500 dark:text-slate-400">Coordinator</p>
+<p className="text-sm font-bold text-slate-900 dark:text-white leading-none">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500 dark:text-slate-400">{user?.role || 'Admin User'}</p>
 </div>
-<div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-neutral-border dark:border-slate-600 bg-cover bg-center" data-alt="Admin user profile picture" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-neutral-border dark:border-slate-600 overflow-hidden">
+<img alt={user?.name || "Admin"} className="w-full h-full rounded-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Admin')} />
+</div>
 </div>
 </div>
 </header>
@@ -123,163 +183,59 @@ export default function ApplicationTrackingAdmin() {
 </div>
 
 <div className="flex-1 overflow-x-auto p-8 pt-0 flex gap-6 custom-scrollbar">
-
-<div className="kanban-column flex flex-col gap-4">
-<div className="flex items-center justify-between px-1">
-<div className="flex items-center gap-2">
-<h3 className="font-bold text-slate-900 dark:text-white">Applied</h3>
-<span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full font-bold">124</span>
-</div>
-<button className="text-slate-400 hover:text-primary"><span className="material-symbols-outlined">more_horiz</span></button>
-</div>
-<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-indigo-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Arjun Sharma</h4>
-<p className="text-xs text-slate-500">Applied 2 days ago</p>
-</div>
-</div>
-<div className="bg-neutral-light dark:bg-slate-800/50 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-primary mb-0.5">Google</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Associate Developer</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="flex-1 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>Profile</button>
-<button className="flex-1 py-1.5 text-xs font-bold text-white bg-primary rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
-                                        Shortlist <span className="material-symbols-outlined text-xs">arrow_forward</span>
-</button>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-rose-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Priya Patel</h4>
-<p className="text-xs text-slate-500">Applied 4 days ago</p>
-</div>
-</div>
-<div className="bg-neutral-light dark:bg-slate-800/50 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-primary mb-0.5">Microsoft</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Product Manager Intern</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="flex-1 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>Profile</button>
-<button className="flex-1 py-1.5 text-xs font-bold text-white bg-primary rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-1">
-                                        Shortlist <span className="material-symbols-outlined text-xs">arrow_forward</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-
-<div className="kanban-column flex flex-col gap-4">
-<div className="flex items-center justify-between px-1">
-<div className="flex items-center gap-2">
-<h3 className="font-bold text-slate-900 dark:text-white">Shortlisted</h3>
-<span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs px-2 py-0.5 rounded-full font-bold">45</span>
-</div>
-<button className="text-slate-400 hover:text-primary"><span className="material-symbols-outlined">more_horiz</span></button>
-</div>
-<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-l-4 border-l-indigo-500 border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Rohan Das</h4>
-<p className="text-xs text-slate-500">Shortlisted 1 day ago</p>
-</div>
-</div>
-<div className="bg-indigo-50 dark:bg-indigo-900/10 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-indigo-600 mb-0.5">Amazon</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">SDE Intern</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="flex-1 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/student_profile_page'); }}>Profile</button>
-<button className="flex-1 py-1.5 text-xs font-bold text-white bg-indigo-600 rounded-lg shadow-sm hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1">
-                                        Interview <span className="material-symbols-outlined text-xs">arrow_forward</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-
-<div className="kanban-column flex flex-col gap-4">
-<div className="flex items-center justify-between px-1">
-<div className="flex items-center gap-2">
-<h3 className="font-bold text-slate-900 dark:text-white">Interview</h3>
-<span className="bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs px-2 py-0.5 rounded-full font-bold">18</span>
-</div>
-<button className="text-slate-400 hover:text-primary"><span className="material-symbols-outlined">more_horiz</span></button>
-</div>
-<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-l-4 border-l-amber-500 border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-emerald-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Ananya Iyer</h4>
-<p className="text-xs text-amber-600 font-semibold">Today @ 3:00 PM</p>
-</div>
-</div>
-<div className="bg-amber-50 dark:bg-amber-900/10 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-amber-600 mb-0.5">Adobe</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">UI/UX Designer</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="flex-1 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/internship_details_page'); }}>Details</button>
-<button className="flex-1 py-1.5 text-xs font-bold text-white bg-amber-600 rounded-lg shadow-sm hover:bg-amber-700 transition-colors flex items-center justify-center gap-1">
-                                        Selected <span className="material-symbols-outlined text-xs">check_circle</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-
-<div className="kanban-column flex flex-col gap-4">
-<div className="flex items-center justify-between px-1">
-<div className="flex items-center gap-2">
-<h3 className="font-bold text-slate-900 dark:text-white">Selected</h3>
-<span className="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">12</span>
-</div>
-<button className="text-slate-400 hover:text-primary"><span className="material-symbols-outlined">more_horiz</span></button>
-</div>
-<div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-l-4 border-l-emerald-500 border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-purple-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Karthik R.</h4>
-<p className="text-xs text-emerald-600 font-semibold">Offer Accepted</p>
-</div>
-</div>
-<div className="bg-emerald-50 dark:bg-emerald-900/10 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-emerald-600 mb-0.5">Flipkart</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Data Analyst</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="w-full py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors">View Offer Letter</button>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-l-4 border-l-emerald-500 border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-<div className="flex items-center gap-3 mb-3">
-<div className="w-10 h-10 rounded-full bg-orange-100 flex-shrink-0 bg-cover bg-center" data-alt="Student avatar placeholder" style={{backgroundImage: 'url(\'https'}}></div>
-<div className="overflow-hidden">
-<h4 className="font-bold text-slate-900 dark:text-white truncate">Sneha Kapoor</h4>
-<p className="text-xs text-emerald-600 font-semibold">Offer Sent</p>
-</div>
-</div>
-<div className="bg-emerald-50 dark:bg-emerald-900/10 p-2.5 rounded-lg mb-4">
-<p className="text-xs font-bold text-emerald-600 mb-0.5">Goldman Sachs</p>
-<p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Analyst Intern</p>
-</div>
-<div className="flex items-center justify-between gap-2">
-<button className="w-full py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors">Track Acceptance</button>
-</div>
-</div>
-</div>
-</div>
+{loading ? (
+  <div className="w-full text-center py-20 text-slate-500">Loading Kanban board...</div>
+) : (
+  columns.map((col) => (
+    <div key={col.status} className="kanban-column flex-shrink-0 w-80 flex flex-col gap-4">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <h3 className="font-bold text-slate-900 dark:text-white">{col.title}</h3>
+          <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 rounded-full font-bold">
+            {applications.filter(app => app.status === col.status).length}
+          </span>
+        </div>
+        <button className="text-slate-400 hover:text-primary"><span className="material-symbols-outlined">more_horiz</span></button>
+      </div>
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+        {applications.filter(app => app.status === col.status).map((app) => (
+          <div key={app._id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-neutral-border dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex-shrink-0 overflow-hidden">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${app.user?.name}`} alt={app.user?.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="overflow-hidden">
+                <h4 className="font-bold text-slate-900 dark:text-white truncate">{app.user?.name}</h4>
+                <p className="text-xs text-slate-500">Applied {new Date(app.appliedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div className="bg-neutral-light dark:bg-slate-800/50 p-2.5 rounded-lg mb-4">
+              <p className="text-xs font-bold text-primary mb-0.5">{app.internship?.company?.name || 'Unknown'}</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{app.internship?.title}</p>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <button onClick={() => navigate(`/student_profile_page`)} className="flex-1 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 bg-neutral-light dark:bg-slate-800 rounded-lg hover:bg-neutral-border dark:hover:bg-slate-700 transition-colors">Profile</button>
+              {col.status !== 'selected' && (
+                <button 
+                  onClick={() => {
+                    const nextStatus = col.status === 'pending' ? 'shortlisted' : col.status === 'shortlisted' ? 'interview' : 'selected';
+                    updateStatus(app._id, nextStatus);
+                  }}
+                  className="flex-1 py-1.5 text-xs font-bold text-white bg-primary rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-1"
+                >
+                  Move <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {applications.filter(app => app.status === col.status).length === 0 && (
+          <div className="text-center py-10 text-slate-400 text-xs italic">No applications</div>
+        )}
+      </div>
+    </div>
+  ))
+)}
 </div>
 </div>
 </main>

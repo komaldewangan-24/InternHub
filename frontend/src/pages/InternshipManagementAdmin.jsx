@@ -1,10 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, internshipAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function InternshipManagementAdmin() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [internships, setInternships] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUser();
+    fetchInternships();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchInternships = async () => {
+    try {
+      setLoading(true);
+      const { data } = await internshipAPI.getAll();
+      if (data.success) {
+        setInternships(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch internships', error);
+      // Fallback or toast
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this internship?')) {
+      try {
+        const { data } = await internshipAPI.delete(id);
+        if (data.success) {
+          toast.success('Internship deleted successfully');
+          setInternships(internships.filter(i => i._id !== id));
+        }
+      } catch (error) {
+        toast.error('Failed to delete internship');
+      }
+    }
+  };
+
   return (
     <>
+      <ToastContainer position="top-right" />
       
 <div className="flex min-h-screen">
 
@@ -72,10 +126,12 @@ export default function InternshipManagementAdmin() {
 <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
 <div className="flex items-center gap-3 cursor-pointer">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-semibold leading-tight">Alex Sterling</p>
-<p className="text-xs text-slate-500">Placement Officer</p>
+<p className="text-sm font-semibold leading-tight">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500">{user?.role || 'Placement Officer'}</p>
 </div>
-<img alt="Admin Profile" className="w-10 h-10 rounded-full bg-slate-200 object-cover" data-alt="Admin user profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt5giLuEB27NEcItQC1-KDEqXcw-v8W6J53hwKY_gOa11As3o9kK3Wg5UGX9XK7oqnLLSk1QJMYOwZ8SPgwh1jOoB4PAOJ9Rp_QH5nV-iupGO-ybenAhtL6gqLJYTvDH3AzOA4BnvRBbediGrub_dGG35kDi6aKKyBbwWp7jlJqYfdx18kp-KVXIw23Xt_T4T1H_SrFS5CinRafwbykn1Jva6kSEznGnCNvrytFAeT1N_ccER_PV7fd89uIvWnlBK-uYwWURR-xg"/>
+<div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Admin Profile" className="w-full h-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Admin')} />
+</div>
 </div>
 </div>
 </header>
@@ -144,124 +200,51 @@ export default function InternshipManagementAdmin() {
 </tr>
 </thead>
 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4 whitespace-nowrap">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-primary">TC</div>
-<span className="font-semibold">TechCorp Solutions</span>
-</div>
-</td>
-<td className="px-6 py-4 font-medium">Software Dev Intern</td>
-<td className="px-6 py-4">
-<div className="flex gap-1 flex-wrap">
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">CS</span>
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">IT</span>
-</div>
-</td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">$1,200/mo</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-<span className="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
-                                            Active
-                                        </span>
-</td>
-<td className="px-6 py-4 text-slate-500 text-sm">Dec 15, 2024</td>
-<td className="px-6 py-4 text-right">
-<div className="flex items-center justify-end gap-2">
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
-<button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4 whitespace-nowrap">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-orange-500">FB</div>
-<span className="font-semibold">Future Bank</span>
-</div>
-</td>
-<td className="px-6 py-4 font-medium">Financial Analyst</td>
-<td className="px-6 py-4">
-<div className="flex gap-1 flex-wrap">
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Commerce</span>
-</div>
-</td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">$850/mo</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-<span className="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
-                                            Draft
-                                        </span>
-</td>
-<td className="px-6 py-4 text-slate-500 text-sm">Jan 05, 2025</td>
-<td className="px-6 py-4 text-right">
-<div className="flex items-center justify-end gap-2">
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
-<button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4 whitespace-nowrap">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-purple-600">CC</div>
-<span className="font-semibold">Creative Co.</span>
-</div>
-</td>
-<td className="px-6 py-4 font-medium">UI/UX Design Intern</td>
-<td className="px-6 py-4">
-<div className="flex gap-1 flex-wrap">
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Arts</span>
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">Design</span>
-</div>
-</td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">$900/mo</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400">
-<span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-                                            Closed
-                                        </span>
-</td>
-<td className="px-6 py-4 text-slate-500 text-sm">Nov 20, 2024</td>
-<td className="px-6 py-4 text-right">
-<div className="flex items-center justify-end gap-2">
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
-<button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
-<tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-<td className="px-6 py-4 whitespace-nowrap">
-<div className="flex items-center gap-3">
-<div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-teal-600">LI</div>
-<span className="font-semibold">Legacy Inc.</span>
-</div>
-</td>
-<td className="px-6 py-4 font-medium">Operations Trainee</td>
-<td className="px-6 py-4">
-<div className="flex gap-1 flex-wrap">
-<span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">All</span>
-</div>
-</td>
-<td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">$600/mo</td>
-<td className="px-6 py-4">
-<span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-<span className="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
-                                            Active
-                                        </span>
-</td>
-<td className="px-6 py-4 text-slate-500 text-sm">Dec 22, 2024</td>
-<td className="px-6 py-4 text-right">
-<div className="flex items-center justify-end gap-2">
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
-<button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
-<button className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
-</div>
-</td>
-</tr>
+{loading ? (
+  <tr>
+    <td colSpan="7" className="px-6 py-10 text-center text-slate-500">Loading internships...</td>
+  </tr>
+) : internships.length === 0 ? (
+  <tr>
+    <td colSpan="7" className="px-6 py-10 text-center text-slate-500">No internships found.</td>
+  </tr>
+) : (
+  internships.map((internship) => (
+    <tr key={internship._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-primary">
+            {internship.company?.name?.[0] || 'I'}
+          </div>
+          <span className="font-semibold">{internship.company?.name || 'Unknown Company'}</span>
+        </div>
+      </td>
+      <td className="px-6 py-4 font-medium">{internship.title}</td>
+      <td className="px-6 py-4">
+        <div className="flex gap-1 flex-wrap">
+          {internship.requirements?.slice(0, 2).map((req, idx) => (
+            <span key={idx} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">{req}</span>
+          ))}
+        </div>
+      </td>
+      <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">{internship.stipend || 'Unpaid'}</td>
+      <td className="px-6 py-4">
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${internship.status === 'open' ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${internship.status === 'open' ? 'bg-green-600' : 'bg-slate-400'}`}></span>
+          {internship.status?.charAt(0).toUpperCase() + internship.status?.slice(1)}
+        </span>
+      </td>
+      <td className="px-6 py-4 text-slate-500 text-sm">{new Date(internship.deadline).toLocaleDateString()}</td>
+      <td className="px-6 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <button onClick={() => navigate(`/internship_details_page/${internship._id}`)} className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">visibility</span></button>
+          <button className="p-1.5 text-slate-400 hover:text-primary transition-colors"><span className="material-symbols-outlined text-[20px]">edit</span></button>
+          <button onClick={() => handleDelete(internship._id)} className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"><span className="material-symbols-outlined text-[20px]">delete</span></button>
+        </div>
+      </td>
+    </tr>
+  ))
+)}
 </tbody>
 </table>
 </div>

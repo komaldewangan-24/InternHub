@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 export default function ApplyForInternshipWeb() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await authAPI.getMe();
+        if (data.success) {
+          setUser(data.data);
+        }
+      } catch (error) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) setUser(JSON.parse(localUser));
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       
@@ -66,10 +84,12 @@ export default function ApplyForInternshipWeb() {
 </button>
 <div className="flex items-center gap-3 ml-2 pl-4 border-l border-slate-200 dark:border-slate-800">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-semibold">Alex Johnson</p>
-<p className="text-xs text-slate-500">Student Applicant</p>
+<p className="text-sm font-semibold">{user?.name || 'Loading...'}</p>
+<p className="text-xs text-slate-500">{user?.profile?.degree || 'Student Applicant'}</p>
 </div>
-<div className="size-10 rounded-full bg-slate-200 overflow-hidden bg-cover bg-center" data-alt="User profile avatar circle" style={{backgroundImage: 'url(\'https'}}></div>
+<div className="size-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt={user?.name || "Student"} className="w-full h-full rounded-full object-cover" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Alex')} />
+</div>
 </div>
 </div>
 </header>
@@ -141,7 +161,7 @@ export default function ApplyForInternshipWeb() {
 <div className="size-16 bg-primary/5 text-primary rounded-full flex items-center justify-center mb-4">
 <span className="material-symbols-outlined text-3xl">upload_file</span>
 </div>
-<p className="font-semibold text-slate-900 dark:text-white">Alex_Johnson_Resume.pdf</p>
+<p className="font-semibold text-slate-900 dark:text-white">{user?.name ? user.name.replace(' ', '_') + '_Resume.pdf' : 'Student_Resume.pdf'}</p>
 <p className="text-xs text-slate-500 mt-1">Uploaded 2 mins ago • 1.2 MB</p>
 <div className="mt-6 flex gap-2">
 <button className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-xs font-bold rounded hover:bg-slate-200 transition-colors">Preview File</button>
