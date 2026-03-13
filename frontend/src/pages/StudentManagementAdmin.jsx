@@ -19,25 +19,25 @@ export default function StudentManagementAdmin() {
 </div>
 </div>
 <nav className="flex-1 px-4 space-y-1">
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/student_dashboard">
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_dashboard">
 <span className="material-symbols-outlined">dashboard</span>
 <span className="font-medium">Dashboard</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
-<span className="material-symbols-outlined">work</span>
-<span className="font-medium">Internships</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" to="/student_management_admin">
 <span className="material-symbols-outlined" style={{fontVariationSettings: '\'FILL\' 1'}}>group</span>
 <span className="font-medium">Students</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/application_tracking_admin">
-<span className="material-symbols-outlined">description</span>
-<span className="font-medium">Applications</span>
-</Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/company_management_admin">
 <span className="material-symbols-outlined">corporate_fare</span>
 <span className="font-medium">Companies</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
+<span className="material-symbols-outlined">work</span>
+<span className="font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/application_tracking_admin">
+<span className="material-symbols-outlined">description</span>
+<span className="font-medium">Applications</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_analytics_dashboard">
 <span className="material-symbols-outlined">bar_chart</span>

@@ -23,21 +23,21 @@ export default function ApplicationTrackingAdmin() {
 <span className="material-symbols-outlined">dashboard</span>
 <span className="text-sm font-medium">Dashboard</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-neutral-light dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
-<span className="material-symbols-outlined">work</span>
-<span className="text-sm font-medium">Internships</span>
-</Link>
 <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-neutral-light dark:hover:bg-slate-800 rounded-lg transition-colors" to="/student_management_admin">
 <span className="material-symbols-outlined">group</span>
 <span className="text-sm font-medium">Students</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors" to="/application_tracking_admin">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Applications</span>
-</Link>
 <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-neutral-light dark:hover:bg-slate-800 rounded-lg transition-colors" to="/company_management_admin">
 <span className="material-symbols-outlined">corporate_fare</span>
 <span className="text-sm font-medium">Companies</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-neutral-light dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
+<span className="material-symbols-outlined">work</span>
+<span className="text-sm font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors" to="/application_tracking_admin">
+<span className="material-symbols-outlined">description</span>
+<span className="text-sm font-medium">Applications</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-neutral-light dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_analytics_dashboard">
 <span className="material-symbols-outlined">bar_chart</span>

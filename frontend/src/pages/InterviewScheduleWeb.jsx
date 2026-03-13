@@ -15,38 +15,36 @@ export default function InterviewScheduleWeb() {
 </div>
 <h1 className="text-xl font-bold tracking-tight">InternHub</h1>
 </div>
-<nav className="flex-1 px-4 space-y-1">
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_dashboard">
+<nav className="flex-1 px-4 py-4 space-y-1">
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_dashboard">
 <span className="material-symbols-outlined">dashboard</span>
-<span className="text-sm font-semibold">Dashboard</span>
+<span className="text-sm font-medium">Dashboard</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined" style={{fontVariationSettings: '\'FILL\' 1'}}>calendar_month</span>
-<span className="text-sm font-semibold">Calendar</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_profile_page">
+<span className="material-symbols-outlined">person</span>
+<span className="text-sm font-medium">Profile</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">video_camera_front</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/internship_discovery_page">
+<span className="material-symbols-outlined">work</span>
+<span className="text-sm font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/my_applications_web">
+<span className="material-symbols-outlined">description</span>
+<span className="text-sm font-medium">Applications</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" to="/interview_schedule_web">
+<span className="material-symbols-outlined">event</span>
 <span className="text-sm font-semibold">Interviews</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined">group</span>
-<span className="text-sm font-semibold">Candidates</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="#">
+<span className="material-symbols-outlined">chat</span>
+<span className="text-sm font-medium">Messages</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined">mail</span>
-<span className="text-sm font-semibold">Messages</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_analytics_dashboard">
-<span className="material-symbols-outlined">bar_chart</span>
-<span className="text-sm font-semibold">Analytics</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mt-8" to="#">
+<span className="material-symbols-outlined">settings</span>
+<span className="text-sm font-medium">Settings</span>
 </Link>
 </nav>
-<div className="p-4 border-t border-slate-200 dark:border-slate-800">
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined">settings</span>
-<span className="text-sm font-semibold">Settings</span>
-</Link>
-</div>
 </aside>
 
 <main className="flex-1 flex flex-col min-w-0">
@@ -66,11 +64,11 @@ export default function InterviewScheduleWeb() {
 <div className="h-8 w-[1px] bg-slate-200 dark:border-slate-800 mx-2"></div>
 <div className="flex items-center gap-3">
 <div className="text-right hidden sm:block">
-<p className="text-sm font-bold leading-none">Sarah Jenkins</p>
-<p className="text-xs text-slate-500 mt-1">Senior Recruiter</p>
+<p className="text-sm font-bold leading-none">Alex Chen</p>
+<p className="text-xs text-slate-500 mt-1">Computer Science Student</p>
 </div>
-<div className="w-10 h-10 rounded-full bg-slate-200" data-alt="Profile avatar of a professional woman recruiter">
-<img alt="Sarah Jenkins" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJbEriF2wIP5aAlks-ILgzS_jfVrsXd1BZzbhqFKNmX6oq6IXXGA3sYKbaX5SdFuZjTfsFQ7FpvJD0UiiDClZUCCdTchysY2mzIJqFYa38oV9FQrotXQAO3aKAUBGgFMH0dX4OdI3b-lPCQehNjCEQQOEv2ibqoge_GxLptuKvd-NJlSxyebqwGBtDeYtcu2iqU8m-ligGacfbvqPgBGBw8b8nryf7_Uw-zcMz9xTjbzk4w9GeA61qJdvVci95pEfJHZdRMs-TPQ"/>
+<div className="w-10 h-10 rounded-full bg-slate-200" data-alt="Profile avatar of student">
+<img alt="Alex Chen" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUbo1VK3EuHjhgqqxOF3t9OdmjO0N_-53HSlTaf2zVGt0g-4dpplESgKoyAEXyS_nhQF7O5CBvhlbVjf9v3kPKcRu0IfO3W58wCHAf5gPFfuJXKX0zTq-oIsv0frFshtdvgnToEx22u8Y--_Zqpccw2Gi6n4BVkBvCwDhFBTqMQNMfOwdCrYn_R58RFiK6XZ7nweWU-mZIJ0RDwTeDhQBNQwEnW8YwPNfd2h7M7MSAtH7Zed7LJVLNJfbh_aZyu9bloXNb2om_Nw"/>
 </div>
 </div>
 </div>
@@ -81,12 +79,12 @@ export default function InterviewScheduleWeb() {
 <div className="flex-1 p-8 overflow-y-auto">
 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
 <div>
-<h2 className="text-3xl font-black tracking-tight">Interview Schedule</h2>
-<p className="text-slate-500 mt-1">Manage your upcoming candidate assessments</p>
+<h2 className="text-3xl font-black tracking-tight">My Interviews</h2>
+<p className="text-slate-500 mt-1">Track and join your upcoming internship assessments</p>
 </div>
 <button className="bg-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-<span className="material-symbols-outlined text-xl">add</span>
-                            Schedule New
+<span className="material-symbols-outlined text-xl">sync</span>
+                            Sync Calendar
                         </button>
 </div>
 
@@ -110,11 +108,11 @@ export default function InterviewScheduleWeb() {
 <div className="flex items-center gap-2">
 <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold flex items-center gap-2">
 <span className="material-symbols-outlined text-base">filter_list</span>
-                                All Roles
+                                All Companies
                             </button>
 <button className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold flex items-center gap-2">
-<span className="material-symbols-outlined text-base">person</span>
-                                Team
+<span className="material-symbols-outlined text-base">video_camera_front</span>
+                                Technical Rounds
                             </button>
 </div>
 </div>
@@ -188,12 +186,12 @@ export default function InterviewScheduleWeb() {
 <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 hover:border-primary transition-colors cursor-pointer group">
 <div className="flex justify-between items-start mb-4">
 <div className="flex gap-3">
-<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of interview candidate Alex Rivera">
-<img alt="Alex Rivera" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkY2m_9-NO1qPVxwr82M6zcwsIXbZzaVjzbsVQCr0yrDhp58VJhIGjTeFe5ihcJMLnpH95TQ3MfNZ1NemJrC14pwR4ycDGlK4ln_2iQdhv0eGp63rINtZ943T4NOzLeR7w83G5c-O53TiT_zGgAJOJdq0tkFVPLlflUfrXU6_ePgvjKYx4lwFMkurt7p4qPt5gp8GbX6bgJPYiPGUQrRCxEtofmlTM1Ot4OL5T4KLf7xqU0CNlB3B3r5_Iukb6M7m_pCVOHH_xRw"/>
+<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-500 text-lg">
+G
 </div>
 <div>
-<h4 className="font-bold text-sm">Alex Rivera</h4>
-<p className="text-xs text-slate-500">Frontend Intern</p>
+<h4 className="font-bold text-sm">Google</h4>
+<p className="text-xs text-slate-500">Technical Round - SWE</p>
 </div>
 </div>
 <span className="text-[10px] font-black uppercase text-slate-400 bg-white dark:bg-slate-700 px-2 py-1 rounded">10:00 AM</span>
@@ -211,12 +209,12 @@ export default function InterviewScheduleWeb() {
 <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary transition-colors cursor-pointer group">
 <div className="flex justify-between items-start mb-4">
 <div className="flex gap-3">
-<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of candidate Maya Thompson">
-<img alt="Maya Thompson" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1w4jPxpZUlVIzAxOBk7LPS4pKTkhZf4kfwALbWdhbr82TXA9mCf_V4dDAqJ3CmNimN76as4SztzzB26-X80TIkrzj5bVPRWH1-ZKnYSd7REPG7D7YSSK_9PVSI_YdZet_SLBhEpEth41AYbYNtjAy4pcvKuyC3x2oM9bGljifmnuL_sYp0CqSXXYtcEFP-QjjKdMlVBvBOsvD8uTtqmOoEH13fMmQqAm9WUxtCijQBCOedRYs6rSG7m0QVpu8iSLUPMYSpnyX6A"/>
+<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-500 text-lg">
+M
 </div>
 <div>
-<h4 className="font-bold text-sm">Maya Thompson</h4>
-<p className="text-xs text-slate-500">Product Design Intern</p>
+<h4 className="font-bold text-sm">Meta</h4>
+<p className="text-xs text-slate-500">Design Challenge Review</p>
 </div>
 </div>
 <span className="text-[10px] font-black uppercase text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded">02:30 PM</span>
@@ -234,12 +232,12 @@ export default function InterviewScheduleWeb() {
 <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary transition-colors cursor-pointer group">
 <div className="flex justify-between items-start mb-4">
 <div className="flex gap-3">
-<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0" data-alt="Portrait of candidate Jordan Lee">
-<img alt="Jordan Lee" className="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhD4delAD5q_k7fqcP_nhEo-yZ2z7LEOfj00c0D1ifgeZJqRya6vXSJX8sU8uI1TkDbFx9xtQZW6J2kFxnVwefMMK5n07PBCN0BGoVDKYMmasHI7n4MXbXI6Ya7K9czn7LEqXfkZjQMNUFCxBq-JRNaaMsEgcdi-OZqDPdX_LPrfyAzSth4Eb2S1PE19sP3jcT--GrHKwRsaALJMmQzVW-a5urWBbe_4TerZVS3Ddgno1Q_pXuaRzC6orq26v1Z1FDNR434ZIgQw"/>
+<div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0 flex items-center justify-center font-bold text-slate-500 text-lg">
+A
 </div>
 <div>
-<h4 className="font-bold text-sm">Jordan Lee</h4>
-<p className="text-xs text-slate-500">Backend Intern</p>
+<h4 className="font-bold text-sm">Amazon</h4>
+<p className="text-xs text-slate-500">HR Intro Call</p>
 </div>
 </div>
 <span className="text-[10px] font-black uppercase text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded">04:00 PM</span>
@@ -257,13 +255,13 @@ export default function InterviewScheduleWeb() {
 <h4 className="font-bold text-primary text-sm mb-4">Weekly Progress</h4>
 <div className="space-y-4">
 <div className="flex justify-between items-end">
-<span className="text-xs font-medium">Interviews Completed</span>
-<span className="text-sm font-bold">12 / 20</span>
+<span className="text-xs font-medium">Preparation Tasks</span>
+<span className="text-sm font-bold">2 / 5</span>
 </div>
 <div className="w-full h-2 bg-primary/10 rounded-full overflow-hidden">
-<div className="h-full bg-primary" style={{width: '60%'}}></div>
+<div className="h-full bg-primary" style={{width: '40%'}}></div>
 </div>
-<p className="text-[10px] text-slate-500">You're on track to meet your hiring targets for the Backend Engineering squad.</p>
+<p className="text-[10px] text-slate-500">Review Data Structures for Google interview tomorrow.</p>
 </div>
 </div>
 </div>

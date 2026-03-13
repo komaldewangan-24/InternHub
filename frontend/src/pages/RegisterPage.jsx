@@ -1,12 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI, companyAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('student');
+  const [loading, setLoading] = useState(false);
+  
+  // Student state
+  const [sName, setSName] = useState('');
+  const [sEmail, setSEmail] = useState('');
+  const [sPassword, setSPassword] = useState('');
+  
+  // Company state
+  const [cName, setCName] = useState('');
+  const [cRecruiterName, setCRecruiterName] = useState('');
+  const [cEmail, setCEmail] = useState('');
+  const [cPhone, setCPhone] = useState('');
+  const [cPassword, setCPassword] = useState('');
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+    if(!sName || !sEmail || !sPassword) return toast.error('Fill all fields');
+    setLoading(true);
+    try {
+      const { data } = await authAPI.register({ name: sName, email: sEmail, password: sPassword, role: 'student' });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      toast.success('Registration successful!');
+      setTimeout(() => navigate('/student_dashboard'), 1000);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Registration failed');
+    } finally { setLoading(false); }
+  };
+
+  const handleCompanySubmit = async (e) => {
+    e.preventDefault();
+    if(!cName || !cRecruiterName || !cEmail || !cPhone || !cPassword) return toast.error('Fill all fields');
+    setLoading(true);
+    try {
+      const { data } = await authAPI.register({ name: cRecruiterName, email: cEmail, password: cPassword, role: 'recruiter' });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Also construct company profile
+      await companyAPI.create({ name: cName, description: 'Newly registered company', email: cEmail, phone: cPhone });
+      
+      toast.success('Registration successful!');
+      setTimeout(() => navigate('/recruiter_dashboard'), 1000);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Registration failed');
+    } finally { setLoading(false); }
+  };
   return (
     <>
       
 <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<ToastContainer position="top-right" />
 <div className="layout-container flex h-full grow flex-col">
 
 <header className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 md:px-20 py-4 bg-white dark:bg-slate-900">
@@ -30,19 +82,26 @@ export default function RegisterPage() {
 </div>
 
 <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8">
-<Link className="flex-1 flex flex-col items-center justify-center border-b-2 border-primary pb-4 transition-colors" to="#">
-<span className="text-primary text-sm font-bold tracking-tight">Student Registration</span>
-</Link>
-<Link className="flex-1 flex flex-col items-center justify-center border-b-2 border-transparent pb-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" to="#">
+<button 
+  onClick={() => setActiveTab('student')}
+  className={`flex-1 flex flex-col items-center justify-center border-b-2 pb-4 transition-colors ${activeTab === 'student' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+>
+<span className="text-sm font-bold tracking-tight">Student Registration</span>
+</button>
+<button 
+  onClick={() => setActiveTab('company')}
+  className={`flex-1 flex flex-col items-center justify-center border-b-2 pb-4 transition-colors ${activeTab === 'company' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+>
 <span className="text-sm font-bold tracking-tight">Company Registration</span>
-</Link>
+</button>
 </div>
 
+{activeTab === 'student' ? (
 <form className="space-y-5">
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Full Name</label>
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="John Doe" type="text"/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="John Doe" type="text" value={sName} onChange={(e)=>setSName(e.target.value)}/>
 </div>
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Roll Number</label>
@@ -61,23 +120,60 @@ export default function RegisterPage() {
 </div>
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Email Address</label>
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="john@university.edu" type="email"/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="john@university.edu" type="email" value={sEmail} onChange={(e)=>setSEmail(e.target.value)}/>
 </div>
 <div className="flex flex-col gap-2">
 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Password</label>
 <div className="relative">
-<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="••••••••" type="password"/>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="••••••••" type="password" value={sPassword} onChange={(e)=>setSPassword(e.target.value)}/>
 <span className="material-symbols-outlined absolute right-3 top-3 text-slate-400 cursor-pointer">visibility</span>
 </div>
 <p className="text-xs text-slate-500 mt-1">Must be at least 8 characters with one number.</p>
 </div>
 <div className="pt-4">
-<button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2" type="submit">
-<span>Create Student Account</span>
-<span className="material-symbols-outlined text-lg">arrow_forward</span>
+<button disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70" type="submit" onClick={handleStudentSubmit}>
+<span>{loading ? 'Creating...' : 'Create Student Account'}</span>
+{!loading && <span className="material-symbols-outlined text-lg">arrow_forward</span>}
 </button>
 </div>
 </form>
+) : (
+<form className="space-y-5">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="flex flex-col gap-2">
+<label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Company Name</label>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Tech Innovations Ltd" type="text" value={cName} onChange={(e)=>setCName(e.target.value)}/>
+</div>
+<div className="flex flex-col gap-2">
+<label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Recruiter Name</label>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="Jane Smith" type="text" value={cRecruiterName} onChange={(e)=>setCRecruiterName(e.target.value)}/>
+</div>
+</div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="flex flex-col gap-2">
+<label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Email Address</label>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="jane@company.com" type="email" value={cEmail} onChange={(e)=>setCEmail(e.target.value)}/>
+</div>
+<div className="flex flex-col gap-2">
+<label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Phone</label>
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="+1 (555) 000-0000" type="text" value={cPhone} onChange={(e)=>setCPhone(e.target.value)}/>
+</div>
+</div>
+<div className="flex flex-col gap-2">
+<label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Password</label>
+<div className="relative">
+<input className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary focus:border-transparent p-3 outline-none transition-all" placeholder="••••••••" type="password" value={cPassword} onChange={(e)=>setCPassword(e.target.value)}/>
+<span className="material-symbols-outlined absolute right-3 top-3 text-slate-400 cursor-pointer">visibility</span>
+</div>
+</div>
+<div className="pt-4">
+<button disabled={loading} className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70" type="submit" onClick={handleCompanySubmit}>
+<span>{loading ? 'Creating...' : 'Create Company Account'}</span>
+{!loading && <span className="material-symbols-outlined text-lg">arrow_forward</span>}
+</button>
+</div>
+</form>
+)}
 <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-4">
 <p className="text-center text-slate-500 text-xs px-10">
                             By signing up, you agree to our <Link className="text-primary underline" to="#">Terms of Service</Link> and <Link className="text-primary underline" to="#">Privacy Policy</Link>.

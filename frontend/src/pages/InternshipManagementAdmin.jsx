@@ -23,25 +23,25 @@ export default function InternshipManagementAdmin() {
 <span className="material-symbols-outlined">dashboard</span>
 <span className="font-medium">Dashboard</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/student_profile_page">
-<span className="material-symbols-outlined">person</span>
-<span className="font-medium">Student Profiles</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/student_management_admin">
+<span className="material-symbols-outlined">group</span>
+<span className="font-medium">Students</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav" to="/internship_management_admin">
-<span className="material-symbols-outlined text-primary">work</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/company_management_admin">
+<span className="material-symbols-outlined">corporate_fare</span>
+<span className="font-medium">Companies</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg active-nav bg-primary/10 text-primary" to="/internship_management_admin">
+<span className="material-symbols-outlined">work</span>
 <span className="font-medium">Internships</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/application_tracking_admin">
 <span className="material-symbols-outlined">description</span>
 <span className="font-medium">Applications</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">event</span>
-<span className="font-medium">Interviews</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="#">
-<span className="material-symbols-outlined">analytics</span>
-<span className="font-medium">Reports</span>
+<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/admin_analytics_dashboard">
+<span className="material-symbols-outlined">bar_chart</span>
+<span className="font-medium">Analytics</span>
 </Link>
 </nav>
 <div className="p-4 border-t border-slate-200 dark:border-slate-800">

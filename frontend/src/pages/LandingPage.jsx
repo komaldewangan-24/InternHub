@@ -9,15 +9,15 @@ export default function LandingPage() {
 <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
 <div className="layout-container flex h-full grow flex-col">
 <header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-20 py-4">
-<div className="flex items-center gap-2 text-primary">
+<Link to="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
 <span className="material-symbols-outlined text-3xl font-bold">layers</span>
 <h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight">InternHub</h2>
-</div>
+</Link>
 <div className="hidden md:flex flex-1 justify-center gap-8">
-<Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="#">Features</Link>
-<Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="#">How it works</Link>
-<Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="#">Placements</Link>
-<Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="#">Pricing</Link>
+<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
+<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}>How it works</a>
+<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}>Placements</a>
+<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }}>Pricing</a>
 </div>
 <div className="flex gap-3">
 <button className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-bold transition-all hover:bg-slate-300 dark:hover:bg-slate-700" onClick={(e) => { e.preventDefault(); navigate('/login_page'); }}>
@@ -167,7 +167,7 @@ export default function LandingPage() {
 </div>
 </div>
 </section>
-<section className="py-24 max-w-4xl mx-auto px-6 text-center">
+<section className="py-24 max-w-4xl mx-auto px-6 text-center" id="pricing">
 <div className="bg-background-light dark:bg-slate-900/40 rounded-3xl p-12 border border-slate-200 dark:border-slate-800 shadow-xl">
 <h2 className="text-3xl font-bold mb-6">Ready to transform your placement cell?</h2>
 <p className="text-slate-600 dark:text-slate-400 mb-10 text-lg">Join hundreds of institutions using InternHub to automate their recruitment processes.</p>

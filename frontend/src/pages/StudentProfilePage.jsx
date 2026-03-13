@@ -27,17 +27,21 @@ export default function StudentProfilePage() {
 <span className="material-symbols-outlined" style={{fontVariationSettings: '\'FILL\' 1'}}>person</span>
 <span className="text-sm font-medium">Profile</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_discovery_page">
 <span className="material-symbols-outlined">work</span>
 <span className="text-sm font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/my_applications_web">
+<span className="material-symbols-outlined">description</span>
+<span className="text-sm font-medium">Applications</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/interview_schedule_web">
+<span className="material-symbols-outlined">event</span>
+<span className="text-sm font-medium">Interviews</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
 <span className="material-symbols-outlined">chat_bubble</span>
 <span className="text-sm font-medium">Messages</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/application_tracking_admin">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Applications</span>
 </Link>
 <div className="pt-4 pb-2 px-3 text-[10px] uppercase tracking-wider font-bold text-slate-400">Account</div>
 <Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">

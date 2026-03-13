@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [loading, setLoading] = useState(false);
   return (
     <>
       
 <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<ToastContainer position="top-right" />
 <div className="layout-container flex h-full grow flex-col">
 <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-6 md:px-20 py-4 bg-white dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
 <div className="flex items-center gap-3 text-primary">
@@ -58,31 +66,75 @@ export default function LoginPage() {
 <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Welcome back</h3>
 <p className="text-slate-500 dark:text-slate-400 mt-1">Please enter your details to sign in.</p>
 </div>
-<form className="space-y-5">
+<form className="space-y-5" onSubmit={async (e) => { 
+    e.preventDefault();
+    if (!email || !password || !role) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { data } = await authAPI.login({ email, password });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      toast.success('Login Successful!');
+      
+      const userRole = data.user.role;
+      setTimeout(() => {
+        if (userRole === 'student') navigate('/student_dashboard');
+        else if (userRole === 'faculty') navigate('/faculty_dashboard');
+        else if (userRole === 'recruiter') navigate('/recruiter_dashboard');
+        else navigate('/admin_dashboard');
+      }, 1000);
+      
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Login failed!');
+    } finally {
+      setLoading(false);
+    }
+  }}>
 <div className="space-y-2">
 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Email or Student ID</label>
 <div className="relative">
 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">alternate_email</span>
-<input className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" placeholder="name@university.edu" type="text"/>
+<input 
+  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" 
+  placeholder="name@university.edu" 
+  type="text"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
 </div>
 </div>
 <div className="space-y-2">
 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Password</label>
 <div className="relative">
 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">lock_open</span>
-<input className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" placeholder="••••••••" type="password"/>
+<input 
+  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" 
+  placeholder="••••••••" 
+  type="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+/>
 </div>
 </div>
 <div className="space-y-2">
 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Login Role</label>
 <div className="relative">
 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">person_search</span>
-<select className="custom-select w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none cursor-pointer">
-<option disabled="" selected="" value="">Select your role</option>
+<select 
+  className="custom-select w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none cursor-pointer"
+  value={role}
+  onChange={(e) => setRole(e.target.value)}
+>
+<option disabled value="">Select your role</option>
 <option value="student">Student</option>
+<option value="faculty">Faculty</option>
 <option value="placement">Placement Cell</option>
-<option value="faculty">Faculty Mentor</option>
-<option value="company">Company</option>
+<option value="recruiter">Recruiter</option>
 </select>
 </div>
 </div>
@@ -93,9 +145,13 @@ export default function LoginPage() {
 </label>
 <Link className="font-semibold text-primary hover:text-primary/80 transition-colors" to="#">Forgot password?</Link>
 </div>
-<button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group" type="button" onClick={(e) => { e.preventDefault(); navigate('/admin_dashboard'); }}>
-<span>Sign In to Dashboard</span>
-<span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+<button 
+  className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed" 
+  type="submit"
+  disabled={loading} 
+>
+<span>{loading ? 'Signing In...' : 'Sign In to Dashboard'}</span>
+{!loading && <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>}
 </button>
 </form>
 <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">

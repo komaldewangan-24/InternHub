@@ -35,6 +35,10 @@ export default function AdminDashboard() {
 <span className="material-symbols-outlined">work</span>
                     Internships
                 </Link>
+<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/application_tracking_admin">
+<span className="material-symbols-outlined">description</span>
+                    Applications
+                </Link>
 <Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" to="/admin_analytics_dashboard">
 <span className="material-symbols-outlined">bar_chart</span>
                     Analytics

@@ -16,21 +16,25 @@ export default function MyApplicationsWeb() {
 <h2 className="text-xl font-bold tracking-tight">InternHub</h2>
 </div>
 <nav className="flex flex-1 flex-col gap-2">
-<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/admin_dashboard">
+<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/student_dashboard">
 <span className="material-symbols-outlined">dashboard</span>
 <span className="text-sm font-medium">Dashboard</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" to="/application_tracking_admin">
-<span className="material-symbols-outlined">work</span>
-<span className="text-sm font-medium">My Applications</span>
+<Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" to="/my_applications_web">
+<span className="material-symbols-outlined">description</span>
+<span className="text-sm font-medium">Applications</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_management_admin">
-<span className="material-symbols-outlined">search</span>
-<span className="text-sm font-medium">Browse Internships</span>
+<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_discovery_page">
+<span className="material-symbols-outlined">work</span>
+<span className="text-sm font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/interview_schedule_web">
+<span className="material-symbols-outlined">event</span>
+<span className="text-sm font-medium">Interviews</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Resources</span>
+<span className="material-symbols-outlined">chat_bubble</span>
+<span className="text-sm font-medium">Messages</span>
 </Link>
 <div className="mt-auto">
 <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/student_profile_page">

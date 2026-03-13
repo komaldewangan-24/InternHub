@@ -31,9 +31,13 @@ export default function AdminAnalyticsDashboard() {
 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">corporate_fare</span>
 <span className="text-sm font-medium">Companies</span>
 </Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-custom hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors group" to="#">
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-custom hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors group" to="/internship_management_admin">
 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">work</span>
-<span className="text-sm font-medium">Placements</span>
+<span className="text-sm font-medium">Internships</span>
+</Link>
+<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-custom hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors group" to="/application_tracking_admin">
+<span className="material-symbols-outlined text-slate-400 group-hover:text-primary">description</span>
+<span className="text-sm font-medium">Applications</span>
 </Link>
 <Link className="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" to="/admin_analytics_dashboard">
 <span className="material-symbols-outlined">analytics</span>
