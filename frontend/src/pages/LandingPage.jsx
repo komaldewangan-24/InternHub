@@ -8,27 +8,34 @@ export default function LandingPage() {
       
 <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
 <div className="layout-container flex h-full grow flex-col">
-<header className="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-20 py-4">
-<Link to="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
-<span className="material-symbols-outlined text-3xl font-bold">layers</span>
-<h2 className="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight">InternHub</h2>
+<header className="fixed top-8 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+<nav className="bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 rounded-xl px-8 py-4 flex items-center justify-between shadow-[0_8px_32px_rgba(36,99,235,0.08)] transition-all duration-300">
+<Link to="/" className="flex items-center gap-2 group">
+<div className="bg-primary rounded-xl p-1.5 transition-transform group-hover:rotate-12">
+<span className="material-symbols-outlined text-white text-2xl font-bold block">layers</span>
+</div>
+<h2 className="text-slate-900 dark:text-slate-100 text-xl font-black tracking-tighter">Intern<span className="text-primary">Hub</span></h2>
 </Link>
-<div className="hidden md:flex flex-1 justify-center gap-8">
-<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
-<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}>How it works</a>
-<a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' }); }}>Placements</a>
+
+<div className="hidden lg:flex items-center gap-1">
+<Link to="/about_page" className="px-5 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-all rounded-full hover:bg-primary/5">About Us</Link>
+<button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-all rounded-full hover:bg-primary/5">Features</button>
+<button onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-all rounded-full hover:bg-primary/5">How it works</button>
+<button onClick={() => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-all rounded-full hover:bg-primary/5">Placements</button>
 </div>
-<div className="flex gap-3">
-<button className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-bold transition-all hover:bg-slate-300 dark:hover:bg-slate-700" onClick={(e) => { e.preventDefault(); navigate('/login_page'); }}>
-                        Login
-                    </button>
-<button className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all" onClick={(e) => { e.preventDefault(); navigate('/register_page'); }}>
-                        Register
-                    </button>
+
+<div className="flex items-center gap-3">
+<button className="hidden sm:block px-6 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" onClick={() => navigate('/login_page')}>
+Login
+</button>
+<button className="bg-primary text-white px-7 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all" onClick={() => navigate('/register_page')}>
+Register
+</button>
 </div>
+</nav>
 </header>
-<main className="flex-1">
-<section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
+<main className="flex-1 pt-32 md:pt-40">
+<section className="max-w-7xl mx-auto px-6 py-12">
 <div className="flex flex-col gap-12 lg:flex-row items-center">
 <div className="flex flex-col gap-8 lg:w-1/2">
 <div className="flex flex-col gap-4">
