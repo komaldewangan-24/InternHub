@@ -59,7 +59,7 @@ Register
 <div className="lg:w-1/2 w-full">
 <div className="relative w-full aspect-[4/3] rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center overflow-hidden border border-primary/10 shadow-2xl group">
 <img 
-  src="/internhub_hero_thematic_1773428794434.png" 
+  src="/internship_job_illustration.png" 
   alt="Career Bridge Navigation" 
   className="w-full h-full object-cover rounded-3xl group-hover:scale-105 transition-transform duration-700"
 />

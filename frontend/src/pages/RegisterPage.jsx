@@ -30,7 +30,7 @@ export default function RegisterPage() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       toast.success('Registration successful!');
-      setTimeout(() => navigate('/student_dashboard'), 1000);
+      setTimeout(() => navigate('/student_dashboard', { state: { registered: true, name: sName } }), 1000);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed');
     } finally { setLoading(false); }
@@ -49,7 +49,7 @@ export default function RegisterPage() {
       await companyAPI.create({ name: cName, description: 'Newly registered company', email: cEmail, phone: cPhone });
       
       toast.success('Registration successful!');
-      setTimeout(() => navigate('/recruiter_dashboard'), 1000);
+      setTimeout(() => navigate('/recruiter_dashboard', { state: { registered: true, name: cRecruiterName } }), 1000);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed');
     } finally { setLoading(false); }

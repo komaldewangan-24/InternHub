@@ -1,79 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { authAPI, internshipAPI } from '../services/api';
+import Sidebar from '../components/Sidebar';
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function InternshipDiscoveryPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
+  const [internships, setInternships] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { data } = await authAPI.getMe();
-        if (data.success) {
-          setUser(data.data);
-        }
-      } catch (error) {
-        const localUser = localStorage.getItem('user');
-        if (localUser) setUser(JSON.parse(localUser));
-      }
-    };
     fetchUser();
+    fetchInternships();
   }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      if (data.success) {
+        setUser(data.data);
+      }
+    } catch (error) {
+      const localUser = localStorage.getItem('user');
+      if (localUser) setUser(JSON.parse(localUser));
+    }
+  };
+
+  const fetchInternships = async () => {
+    try {
+      setLoading(true);
+      const { data } = await internshipAPI.getAll();
+      if (data.success) {
+        setInternships(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch internships', error);
+      toast.error('Failed to load internships');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApply = async (id) => {
+    navigate(`/internship_details_page?id=${id}`);
+  };
+
+  const filteredInternships = internships.filter(internship => 
+    internship.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    internship.company?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    internship.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    internship.requirements?.some(req => req.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <>
       
-<div className="flex min-h-screen">
-
-<aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col sticky top-0 h-screen">
-<div className="p-6 flex items-center gap-3">
-<div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
-<span className="material-symbols-outlined">layers</span>
-</div>
-<div>
-<h1 className="font-bold text-lg leading-none">InternHub</h1>
-<p className="text-xs text-slate-500 font-medium">Student Dashboard</p>
-</div>
-</div>
-<nav className="flex-1 px-4 py-4 space-y-1">
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_dashboard">
-<span className="material-symbols-outlined">dashboard</span>
-<span className="text-sm font-medium">Dashboard</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_profile_page">
-<span className="material-symbols-outlined">person</span>
-<span className="text-sm font-medium">Profile</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" to="/internship_discovery_page">
-<span className="material-symbols-outlined">work</span>
-<span className="text-sm font-semibold">Internships</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/my_applications_web">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Applications</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">event</span>
-<span className="text-sm font-medium">Interviews</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="#">
-<span className="material-symbols-outlined">chat</span>
-<span className="text-sm font-medium">Messages</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mt-8" to="#">
-<span className="material-symbols-outlined">settings</span>
-<span className="text-sm font-medium">Settings</span>
-</Link>
-</nav>
-<div className="p-4 border-t border-slate-200 dark:border-slate-800">
-<div className="bg-primary/5 rounded-xl p-4">
-<p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Pro Plan</p>
-<p className="text-xs text-slate-600 dark:text-slate-400 mb-3">Get 2x more internship matches daily.</p>
-<button className="w-full bg-primary text-white text-xs font-bold py-2 rounded-lg">Upgrade Now</button>
-</div>
-</div>
-</aside>
+<div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
+<Sidebar role="Student" />
 
 <main className="flex-1 flex flex-col overflow-y-auto">
 
@@ -81,7 +67,13 @@ export default function InternshipDiscoveryPage() {
 <div className="flex-1 max-w-xl">
 <div className="relative">
 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-<input className="w-full pl-11 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-sm transition-all" placeholder="Search for roles, companies, or skills..." type="text"/>
+<input 
+  className="w-full pl-11 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary text-sm transition-all shadow-sm" 
+  placeholder="Search for roles, companies, or skills..." 
+  type="text"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>
 </div>
 </div>
 <div className="flex items-center gap-6 pl-8">
@@ -105,7 +97,7 @@ export default function InternshipDiscoveryPage() {
 <div className="flex items-center justify-between mb-8">
 <div>
 <h2 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Explore Internships</h2>
-<p className="text-slate-500 mt-1">Found 124 internships matching your profile.</p>
+<p className="text-slate-500 mt-1">Found {filteredInternships.length} internships matching your profile.</p>
 </div>
 <button className="px-5 py-2.5 bg-white border border-slate-200 dark:border-slate-800 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold rounded-xl flex items-center gap-2 hover:bg-slate-50 transition-colors">
 <span className="material-symbols-outlined text-lg">add_circle</span>
@@ -130,166 +122,69 @@ export default function InternshipDiscoveryPage() {
                         Department <span className="material-symbols-outlined text-sm">expand_more</span>
 </button>
 <div className="h-9 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
-<button className="flex items-center gap-2 px-4 py-2 text-primary font-bold text-sm">
-                        Clear Filters
-                    </button>
+<button 
+  onClick={() => setSearchTerm('')}
+  className="flex items-center gap-2 px-4 py-2 text-primary font-bold text-sm hover:underline"
+>
+  Clear Filters
+</button>
 </div>
 
 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-primary/20 rounded-md" data-alt="TechFlow Systems company logo gradient"></div>
-</div>
-<span className="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase rounded-full tracking-wider">New</span>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">Software Engineer Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">TechFlow Systems</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">location_on</span>
-<span>San Francisco (Hybrid)</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$4,500/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">React</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Node.js</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">TypeScript</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-blue-400/20 rounded-md" data-alt="CloudStream logo abstract gradient"></div>
-</div>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">Frontend Developer Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">CloudStream</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">public</span>
-<span>Remote</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$3,800/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">React</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Tailwind</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-indigo-500/20 rounded-md" data-alt="DataScale logo abstract gradient"></div>
-</div>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">Data Analyst Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">DataScale Inc.</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">location_on</span>
-<span>New York, NY</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$5,200/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Python</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">SQL</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Pandas</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-cyan-500/20 rounded-md" data-alt="CyberPulse logo abstract gradient"></div>
-</div>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">UI/UX Design Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">CyberPulse</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">public</span>
-<span>Remote</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$3,500/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Figma</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Adobe XD</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-orange-500/20 rounded-md" data-alt="SwiftPay logo abstract gradient"></div>
-</div>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">Backend Engineer Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">SwiftPay</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">location_on</span>
-<span>Austin, TX</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$4,200/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Go</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">PostgreSQL</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Docker</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl hover:shadow-xl hover:shadow-primary/5 transition-all">
-<div className="flex justify-between items-start mb-4">
-<div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden">
-<div className="w-full h-full bg-emerald-500/20 rounded-md" data-alt="GreenLogic logo abstract gradient"></div>
-</div>
-</div>
-<h3 className="text-lg font-bold leading-tight mb-1">Product Management Intern</h3>
-<p className="text-slate-500 text-sm font-medium mb-4">GreenLogic</p>
-<div className="space-y-3 mb-6">
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">location_on</span>
-<span>Seattle, WA</span>
-</div>
-<div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
-<span className="material-symbols-outlined text-lg opacity-70">payments</span>
-<span className="font-semibold text-slate-900 dark:text-slate-100">$4,000/mo</span>
-</div>
-</div>
-<div className="flex flex-wrap gap-2 mb-6">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Analytics</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-md">Communication</span>
-</div>
-<button className="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
+{loading ? (
+  <div className="col-span-full py-20 text-center">
+    <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+    <p className="text-slate-500 font-medium">Finding best matches for you...</p>
+  </div>
+) : filteredInternships.length > 0 ? (
+  filteredInternships.map(internship => (
+    <div key={internship._id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl hover:shadow-xl hover:shadow-primary/5 transition-all group">
+      <div className="flex justify-between items-start mb-4">
+        <div className="size-14 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center p-2 overflow-hidden border border-slate-100 dark:border-slate-700">
+          {internship.company?.logoUrl ? (
+            <img src={internship.company.logoUrl} className="w-full h-full object-contain" alt={internship.company.name} />
+          ) : (
+            <div className="w-full h-full bg-primary/10 rounded-lg flex items-center justify-center font-black text-primary text-xl">
+              {internship.company?.name?.charAt(0) || 'I'}
+            </div>
+          )}
+        </div>
+        <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase rounded-full tracking-wider border border-green-100 italic">New</span>
+      </div>
+      <h3 className="text-lg font-bold leading-tight mb-1 group-hover:text-primary transition-colors">{internship.title}</h3>
+      <p className="text-slate-500 text-sm font-medium mb-4">{internship.company?.name || 'Company'}</p>
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm font-medium">
+          <span className="material-symbols-outlined text-lg opacity-60">location_on</span>
+          <span>{internship.location}</span>
+        </div>
+        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
+          <span className="material-symbols-outlined text-lg opacity-60">payments</span>
+          <span className="font-bold text-slate-900 dark:text-slate-100">{internship.stipend}</span>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 mb-6 h-[64px] overflow-hidden content-start">
+        {internship.requirements?.map((req, i) => (
+          <span key={i} className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded-lg border border-slate-100 dark:border-slate-700">
+            {req}
+          </span>
+        ))}
+      </div>
+      <button 
+        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]" 
+        onClick={() => handleApply(internship._id)}
+      >
+        View Details
+      </button>
+    </div>
+  ))
+) : (
+  <div className="col-span-full py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+    <span className="material-symbols-outlined text-5xl text-slate-300 mb-4">search_off</span>
+    <p className="text-slate-500 font-bold text-lg">No internships found</p>
+    <p className="text-slate-400 text-sm">Try adjusting your filters or search terms</p>
+  </div>
+)}
 </div>
 
 <div className="mt-12 flex items-center justify-center gap-2">

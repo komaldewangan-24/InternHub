@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI, messageAPI, userAPI } from '../services/api';
+import Sidebar from '../components/Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 
 export default function MessagePage() {
@@ -129,43 +130,8 @@ export default function MessagePage() {
     };
 
     return (
-        <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
-            <ToastContainer position="top-right" />
-            
-            {/* Sidebar Navigation */}
-            <aside className="w-20 lg:w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col items-center lg:items-stretch h-full">
-                <div className="p-6 flex items-center gap-3">
-                    <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20 cursor-pointer" onClick={() => navigate('/student_dashboard')}>
-                        <span className="material-symbols-outlined">rocket_launch</span>
-                    </div>
-                    <h1 className="text-xl font-bold tracking-tight hidden lg:block">InternHub</h1>
-                </div>
-
-                <nav className="flex-1 px-4 space-y-2 mt-4">
-                    <Link to="/student_dashboard" className="flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group">
-                        <span className="material-symbols-outlined">dashboard</span>
-                        <span className="font-semibold hidden lg:block">Dashboard</span>
-                    </Link>
-                    <Link to="/student_profile_page" className="flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group">
-                        <span className="material-symbols-outlined">person</span>
-                        <span className="font-semibold hidden lg:block">Profile</span>
-                    </Link>
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 text-primary transition-all">
-                        <span className="material-symbols-outlined">chat_bubble</span>
-                        <span className="font-bold hidden lg:block">Messages</span>
-                    </div>
-                </nav>
-
-                <div className="p-4 mt-auto">
-                    <div className="size-12 lg:w-full lg:h-auto rounded-xl bg-slate-50 dark:bg-slate-800 p-2 flex items-center gap-3">
-                       <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Aarav'}`} className="size-8 rounded-full" alt="User" />
-                       <div className="hidden lg:block overflow-hidden">
-                           <p className="text-xs font-bold truncate">{user?.name || 'User'}</p>
-                           <p className="text-[10px] text-slate-400 capitalize">{user?.role || 'Member'}</p>
-                       </div>
-                    </div>
-                </div>
-            </aside>
+<div className="flex bg-slate-50 dark:bg-slate-950 h-screen overflow-hidden">
+<Sidebar role="Student" />
 
             {/* Conversation List */}
             <aside className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full">

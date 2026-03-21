@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import Sidebar from '../components/Sidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -90,58 +91,10 @@ export default function StudentProfilePage() {
     <>
       <ToastContainer position="top-right" />
       
-<div className="flex min-h-screen overflow-hidden">
+<div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden">
+<Sidebar role="Student" />
 
-<aside className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-50">
-<div className="p-6 flex items-center gap-3">
-<div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
-<span className="material-symbols-outlined">school</span>
-</div>
-<div>
-<h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">InternHub</h1>
-<p className="text-xs text-slate-500 font-medium">Student Portal</p>
-</div>
-</div>
-<nav className="flex-1 px-4 space-y-1 mt-4">
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/student_dashboard">
-<span className="material-symbols-outlined">dashboard</span>
-<span className="text-sm font-medium">Dashboard</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg transition-colors" to="/student_profile_page">
-<span className="material-symbols-outlined" style={{fontVariationSettings: '\'FILL\' 1'}}>person</span>
-<span className="text-sm font-medium">Profile</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/internship_discovery_page">
-<span className="material-symbols-outlined">work</span>
-<span className="text-sm font-medium">Internships</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/my_applications_web">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Applications</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">event</span>
-<span className="text-sm font-medium">Interviews</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="/message_page">
-<span className="material-symbols-outlined">chat_bubble</span>
-<span className="text-sm font-medium">Messages</span>
-</Link>
-<div className="pt-4 pb-2 px-3 text-[10px] uppercase tracking-wider font-bold text-slate-400">Account</div>
-<Link className="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" to="#">
-<span className="material-symbols-outlined">settings</span>
-<span className="text-sm font-medium">Settings</span>
-</Link>
-</nav>
-<div className="p-4 mt-auto">
-<button className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-primary/90 transition-all">
-<span className="material-symbols-outlined text-sm">add</span>
-                Post a Project
-            </button>
-</div>
-</aside>
-
-<main className="flex-1 ml-64 min-h-screen">
+<main className="flex-1 min-h-screen overflow-y-auto">
 
 <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-8 flex items-center justify-between">
 <h2 className="text-lg font-semibold text-slate-900 dark:text-white">My Profile</h2>

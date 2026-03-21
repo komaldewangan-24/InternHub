@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import Sidebar from '../components/Sidebar';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
+  const registered = location.state?.registered;
+  const registeredName = location.state?.name;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,51 +32,8 @@ export default function StudentDashboard() {
   return (
     <>
       
-<div className="flex h-screen overflow-hidden">
-
-<aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full shrink-0">
-<div className="p-6 flex items-center gap-3">
-<div className="bg-primary rounded-lg p-2 text-white">
-<span className="material-symbols-outlined">rocket_launch</span>
-</div>
-<h1 className="text-xl font-bold tracking-tight">InternHub</h1>
-</div>
-<nav className="flex-1 px-4 space-y-2 mt-4">
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-semibold" to="/student_dashboard">
-<span className="material-symbols-outlined">dashboard</span>
-<span>Dashboard</span>
-</Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_profile_page">
-<span className="material-symbols-outlined">person</span>
-<span>Profile</span>
-</Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/internship_discovery_page">
-<span className="material-symbols-outlined">work</span>
-<span>Internships</span>
-</Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/my_applications_web">
-<span className="material-symbols-outlined">description</span>
-<span>Applications</span>
-</Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">event</span>
-<span>Interviews</span>
-</Link>
-<Link className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/message_page">
-<span className="material-symbols-outlined">chat_bubble</span>
-<span>Messages</span>
-</Link>
-</nav>
-<div className="p-4 mt-auto">
-<div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-<p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Pro Member</p>
-<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Access premium listings and AI resume builder.</p>
-<button className="w-full py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all">
-                        Upgrade Plan
-                    </button>
-</div>
-</div>
-</aside>
+<div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden">
+<Sidebar role="Student" />
 
 <main className="flex-1 flex flex-col overflow-y-auto">
 
@@ -107,8 +68,12 @@ export default function StudentDashboard() {
 
 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
-<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Welcome back, {user?.name ? user.name.split(' ')[0] : 'User'}!</h2>
-<p className="text-slate-500 dark:text-slate-400 mt-1">You have 3 new internship matches and 2 upcoming interviews.</p>
+<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+  {registered ? `Welcome to InternHub, ${registeredName || user?.name || 'Student'}!` : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}!`}
+</h2>
+<p className="text-slate-500 dark:text-slate-400 mt-1">
+  {registered ? "We're excited to have you join our platform. Start exploring internships and launch your career today!" : "You have 3 new internship matches and 2 upcoming interviews."}
+</p>
 </div>
 <div className="flex gap-3">
 <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm">

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [user, setUser] = useState(null);
+  const registered = location.state?.registered;
+  const registeredName = location.state?.name;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -112,9 +115,13 @@ export default function RecruiterDashboard() {
             {activeTab === 'dashboard' && (
               <>
                 <div className="mb-8">
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Recruiter Dashboard</h2>
-                  <p className="text-slate-500 dark:text-slate-400">Manage your postings and review incoming applications.</p>
-                </div>
+  <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+    {registered ? `Welcome to InternHub, ${registeredName || user?.name || 'Partner'}!` : 'Recruiter Dashboard'}
+  </h2>
+  <p className="text-slate-500 dark:text-slate-400">
+    {registered ? "We're thrilled to have your company on board. Start posting internships and find top talent today!" : 'Manage your postings and review incoming applications.'}
+  </p>
+</div>                
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">

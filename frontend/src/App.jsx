@@ -20,31 +20,45 @@ import FacultyDashboard from './pages/FacultyDashboard';
 import RecruiterDashboard from './pages/RecruiterDashboard';
 import MessagePage from './pages/MessagePage';
 import AboutPage from './pages/AboutPage';
+import SettingsPage from './pages/SettingsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/admin_analytics_dashboard" element={<AdminAnalyticsDashboard />} />
-        <Route path="/admin_dashboard" element={<AdminDashboard />} />
-        <Route path="/application_tracking_admin" element={<ApplicationTrackingAdmin />} />
-        <Route path="/apply_for_internship_web" element={<ApplyForInternshipWeb />} />
-        <Route path="/company_management_admin" element={<CompanyManagementAdmin />} />
-        <Route path="/internship_details_page" element={<InternshipDetailsPage />} />
-        <Route path="/internship_discovery_page" element={<InternshipDiscoveryPage />} />
-        <Route path="/internship_management_admin" element={<InternshipManagementAdmin />} />
-        <Route path="/interview_schedule_web" element={<InterviewScheduleWeb />} />
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login_page" element={<LoginPage />} />
-        <Route path="/my_applications_web" element={<MyApplicationsWeb />} />
         <Route path="/register_page" element={<RegisterPage />} />
-        <Route path="/student_dashboard" element={<StudentDashboard />} />
-        <Route path="/student_management_admin" element={<StudentManagementAdmin />} />
-        <Route path="/student_profile_page" element={<StudentProfilePage />} />
-        <Route path="/faculty_dashboard" element={<FacultyDashboard />} />
-        <Route path="/recruiter_dashboard" element={<RecruiterDashboard />} />
-        <Route path="/message_page" element={<MessagePage />} />
         <Route path="/about_page" element={<AboutPage />} />
+
+        {/* Student Routes */}
+        <Route path="/student_dashboard" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
+        <Route path="/student_profile_page" element={<ProtectedRoute allowedRoles={['student']}><StudentProfilePage /></ProtectedRoute>} />
+        <Route path="/internship_discovery_page" element={<ProtectedRoute allowedRoles={['student']}><InternshipDiscoveryPage /></ProtectedRoute>} />
+        <Route path="/my_applications_web" element={<ProtectedRoute allowedRoles={['student']}><MyApplicationsWeb /></ProtectedRoute>} />
+        <Route path="/interview_schedule_web" element={<ProtectedRoute allowedRoles={['student']}><InterviewScheduleWeb /></ProtectedRoute>} />
+        <Route path="/message_page" element={<ProtectedRoute allowedRoles={['student']}><MessagePage /></ProtectedRoute>} />
+        <Route path="/settings_page" element={<ProtectedRoute allowedRoles={['student']}><SettingsPage /></ProtectedRoute>} />
+        <Route path="/internship_details_page" element={<ProtectedRoute allowedRoles={['student']}><InternshipDetailsPage /></ProtectedRoute>} />
+        <Route path="/apply_for_internship_web" element={<ProtectedRoute allowedRoles={['student']}><ApplyForInternshipWeb /></ProtectedRoute>} />
+
+        {/* Admin/Faculty/Recruiter Shared Routes (If any) */}
+        
+        {/* Admin Routes */}
+        <Route path="/admin_dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin_analytics_dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminAnalyticsDashboard /></ProtectedRoute>} />
+        <Route path="/application_tracking_admin" element={<ProtectedRoute allowedRoles={['admin', 'faculty', 'recruiter']}><ApplicationTrackingAdmin /></ProtectedRoute>} />
+        <Route path="/company_management_admin" element={<ProtectedRoute allowedRoles={['admin']}><CompanyManagementAdmin /></ProtectedRoute>} />
+        <Route path="/internship_management_admin" element={<ProtectedRoute allowedRoles={['admin', 'recruiter']}><InternshipManagementAdmin /></ProtectedRoute>} />
+        <Route path="/student_management_admin" element={<ProtectedRoute allowedRoles={['admin', 'faculty']}><StudentManagementAdmin /></ProtectedRoute>} />
+
+        {/* Faculty Routes */}
+        <Route path="/faculty_dashboard" element={<ProtectedRoute allowedRoles={['faculty', 'admin']}><FacultyDashboard /></ProtectedRoute>} />
+
+        {/* Recruiter Routes */}
+        <Route path="/recruiter_dashboard" element={<ProtectedRoute allowedRoles={['recruiter', 'admin']}><RecruiterDashboard /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import Sidebar from '../components/Sidebar';
 
 export default function InterviewScheduleWeb() {
   const navigate = useNavigate();
@@ -23,46 +24,8 @@ export default function InterviewScheduleWeb() {
 
   return (
     <>
-      <div className="flex h-screen overflow-hidden">
-
-<aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col">
-<div className="p-6 flex items-center gap-3">
-<div className="bg-primary p-1.5 rounded-lg text-white">
-<span className="material-symbols-outlined block">database</span>
-</div>
-<h1 className="text-xl font-bold tracking-tight">InternHub</h1>
-</div>
-<nav className="flex-1 px-4 py-4 space-y-1">
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_dashboard">
-<span className="material-symbols-outlined">dashboard</span>
-<span className="text-sm font-medium">Dashboard</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/student_profile_page">
-<span className="material-symbols-outlined">person</span>
-<span className="text-sm font-medium">Profile</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/internship_discovery_page">
-<span className="material-symbols-outlined">work</span>
-<span className="text-sm font-medium">Internships</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/my_applications_web">
-<span className="material-symbols-outlined">description</span>
-<span className="text-sm font-medium">Applications</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary transition-colors" to="/interview_schedule_web">
-<span className="material-symbols-outlined">event</span>
-<span className="text-sm font-semibold">Interviews</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="#">
-<span className="material-symbols-outlined">chat</span>
-<span className="text-sm font-medium">Messages</span>
-</Link>
-<Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mt-8" to="#">
-<span className="material-symbols-outlined">settings</span>
-<span className="text-sm font-medium">Settings</span>
-</Link>
-</nav>
-</aside>
+      <div className="flex bg-slate-50 dark:bg-slate-950 h-screen overflow-hidden">
+<Sidebar role="Student" />
 
 <main className="flex-1 flex flex-col min-w-0">
 

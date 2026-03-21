@@ -6,6 +6,12 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login_page');
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -71,15 +77,19 @@ export default function AdminDashboard() {
                 </Link>
 </nav>
 <div className="p-4 mt-auto">
-<div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4">
-<p className="text-sm font-medium text-slate-900 dark:text-white">Admin Account</p>
-<p className="text-xs text-slate-500 truncate">{user?.email || 'admin@university.edu'}</p>
-<button className="w-full mt-3 bg-primary text-white text-sm font-bold py-2 rounded-xl hover:bg-primary/90 transition-all">
+          <button className="w-full mt-3 bg-primary text-white text-sm font-bold py-2 rounded-xl hover:bg-primary/90 transition-all">
                         Post Internship
                     </button>
 </div>
-</div>
-</aside>
+
+        <button 
+          onClick={handleLogout}
+          className="w-full mt-4 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-bold transition-all border border-transparent hover:border-rose-100 dark:hover:border-rose-900/30"
+        >
+          <span className="material-symbols-outlined text-xl">logout</span>
+          <span className="text-sm text-rose-500">Sign Out</span>
+        </button>
+    </aside>
 
 <main className="flex-1 ml-64 min-h-screen">
 
