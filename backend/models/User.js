@@ -35,6 +35,17 @@ const UserSchema = new mongoose.Schema({
         bio: String,
         location: String,
         graduationDate: String,
+        department: String,
+        batch: String,
+        section: String,
+        rollNumber: String,
+        designation: String,
+        githubUrl: String,
+        linkedinUrl: String,
+        assignedFaculty: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+        },
     },
     createdAt: {
         type: Date,

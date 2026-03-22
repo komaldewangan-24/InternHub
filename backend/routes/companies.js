@@ -26,6 +26,9 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
         // Add user to req.body
         req.body.user = req.user.id;
+        if (req.user.role !== 'admin') {
+            delete req.body.verificationStatus;
+        }
 
         const company = await Company.create(req.body);
 
@@ -52,6 +55,10 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
         // Make sure user is company owner or admin
         if (company.user.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, error: `User ${req.user.id} is not authorized to update this company` });
+        }
+
+        if (req.user.role !== 'admin') {
+            delete req.body.verificationStatus;
         }
 
         company = await Company.findByIdAndUpdate(req.params.id, req.body, {

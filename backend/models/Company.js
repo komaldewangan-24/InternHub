@@ -28,6 +28,11 @@ const CompanySchema = new mongoose.Schema({
         type: String,
         default: 'no-photo.jpg',
     },
+    verificationStatus: {
+        type: String,
+        enum: ['pending', 'verified', 'flagged'],
+        default: 'pending',
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',

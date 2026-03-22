@@ -16,6 +16,9 @@ const companies = require('./routes/companies');
 const applications = require('./routes/applications');
 const users = require('./routes/users');
 const messages = require('./routes/messages');
+const projects = require('./routes/projects');
+const notifications = require('./routes/notifications');
+const settings = require('./routes/settings');
 
 const app = express();
 
@@ -32,6 +35,9 @@ app.use('/api/companies', companies);
 app.use('/api/applications', applications);
 app.use('/api/users', users);
 app.use('/api/messages', messages);
+app.use('/api/projects', projects);
+app.use('/api/notifications', notifications);
+app.use('/api/settings', settings);
 
 const PORT = process.env.PORT || 5000;
 

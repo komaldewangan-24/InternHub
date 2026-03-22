@@ -1,339 +1,252 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { authAPI } from '../services/api';
-import Sidebar from '../components/Sidebar';
+import React, { useEffect, useMemo, useState } from 'react';
+import AppShell from '../components/AppShell';
+import EmptyState from '../components/EmptyState';
+import LoadingState from '../components/LoadingState';
+import StatusBadge from '../components/StatusBadge';
+import { navigationByRole } from '../constants/navigation';
+import useCurrentUser from '../hooks/useCurrentUser';
+import { applicationAPI, internshipAPI, projectAPI } from '../services/api';
+import { computeInternshipFit, computeStudentReadiness } from '../utils/readiness';
 
 export default function StudentDashboard() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [user, setUser] = useState(null);
-  const registered = location.state?.registered;
-  const registeredName = location.state?.name;
+  const { user, loading } = useCurrentUser();
+  const [projects, setProjects] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [internships, setInternships] = useState([]);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const loadData = async () => {
       try {
-        const { data } = await authAPI.getMe();
-        if (data.success) {
-          setUser(data.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch user", error);
-        // Fallback to localStorage if API fails but token exists might be handled by interceptor
-        const localUser = localStorage.getItem('user');
-        if (localUser) {
-          setUser(JSON.parse(localUser));
-        }
+        setPageLoading(true);
+        const [projectResponse, applicationResponse, internshipResponse] = await Promise.all([
+          projectAPI.getAll(),
+          applicationAPI.getAll(),
+          internshipAPI.getAll(),
+        ]);
+        setProjects(projectResponse.data.data || []);
+        setApplications(applicationResponse.data.data || []);
+        setInternships(internshipResponse.data.data || []);
+      } finally {
+        setPageLoading(false);
       }
     };
-    fetchUser();
+
+    loadData();
   }, []);
 
+  const approvedProjectTags = useMemo(
+    () =>
+      projects
+        .filter((project) => project.status === 'approved')
+        .flatMap((project) => project.tags || []),
+    [projects]
+  );
+
+  const readiness = useMemo(
+    () =>
+      computeStudentReadiness({
+        user,
+        approvedProjects: projects.filter((project) => project.status === 'approved').length,
+        applications: applications.length,
+      }),
+    [applications.length, projects, user]
+  );
+
+  const recommendedInternships = useMemo(
+    () =>
+      internships
+        .map((internship) => ({
+          internship,
+          fit: computeInternshipFit({ internship, user, approvedProjectTags }),
+        }))
+        .sort((left, right) => right.fit.score - left.fit.score)
+        .slice(0, 4),
+    [approvedProjectTags, internships, user]
+  );
+
+  if (loading || pageLoading) {
+    return <LoadingState label="Preparing your dashboard..." />;
+  }
+
+  const submittedProjects = projects.filter((project) => project.status === 'submitted').length;
+  const approvedProjects = projects.filter((project) => project.status === 'approved').length;
+  const pendingApplications = applications.filter((application) =>
+    ['pending', 'shortlisted', 'interview'].includes(application.status)
+  ).length;
+  const overdueReviews = projects.filter(
+    (project) => project.status === 'submitted' && project.reviewDueAt && new Date(project.reviewDueAt) < new Date()
+  ).length;
+
   return (
-    <>
-      
-<div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen overflow-hidden">
-<Sidebar role="Student" />
+    <AppShell
+      title="Student Dashboard"
+      description="Track your placement readiness, project approvals, internship fit, and application momentum in one place."
+      navigation={navigationByRole.student}
+      user={user}
+    >
+      <div className="grid gap-6 xl:grid-cols-[1.08fr,0.92fr]">
+        <section className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              ['Readiness Score', `${readiness.score}%`],
+              ['Projects Under Review', submittedProjects],
+              ['Approved Projects', approvedProjects],
+              ['Active Applications', pendingApplications],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-3xl bg-white p-6 shadow-sm">
+                <p className="text-sm font-medium text-slate-500">{label}</p>
+                <p className="mt-3 text-3xl font-black tracking-tight">{value}</p>
+              </div>
+            ))}
+          </div>
 
-<main className="flex-1 flex flex-col overflow-y-auto">
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold">Placement Readiness</h2>
+                <p className="mt-2 text-sm text-slate-500">
+                  Faculty assignment: {user?.profile?.assignedFaculty?.name || 'Pending placement-cell assignment'}
+                </p>
+              </div>
+              <StatusBadge status={readiness.isPlacementReady ? 'approved' : 'pending'} />
+            </div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <p className="text-sm text-slate-500">Profile completion</p>
+                <p className="mt-2 text-2xl font-black">{readiness.profileCompletion}%</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <p className="text-sm text-slate-500">Resume ready</p>
+                <p className="mt-2 text-2xl font-black">{readiness.resumeReady ? 'Yes' : 'No'}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <p className="text-sm text-slate-500">Overdue faculty reviews</p>
+                <p className="mt-2 text-2xl font-black">{overdueReviews}</p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {readiness.flags.length ? (
+                readiness.flags.map((flag) => (
+                  <span key={flag} className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                    {flag}
+                  </span>
+                ))
+              ) : (
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  Ready for recruiter visibility
+                </span>
+              )}
+            </div>
+          </div>
 
-<header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-10">
-<div className="flex items-center gap-4 w-96">
-<div className="relative w-full">
-<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
-<input className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="Search internships, companies..." type="text"/>
-</div>
-</div>
-<div className="flex items-center gap-4">
-<button className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 relative">
-<span className="material-symbols-outlined">notifications</span>
-<span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-800"></span>
-</button>
-<button className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-<span className="material-symbols-outlined">settings</span>
-</button>
-<div className="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
-<div className="flex items-center gap-3">
-<div className="text-right hidden sm:block">
-<p className="text-sm font-bold">{user?.name || 'User'}</p>
-<p className="text-xs text-slate-500">{user?.profile?.degree || 'Student'}</p>
-</div>
-<div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-<img className="w-full h-full object-cover" data-alt="Student profile photo snippet" src={'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Aarav')}/>
-</div>
-</div>
-</div>
-</header>
-<div className="p-8 max-w-7xl mx-auto w-full">
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Project Review Timeline</h2>
+              <p className="text-sm text-slate-500">{projects.length} total submissions</p>
+            </div>
+            <div className="mt-6 space-y-4">
+              {projects.length ? (
+                projects.slice(0, 4).map((project) => (
+                  <div key={project._id} className="rounded-2xl border border-slate-200 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold">{project.title}</p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          Reviewer: {project.faculty?.name || 'Faculty not assigned'}
+                        </p>
+                        {project.reviewDueAt ? (
+                          <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                            Review due {new Date(project.reviewDueAt).toLocaleDateString()}
+                          </p>
+                        ) : null}
+                      </div>
+                      <StatusBadge status={project.status} />
+                    </div>
+                    {project.comments?.length ? (
+                      <p className="mt-3 text-sm text-slate-600">
+                        Latest feedback: {project.comments[project.comments.length - 1].message}
+                      </p>
+                    ) : (
+                      <p className="mt-3 text-sm text-slate-600">No faculty feedback yet.</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  title="No projects yet"
+                  description="Create your first project submission to start the faculty review workflow."
+                />
+              )}
+            </div>
+          </div>
+        </section>
 
-<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-<div>
-<h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-  {registered ? `Welcome to InternHub, ${registeredName || user?.name || 'Student'}!` : `Welcome back, ${user?.name ? user.name.split(' ')[0] : 'User'}!`}
-</h2>
-<p className="text-slate-500 dark:text-slate-400 mt-1">
-  {registered ? "We're excited to have you join our platform. Start exploring internships and launch your career today!" : "You have 3 new internship matches and 2 upcoming interviews."}
-</p>
-</div>
-<div className="flex gap-3">
-<button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-medium text-sm">
-<span className="material-symbols-outlined text-lg">download</span>
-                            Resume
-                        </button>
-<button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/25">
-<span className="material-symbols-outlined text-lg">add</span>
-                            New Application
-                        </button>
-</div>
-</div>
+        <section className="space-y-6">
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-bold">Recommended Internships</h2>
+            <div className="mt-6 space-y-4">
+              {recommendedInternships.length ? (
+                recommendedInternships.map(({ internship, fit }) => (
+                  <div key={internship._id} className="rounded-2xl border border-slate-200 p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold">{internship.title}</p>
+                        <p className="mt-1 text-sm text-slate-500">{internship.company?.name || 'Company'}</p>
+                      </div>
+                      <p className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold">{fit.score} fit</p>
+                    </div>
+                    <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-400">
+                      {internship.location} • {internship.stipend || 'Unpaid'}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {fit.matchedSkills.slice(0, 3).map((skill) => (
+                        <span key={skill} className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                          {skill}
+                        </span>
+                      ))}
+                      {!fit.eligible ? (
+                        <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">
+                          Check eligibility
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  title="No internships available"
+                  description="Open internships will appear here as soon as recruiters post them."
+                />
+              )}
+            </div>
+          </div>
 
-<div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-8">
-<div className="flex items-center justify-between mb-4">
-<div>
-<h3 className="font-bold text-lg">Profile Completion</h3>
-<p className="text-sm text-slate-500">Reach 100% to boost visibility to recruiters by 3x.</p>
-</div>
-<span className="text-2xl font-black text-primary">75%</span>
-</div>
-<div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
-<div className="bg-primary h-full rounded-full w-3/4"></div>
-</div>
-<div className="flex gap-4 mt-4">
-<div className="flex items-center gap-2 text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full">
-<span className="material-symbols-outlined text-sm">check_circle</span>
-                            Academic Info
-                        </div>
-<div className="flex items-center gap-2 text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full">
-<span className="material-symbols-outlined text-sm">check_circle</span>
-                            Experience
-                        </div>
-<div className="flex items-center gap-2 text-xs font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full">
-<span className="material-symbols-outlined text-sm">add_circle</span>
-                            Add Portfolio Link (+25%)
-                        </div>
-</div>
-</div>
-
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-<div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-<p className="text-sm font-medium text-slate-500 mb-2">Applications</p>
-<div className="flex items-end justify-between">
-<p className="text-3xl font-black">12</p>
-<span className="text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md">+20%</span>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-<p className="text-sm font-medium text-slate-500 mb-2">Interviews</p>
-<div className="flex items-end justify-between">
-<p className="text-3xl font-black">3</p>
-<span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">Stable</span>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
-<p className="text-sm font-medium text-slate-500 mb-2">Profile Views</p>
-<div className="flex items-end justify-between">
-<p className="text-3xl font-black">48</p>
-<span className="text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md">+15%</span>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-<div className="absolute top-0 right-0 p-4 opacity-10">
-<span className="material-symbols-outlined text-5xl">verified</span>
-</div>
-<p className="text-sm font-medium text-slate-500 mb-2">Readiness Score</p>
-<div className="flex items-end justify-between">
-<p className="text-3xl font-black text-primary">88%</p>
-<span className="text-xs font-bold text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-md">+5%</span>
-</div>
-</div>
-</div>
-
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-<div className="lg:col-span-2 space-y-8">
-
-<section>
-<div className="flex items-center justify-between mb-4">
-<h3 className="text-xl font-bold">Recommended for you</h3>
-<Link className="text-sm font-bold text-primary hover:underline" to="#">View all</Link>
-</div>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-shadow">
-<div className="flex justify-between items-start mb-4">
-<div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-<span className="material-symbols-outlined text-primary">terminal</span>
-</div>
-<span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">95% Match</span>
-</div>
-<h4 className="font-bold text-lg leading-tight">Software Engineer Intern</h4>
-<p className="text-sm text-slate-500 mb-4">Tata Consultancy Services • Bengaluru (Remote)</p>
-<div className="flex gap-2 flex-wrap mb-4">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">React</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Node.js</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Tailwind</span>
-</div>
-<div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-<span className="text-sm font-bold">₹25,000/mo</span>
-<button className="text-sm font-bold text-primary" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-</div>
-<div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-shadow">
-<div className="flex justify-between items-start mb-4">
-<div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-<span className="material-symbols-outlined text-primary">brush</span>
-</div>
-<span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">88% Match</span>
-</div>
-<h4 className="font-bold text-lg leading-tight">UI/UX Design Intern</h4>
-<p className="text-sm text-slate-500 mb-4">Zomato • Gurugram</p>
-<div className="flex gap-2 flex-wrap mb-4">
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Figma</span>
-<span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-medium text-slate-600 dark:text-slate-400">Design Systems</span>
-</div>
-<div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-<span className="text-sm font-bold">₹15,000/mo</span>
-<button className="text-sm font-bold text-primary" onClick={(e) => { e.preventDefault(); navigate('/apply_for_internship_web'); }}>Apply Now</button>
-</div>
-</div>
-</div>
-</section>
-
-<section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-<h3 className="text-lg font-bold mb-6">Skill Match Distribution</h3>
-<div className="space-y-6">
-<div>
-<div className="flex justify-between text-sm mb-2">
-<span className="font-medium">Frontend Development</span>
-<span className="text-primary font-bold">92%</span>
-</div>
-<div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-<div className="bg-primary h-full rounded-full w-[92%]"></div>
-</div>
-</div>
-<div>
-<div className="flex justify-between text-sm mb-2">
-<span className="font-medium">Backend (Node/Express)</span>
-<span className="text-primary font-bold">78%</span>
-</div>
-<div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-<div className="bg-primary h-full rounded-full w-[78%] opacity-80"></div>
-</div>
-</div>
-<div>
-<div className="flex justify-between text-sm mb-2">
-<span className="font-medium">UI Design Principles</span>
-<span className="text-primary font-bold">65%</span>
-</div>
-<div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-<div className="bg-primary h-full rounded-full w-[65%] opacity-60"></div>
-</div>
-</div>
-<div>
-<div className="flex justify-between text-sm mb-2">
-<span className="font-medium">DevOps &amp; Cloud</span>
-<span className="text-primary font-bold">45%</span>
-</div>
-<div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-<div className="bg-primary h-full rounded-full w-[45%] opacity-40"></div>
-</div>
-</div>
-</div>
-</section>
-</div>
-
-<div className="space-y-8">
-
-<section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-<h3 className="text-lg font-bold mb-4">Upcoming Interviews</h3>
-<div className="space-y-4">
-<div className="flex gap-4 items-start">
-<div className="flex flex-col items-center justify-center size-12 bg-primary/10 text-primary rounded-xl shrink-0">
-<span className="text-[10px] font-black uppercase">Oct</span>
-<span className="text-lg font-black leading-none">12</span>
-</div>
-<div>
-<p className="font-bold text-sm">Infosys Technical Round</p>
-<p className="text-xs text-slate-500">2:00 PM • Google Meet</p>
-<Link className="text-[10px] font-bold text-primary mt-1 inline-block" to="#">Join Link</Link>
-</div>
-</div>
-<div className="flex gap-4 items-start">
-<div className="flex flex-col items-center justify-center size-12 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl shrink-0">
-<span className="text-[10px] font-black uppercase">Oct</span>
-<span className="text-lg font-black leading-none">15</span>
-</div>
-<div>
-<p className="font-bold text-sm">Reliance Design Review</p>
-<p className="text-xs text-slate-500">10:30 AM • Zoom</p>
-<Link className="text-[10px] font-bold text-slate-400 mt-1 inline-block" to="#">Preparation Notes</Link>
-</div>
-</div>
-</div>
-<button className="w-full mt-6 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                View Full Calendar
-                            </button>
-</section>
-
-<section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-<h3 className="text-lg font-bold mb-4">Application Status</h3>
-<div className="flex items-center justify-center py-6">
-
-<div className="relative size-40 rounded-full border-[12px] border-slate-100 dark:border-slate-800 flex items-center justify-center">
-<div className="absolute inset-[-12px] rounded-full border-[12px] border-primary border-t-transparent border-l-transparent rotate-45"></div>
-<div className="text-center">
-<span className="block text-2xl font-black">12</span>
-<span className="text-[10px] text-slate-400 font-bold uppercase">Total</span>
-</div>
-</div>
-</div>
-<div className="grid grid-cols-2 gap-3">
-<div className="flex items-center gap-2">
-<div className="size-2 rounded-full bg-primary"></div>
-<span className="text-xs text-slate-600 dark:text-slate-400">Applied (6)</span>
-</div>
-<div className="flex items-center gap-2">
-<div className="size-2 rounded-full bg-yellow-400"></div>
-<span className="text-xs text-slate-600 dark:text-slate-400">In Review (3)</span>
-</div>
-<div className="flex items-center gap-2">
-<div className="size-2 rounded-full bg-green-500"></div>
-<span className="text-xs text-slate-600 dark:text-slate-400">Accepted (1)</span>
-</div>
-<div className="flex items-center gap-2">
-<div className="size-2 rounded-full bg-red-400"></div>
-<span className="text-xs text-slate-600 dark:text-slate-400">Rejected (2)</span>
-</div>
-</div>
-</section>
-
-<section className="bg-primary rounded-xl p-6 text-white shadow-lg shadow-primary/20">
-<h3 className="text-lg font-bold mb-4">Recommended Tasks</h3>
-<ul className="space-y-4">
-<li className="flex gap-3">
-<div className="size-5 rounded bg-white/20 flex items-center justify-center shrink-0">
-<span className="material-symbols-outlined text-sm">check</span>
-</div>
-<p className="text-xs font-medium text-white/90">Update LinkedIn profile with new projects</p>
-</li>
-<li className="flex gap-3 opacity-60">
-<div className="size-5 rounded bg-white/20 flex items-center justify-center shrink-0 border border-white/40">
-</div>
-<p className="text-xs font-medium text-white/90 line-through">Request recommendation from Prof. Smith</p>
-</li>
-<li className="flex gap-3">
-<div className="size-5 rounded bg-white/20 flex items-center justify-center shrink-0">
-<span className="material-symbols-outlined text-sm">more_horiz</span>
-</div>
-<p className="text-xs font-medium text-white/90">Submit 2 more applications today</p>
-</li>
-</ul>
-</section>
-</div>
-</div>
-</div>
-</main>
-</div>
-
-    </>
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-bold">Application Snapshot</h2>
+            <div className="mt-6 space-y-3">
+              {applications.length ? (
+                applications.slice(0, 4).map((application) => (
+                  <div key={application._id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
+                    <div>
+                      <p className="font-semibold">{application.internship?.title || 'Internship'}</p>
+                      <p className="text-sm text-slate-500">
+                        {application.internship?.company?.name || 'Company'}
+                      </p>
+                    </div>
+                    <StatusBadge status={application.status} />
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  title="No applications yet"
+                  description="Apply to internships after your profile and projects are ready."
+                />
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    </AppShell>
   );
 }

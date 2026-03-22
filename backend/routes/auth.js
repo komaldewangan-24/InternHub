@@ -4,6 +4,25 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { protect } = require('../middleware/auth');
 
+const profileFields = [
+    'skills',
+    'university',
+    'degree',
+    'resumeUrl',
+    'phone',
+    'bio',
+    'location',
+    'graduationDate',
+    'department',
+    'batch',
+    'section',
+    'rollNumber',
+    'designation',
+    'githubUrl',
+    'linkedinUrl',
+    'assignedFaculty',
+];
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token
@@ -29,14 +48,14 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access    Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
 
         // Create user
         const user = await User.create({
             name,
             email,
             password,
-            role,
+            role: 'student',
         });
 
         sendTokenResponse(user, 200, res);
@@ -82,7 +101,7 @@ router.post('/login', async (req, res) => {
 // @access    Private
 router.get('/me', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate('profile.assignedFaculty', 'name email role profile.department profile.designation');
         res.status(200).json({
             success: true,
             data: user,
@@ -97,24 +116,35 @@ router.get('/me', protect, async (req, res) => {
 // @access    Private
 router.put('/me', protect, async (req, res) => {
     try {
-        const fieldsToUpdate = {
-            name: req.body.name,
-            email: req.body.email,
-        };
-        
-        // Update profile fields
-        if (req.body.profile) {
-            fieldsToUpdate.profile = req.body.profile;
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
-        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-            new: true,
-            runValidators: true,
-        });
+        if (req.body.name) {
+            user.name = req.body.name;
+        }
+
+        if (req.body.email) {
+            user.email = req.body.email;
+        }
+
+        if (req.body.profile) {
+            user.profile = user.profile || {};
+            profileFields.forEach((field) => {
+                if (Object.prototype.hasOwnProperty.call(req.body.profile, field)) {
+                    user.profile[field] = req.body.profile[field];
+                }
+            });
+        }
+
+        await user.save();
+
+        const updatedUser = await User.findById(req.user.id).populate('profile.assignedFaculty', 'name email role profile.department profile.designation');
 
         res.status(200).json({
             success: true,
-            data: user,
+            data: updatedUser,
         });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });

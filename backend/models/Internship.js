@@ -21,6 +21,18 @@ const InternshipSchema = new mongoose.Schema({
         type: [String],
         required: [true, 'Please add requirements'],
     },
+    skillTags: {
+        type: [String],
+        default: [],
+    },
+    eligibleDepartments: {
+        type: [String],
+        default: [],
+    },
+    eligibleBatches: {
+        type: [String],
+        default: [],
+    },
     location: {
         type: String,
         required: [true, 'Please add a location (e.g., Remote, City)'],

@@ -3,33 +3,39 @@ const router = express.Router();
 const Internship = require('../models/Internship');
 const { protect, authorize } = require('../middleware/auth');
 
-// @desc      Get all internships
-// @route     GET /api/internships
-// @access    Public
+const normalizeArray = (value) => {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return value
+        .map((item) => String(item).trim())
+        .filter(Boolean);
+};
+
+const internshipPopulate = {
+    path: 'company',
+    select: 'name description logoUrl verificationStatus',
+};
+
+const userPopulate = {
+    path: 'user',
+    select: 'name email role profile.department profile.designation',
+};
+
 router.get('/', async (req, res) => {
     try {
-        let query;
-        // Copy req.query
         const reqQuery = { ...req.query };
-
-        // Fields to exclude
         const removeFields = ['select', 'sort', 'page', 'limit'];
         removeFields.forEach((param) => delete reqQuery[param]);
 
-        // Create query string
         let queryStr = JSON.stringify(reqQuery);
-
-        // Create operators ($gt, $gte, etc)
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
 
-        // Finding resource
-        query = Internship.find(JSON.parse(queryStr)).populate({
-            path: 'company',
-            select: 'name description logoUrl',
-        });
-
-        // Executing query
-        const internships = await query;
+        const internships = await Internship.find(JSON.parse(queryStr))
+            .populate(internshipPopulate)
+            .populate(userPopulate)
+            .sort('-createdAt');
 
         res.status(200).json({
             success: true,
@@ -41,15 +47,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-// @desc      Get single internship
-// @route     GET /api/internships/:id
-// @access    Public
 router.get('/:id', async (req, res) => {
     try {
-        const internship = await Internship.findById(req.params.id).populate({
-            path: 'company',
-            select: 'name description logoUrl',
-        });
+        const internship = await Internship.findById(req.params.id)
+            .populate(internshipPopulate)
+            .populate(userPopulate);
 
         if (!internship) {
             return res.status(404).json({ success: false, error: `Internship not found with id of ${req.params.id}` });
@@ -64,13 +66,13 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// @desc      Create new internship
-// @route     POST /api/internships
-// @access    Private (Recruiter, Admin)
 router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
-        // Add user to req.body
         req.body.user = req.user.id;
+        req.body.requirements = normalizeArray(req.body.requirements);
+        req.body.skillTags = normalizeArray(req.body.skillTags);
+        req.body.eligibleDepartments = normalizeArray(req.body.eligibleDepartments);
+        req.body.eligibleBatches = normalizeArray(req.body.eligibleBatches);
 
         const internship = await Internship.create(req.body);
 
@@ -83,9 +85,6 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
     }
 });
 
-// @desc      Update internship
-// @route     PUT /api/internships/:id
-// @access    Private (Recruiter, Admin)
 router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
         let internship = await Internship.findById(req.params.id);
@@ -94,12 +93,17 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
             return res.status(404).json({ success: false, error: `Internship not found with id of ${req.params.id}` });
         }
 
-        // Make sure user is internship owner
         if (internship.user.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, error: `User ${req.user.id} is not authorized to update this internship` });
         }
 
-        internship = await Internship.findByIdAndUpdate(req.params.id, req.body, {
+        const payload = { ...req.body };
+        if (payload.requirements) payload.requirements = normalizeArray(payload.requirements);
+        if (payload.skillTags) payload.skillTags = normalizeArray(payload.skillTags);
+        if (payload.eligibleDepartments) payload.eligibleDepartments = normalizeArray(payload.eligibleDepartments);
+        if (payload.eligibleBatches) payload.eligibleBatches = normalizeArray(payload.eligibleBatches);
+
+        internship = await Internship.findByIdAndUpdate(req.params.id, payload, {
             new: true,
             runValidators: true,
         });
@@ -113,9 +117,6 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
     }
 });
 
-// @desc      Delete internship
-// @route     DELETE /api/internships/:id
-// @access    Private (Recruiter, Admin)
 router.delete('/:id', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
         const internship = await Internship.findById(req.params.id);
@@ -124,7 +125,6 @@ router.delete('/:id', protect, authorize('recruiter', 'admin'), async (req, res)
             return res.status(404).json({ success: false, error: `Internship not found with id of ${req.params.id}` });
         }
 
-        // Make sure user is internship owner
         if (internship.user.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(401).json({ success: false, error: `User ${req.user.id} is not authorized to delete this internship` });
         }
