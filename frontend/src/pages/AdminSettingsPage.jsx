@@ -41,21 +41,35 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  const addRubricItem = () => {
+    setSettings((current) => ({
+      ...current,
+      reviewRubric: [...(current.reviewRubric || []), { ...blankRubric, key: `criterion_${(current.reviewRubric || []).length + 1}` }]
+    }));
+  };
+
+  const removeRubricItem = (index) => {
+    setSettings((current) => ({
+      ...current,
+      reviewRubric: current.reviewRubric.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       setSaving(true);
       const payload = {
         ...settings,
-        departments: String(settings.departments || '')
+        departments: Array.isArray(settings.departments) ? settings.departments : String(settings.departments || '')
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean),
-        batches: String(settings.batches || '')
+        batches: Array.isArray(settings.batches) ? settings.batches : String(settings.batches || '')
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean),
-        placementCategories: String(settings.placementCategories || '')
+        placementCategories: Array.isArray(settings.placementCategories) ? settings.placementCategories : String(settings.placementCategories || '')
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean),
@@ -63,72 +77,145 @@ export default function AdminSettingsPage() {
 
       const { data } = await settingsAPI.update(payload);
       setSettings(data.data);
-      toast.success('Placement settings updated');
+      toast.success('Configuration synchronized');
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to update settings');
+      toast.error(error.response?.data?.error || 'Synchronization failed');
     } finally {
       setSaving(false);
     }
   };
 
   if (loading || pageLoading || !settings) {
-    return <LoadingState label="Loading placement settings..." />;
+    return <LoadingState label="Hydrating system parameters..." />;
   }
 
   return (
     <AppShell
-      title="Placement Settings"
-      description="Configure departments, active cycles, rubric criteria, and review SLAs for your campus."
+      title="System Architecture"
+      description="Fine-tune institutional parameters, pedagogical rubrics, and operational SLAs for the current placement cycle."
       navigation={navigationByRole.admin}
       user={user}
     >
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">Campus Configuration</h2>
-            <div className="mt-6 space-y-4">
-              <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Organization name" value={settings.organizationName || ''} onChange={(event) => updateField('organizationName', event.target.value)} />
-              <textarea className="min-h-[120px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Departments, one per line'} value={Array.isArray(settings.departments) ? settings.departments.join('\n') : settings.departments || ''} onChange={(event) => updateField('departments', event.target.value)} />
-              <textarea className="min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Batches, one per line'} value={Array.isArray(settings.batches) ? settings.batches.join('\n') : settings.batches || ''} onChange={(event) => updateField('batches', event.target.value)} />
-              <textarea className="min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Placement categories, one per line'} value={Array.isArray(settings.placementCategories) ? settings.placementCategories.join('\n') : settings.placementCategories || ''} onChange={(event) => updateField('placementCategories', event.target.value)} />
-            </div>
-          </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">Active Cycle</h2>
-            <div className="mt-6 space-y-4">
-              <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Cycle name" value={settings.activeCycle?.name || ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, name: event.target.value })} />
-              <div className="grid gap-4 md:grid-cols-2">
-                <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" type="date" value={settings.activeCycle?.startDate ? new Date(settings.activeCycle.startDate).toISOString().split('T')[0] : ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, startDate: event.target.value })} />
-                <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" type="date" value={settings.activeCycle?.endDate ? new Date(settings.activeCycle.endDate).toISOString().split('T')[0] : ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, endDate: event.target.value })} />
+      <form className="space-y-10" onSubmit={handleSubmit}>
+        <div className="grid gap-10 lg:grid-cols-2">
+          <section className="rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
+            <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">account_balance</span>
+              Institutional Scope
+            </h2>
+            <div className="mt-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Organization Taxonomy</label>
+                <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" placeholder="University Name" value={settings.organizationName || ''} onChange={(event) => updateField('organizationName', event.target.value)} />
               </div>
-              <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" min="1" placeholder="Project review SLA days" type="number" value={settings.projectReviewSlaDays || 7} onChange={(event) => updateField('projectReviewSlaDays', Number(event.target.value) || 7)} />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Departments (One per line)</label>
+                <textarea className="min-h-[140px] w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white font-mono" placeholder="Ex: Computer Science" value={Array.isArray(settings.departments) ? settings.departments.join('\n') : settings.departments || ''} onChange={(event) => updateField('departments', event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Academic Batches</label>
+                <textarea className="min-h-[100px] w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white font-mono" placeholder="Ex: 2025" value={Array.isArray(settings.batches) ? settings.batches.join('\n') : settings.batches || ''} onChange={(event) => updateField('batches', event.target.value)} />
+              </div>
             </div>
-          </div>
+          </section>
+
+          <section className="space-y-10">
+            <div className="rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
+              <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3">
+                <span className="material-symbols-outlined text-amber-500">event_note</span>
+                Operational Cycle
+              </h2>
+              <div className="mt-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Cycle Designation</label>
+                  <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" placeholder="Ex: Spring 2026 Core" value={settings.activeCycle?.name || ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, name: event.target.value })} />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Epoch Start</label>
+                    <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" type="date" value={settings.activeCycle?.startDate ? new Date(settings.activeCycle.startDate).toISOString().split('T')[0] : ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, startDate: event.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Epoch End</label>
+                    <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" type="date" value={settings.activeCycle?.endDate ? new Date(settings.activeCycle.endDate).toISOString().split('T')[0] : ''} onChange={(event) => updateField('activeCycle', { ...settings.activeCycle, endDate: event.target.value })} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
+              <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3">
+                <span className="material-symbols-outlined text-indigo-500">timer</span>
+                SLA Thresholds
+              </h2>
+              <div className="mt-8 space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Faculty Review Latency (Days)</label>
+                <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" min="1" type="number" value={settings.projectReviewSlaDays || 7} onChange={(event) => updateField('projectReviewSlaDays', Number(event.target.value) || 7)} />
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold">Faculty Review Rubric</h2>
-            <button className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold" onClick={() => updateField('reviewRubric', [...(settings.reviewRubric || []), { ...blankRubric }])} type="button">
-              Add Criterion
+        <section className="rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+                <span className="material-symbols-outlined text-[24px]">rule</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-black tracking-tight dark:text-white">Pedagogical Rubric</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Standardized criteria used by faculty for project endorsements.</p>
+              </div>
+            </div>
+            <button 
+              className="rounded-2xl border border-slate-200 dark:border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm active:scale-95" 
+              onClick={addRubricItem} 
+              type="button"
+            >
+              Add Assessment Criterion
             </button>
           </div>
-          <div className="mt-6 space-y-4">
+
+          <div className="grid gap-6 md:grid-cols-2">
             {(settings.reviewRubric || []).map((item, index) => (
-              <div key={`${item.key}-${index}`} className="grid gap-4 rounded-2xl border border-slate-200 p-4 md:grid-cols-[1fr,1fr,120px]">
-                <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Key" value={item.key || ''} onChange={(event) => updateRubric(index, 'key', event.target.value)} />
-                <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Label" value={item.label || ''} onChange={(event) => updateRubric(index, 'label', event.target.value)} />
-                <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" min="1" placeholder="Max score" type="number" value={item.maxScore || 5} onChange={(event) => updateRubric(index, 'maxScore', Number(event.target.value) || 5)} />
-                <textarea className="md:col-span-3 min-h-[90px] rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Criterion description" value={item.description || ''} onChange={(event) => updateRubric(index, 'description', event.target.value)} />
+              <div key={`${item.key}-${index}`} className="relative group rounded-[2rem] border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 p-8 transition-all hover:border-primary/30">
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">System Key</label>
+                       <input className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-4 py-3 text-xs outline-none focus:border-primary dark:text-white font-mono" value={item.key || ''} onChange={(event) => updateRubric(index, 'key', event.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Max Score</label>
+                       <input className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-4 py-3 text-xs outline-none focus:border-primary dark:text-white" type="number" value={item.maxScore || 5} onChange={(event) => updateRubric(index, 'maxScore', Number(event.target.value) || 5)} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Display Label</label>
+                     <input className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-4 py-3 text-sm font-bold outline-none focus:border-primary dark:text-white" value={item.label || ''} onChange={(event) => updateRubric(index, 'label', event.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Guideline Description</label>
+                     <textarea className="min-h-[80px] w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-4 py-3 text-xs outline-none focus:border-primary dark:text-white leading-relaxed" value={item.description || ''} onChange={(event) => updateRubric(index, 'description', event.target.value)} />
+                  </div>
+                </div>
+                <button 
+                  className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeRubricItem(index)}
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[16px]">close</span>
+                </button>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        <button className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
-          {saving ? 'Saving...' : 'Save Placement Settings'}
-        </button>
+        <div className="flex items-center justify-end border-t border-slate-200 dark:border-white/5 pt-10">
+           <button className="rounded-2xl bg-primary px-10 py-5 text-sm font-black text-white shadow-xl shadow-primary/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-70" disabled={saving} type="submit">
+             {saving ? 'Synchronizing State...' : 'Commit System Configuration'}
+           </button>
+        </div>
       </form>
     </AppShell>
   );

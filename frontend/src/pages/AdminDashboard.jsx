@@ -30,100 +30,121 @@ export default function AdminDashboard() {
         setPageLoading(false);
       }
     };
-
     loadData();
   }, []);
 
   if (loading || pageLoading) {
-    return <LoadingState label="Loading placement dashboard..." />;
+    return <LoadingState label="Synthesizing placement analytics..." />;
   }
+
+  const mainStats = [
+    { label: 'Total Students', value: stats?.totalStudents || 0, icon: 'groups', color: 'text-primary' },
+    { label: 'Market Ready', value: stats?.readyStudents || 0, icon: 'verified', color: 'text-emerald-500' },
+    { label: 'Pending Reviews', value: stats?.pendingProjectReviews || 0, icon: 'history_edu', color: 'text-amber-500' },
+    { label: 'Placement Rate', value: `${stats?.placedRate || 0}%`, icon: 'insights', color: 'text-indigo-500' },
+  ];
 
   return (
     <AppShell
-      title="Placement Dashboard"
-      description="Monitor student readiness, faculty review throughput, recruiter activity, and application movement."
+      title="Placement Oversight"
+      description="Strategic visualization of institutional readiness, faculty throughput, and recruitment velocity."
       navigation={navigationByRole.admin}
       user={user}
     >
-      <div className="grid gap-4 md:grid-cols-4">
-        {[
-          ['Students', stats?.totalStudents || 0],
-          ['Ready Students', stats?.readyStudents || 0],
-          ['Pending Project Reviews', stats?.pendingProjectReviews || 0],
-          ['Overdue Reviews', stats?.overdueProjectReviews || 0],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-3xl bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{label}</p>
-            <p className="mt-3 text-3xl font-black">{value}</p>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {mainStats.map((stat) => (
+          <div key={stat.label} className="rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
+            <div className={`mb-4 flex size-12 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 ${stat.color}`}>
+              <span className="material-symbols-outlined">{stat.icon}</span>
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{stat.label}</p>
+            <p className="mt-2 text-3xl font-black tracking-tight dark:text-white">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1fr,1fr]">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold">Operational Bottlenecks</h2>
-          <div className="mt-6 space-y-3">
+      <div className="mt-8 grid gap-8 xl:grid-cols-2">
+        <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
+          <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3 mb-8">
+            <span className="material-symbols-outlined text-rose-500">warning</span>
+            Operational Risks
+          </h2>
+          <div className="space-y-4">
             {[
-              ['Missing resumes', stats?.studentsMissingResume || 0],
-              ['No approved project yet', stats?.studentsWithoutApprovedProjects || 0],
-              ['Low application activity', stats?.lowApplicationActivity || 0],
-              ['Inactive recruiters', stats?.inactiveRecruiters || 0],
-            ].map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
-                <p className="font-semibold">{label}</p>
-                <p className="text-lg font-black">{value}</p>
+              { label: 'Missing resumes', value: stats?.studentsMissingResume || 0, icon: 'drafts' },
+              { label: 'No approved projects', value: stats?.studentsWithoutApprovedProjects || 0, icon: 'assignment_late' },
+              { label: 'Low application activity', value: stats?.lowApplicationActivity || 0, icon: 'trending_down' },
+              { label: 'Inactive recruiters', value: stats?.inactiveRecruiters || 0, icon: 'person_off' },
+            ].map((risk) => (
+              <div key={risk.label} className="flex items-center justify-between rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5 transition-all hover:bg-rose-50/50 dark:hover:bg-rose-500/5 group">
+                <div className="flex items-center gap-4">
+                  <span className="material-symbols-outlined text-slate-400 group-hover:text-rose-500 transition-colors">{risk.icon}</span>
+                  <p className="font-bold text-slate-600 dark:text-slate-300">{risk.label}</p>
+                </div>
+                <p className="text-xl font-black dark:text-white">{risk.value}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold">Review Health</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 p-4">
-              <p className="text-sm text-slate-500">Average turnaround</p>
-              <p className="mt-2 text-2xl font-black">{stats?.averageReviewTurnaroundDays || 0} days</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 p-4">
-              <p className="text-sm text-slate-500">Placement rate</p>
-              <p className="mt-2 text-2xl font-black">{stats?.placedRate || 0}%</p>
+        <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">health_metrics</span>
+              Review Health
+            </h2>
+            <div className="flex items-center gap-2 rounded-2xl bg-primary/10 px-4 py-2">
+              <span className="text-xs font-black text-primary uppercase tracking-tighter">Avg TAT: {stats?.averageReviewTurnaroundDays || 0} Days</span>
             </div>
           </div>
-          <div className="mt-6 space-y-3">
+          <div className="space-y-4">
             {projects.length ? (
-              projects.slice(0, 4).map((project) => (
-                <div key={project._id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
-                  <div>
-                    <p className="font-semibold">{project.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {project.student?.name} • {project.faculty?.name}
-                    </p>
+              projects.slice(0, 5).map((project) => (
+                <div key={project._id} className="group rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5 transition-all hover:bg-slate-50 dark:hover:bg-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-primary font-bold shadow-sm uppercase">
+                      {project.student?.name?.[0]}
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-700 dark:text-white tracking-tight leading-none">{project.title}</p>
+                      <p className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Evaluator: {project.faculty?.name || 'Assigned Faculty'}</p>
+                    </div>
                   </div>
                   <StatusBadge status={project.status} />
                 </div>
               ))
             ) : (
-              <EmptyState title="No project activity" description="Project submissions will appear here after students start submitting work." />
+              <EmptyState icon="database" title="No activity" description="Project review cycles will activate as students submit work." />
             )}
           </div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold">Recent Applications</h2>
-        <div className="mt-6 space-y-3">
+      <div className="mt-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
+        <h2 className="text-2xl font-black tracking-tight dark:text-white flex items-center gap-3 mb-8">
+          <span className="material-symbols-outlined text-indigo-500">rocket_launch</span>
+          Recent Application Flux
+        </h2>
+        <div className="space-y-3">
           {applications.length ? (
-            applications.slice(0, 5).map((application) => (
-              <div key={application._id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-4">
-                <div>
-                  <p className="font-semibold">{application.user?.name || 'Student'}</p>
-                  <p className="mt-1 text-sm text-slate-500">{application.internship?.title || 'Internship'}</p>
+            applications.slice(0, 5).map((app) => (
+              <div key={app._id} className="group flex items-center justify-between rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5 transition-all hover:bg-slate-50 dark:hover:bg-white/10">
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500">
+                      <span className="material-symbols-outlined text-sm">person</span>
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-700 dark:text-white tracking-tight">{app.user?.name || 'Student Candidate'}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{app.internship?.title || 'Internship Title'}</p>
+                    </div>
+                  </div>
                 </div>
-                <StatusBadge status={application.status} />
+                <StatusBadge status={app.status} />
               </div>
             ))
           ) : (
-            <EmptyState title="No applications yet" description="Application activity will appear here when recruiters start hiring." />
+            <EmptyState icon="pending_actions" title="Awaiting recruitment activity" description="Once companies start vetting students, placement movement will appear here." />
           )}
         </div>
       </div>

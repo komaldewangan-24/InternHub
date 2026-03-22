@@ -42,12 +42,11 @@ export default function AdminStudentsPage() {
         setPageLoading(false);
       }
     };
-
     loadData();
   }, []);
 
   const students = useMemo(() => users.filter((item) => item.role === 'student'), [users]);
-  const faculty = useMemo(() => users.filter((item) => item.role === 'faculty'), [users]);
+  const facultyList = useMemo(() => users.filter((item) => item.role === 'faculty'), [users]);
   const recruiters = useMemo(() => users.filter((item) => item.role === 'recruiter'), [users]);
 
   const filteredStudents = useMemo(() => {
@@ -118,81 +117,98 @@ export default function AdminStudentsPage() {
   };
 
   if (loading || pageLoading) {
-    return <LoadingState label="Loading students..." />;
+    return <LoadingState label="Indexing campus users..." />;
   }
 
   return (
     <AppShell
-      title="Placement Students"
-      description="Provision controlled accounts, assign faculty by department, and monitor student readiness at the campus level."
+      title="User Management"
+      description="Provision accounts and maintain departmental oversight for all institutional stakeholders."
       navigation={navigationByRole.admin}
       user={user}
       actions={
-        <button className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold" onClick={exportStudents} type="button">
-          Export Student Readiness
+        <button className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-white/10 active:scale-95" onClick={exportStudents} type="button">
+          Export Readiness CSV
         </button>
       }
     >
-      <div className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
-        <div className="space-y-6">
-          <form className="rounded-3xl bg-white p-6 shadow-sm" onSubmit={handleProvision}>
-            <h2 className="text-xl font-bold">Controlled Account Provisioning</h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Full name" value={provisionForm.name} onChange={(event) => setProvisionForm((current) => ({ ...current, name: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Email" value={provisionForm.email} onChange={(event) => setProvisionForm((current) => ({ ...current, email: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Password" type="password" value={provisionForm.password} onChange={(event) => setProvisionForm((current) => ({ ...current, password: event.target.value }))} />
-              <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={provisionForm.role} onChange={(event) => setProvisionForm((current) => ({ ...current, role: event.target.value }))}>
-                <option value="faculty">Faculty</option>
-                <option value="recruiter">Recruiter</option>
-                <option value="student">Student</option>
-                <option value="admin">Admin</option>
-              </select>
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Department" value={provisionForm.department} onChange={(event) => setProvisionForm((current) => ({ ...current, department: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Designation" value={provisionForm.designation} onChange={(event) => setProvisionForm((current) => ({ ...current, designation: event.target.value }))} />
+      <div className="grid gap-8 xl:grid-cols-[400px,1fr]">
+        <div className="space-y-8">
+          <form className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all" onSubmit={handleProvision}>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <span className="material-symbols-outlined">person_add</span>
+              </div>
+              <h2 className="text-xl font-black tracking-tight dark:text-white">Account Provision</h2>
             </div>
-            <button className="mt-6 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
-              {saving ? 'Saving...' : 'Create Controlled Account'}
+            <div className="space-y-4">
+              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Name" value={provisionForm.name} onChange={(event) => setProvisionForm((current) => ({ ...current, name: event.target.value }))} />
+              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Email" value={provisionForm.email} onChange={(event) => setProvisionForm((current) => ({ ...current, email: event.target.value }))} />
+              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Password" type="password" value={provisionForm.password} onChange={(event) => setProvisionForm((current) => ({ ...current, password: event.target.value }))} />
+              <select className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={provisionForm.role} onChange={(event) => setProvisionForm((current) => ({ ...current, role: event.target.value }))}>
+                <option value="faculty" className="dark:bg-slate-900 text-slate-900 dark:text-white">Faculty</option>
+                <option value="recruiter" className="dark:bg-slate-900 text-slate-900 dark:text-white">Recruiter</option>
+                <option value="student" className="dark:bg-slate-900 text-slate-900 dark:text-white">Student</option>
+                <option value="admin" className="dark:bg-slate-900 text-slate-900 dark:text-white">Admin</option>
+              </select>
+              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department" value={provisionForm.department} onChange={(event) => setProvisionForm((current) => ({ ...current, department: event.target.value }))} />
+            </div>
+            <button className="mt-8 w-full rounded-2xl bg-primary px-5 py-4 text-sm font-black text-white shadow-lg shadow-primary/30 disabled:opacity-50 transition-all hover:scale-105 active:scale-95" disabled={saving} type="submit">
+              {saving ? 'Processing...' : 'Create Account'}
             </button>
           </form>
 
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold">Faculty Assignment By Department</h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={assignmentFacultyId} onChange={(event) => setAssignmentFacultyId(event.target.value)}>
-                <option value="">Select faculty</option>
-                {faculty.map((member) => (
-                  <option key={member._id} value={member._id}>
+          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500">
+                <span className="material-symbols-outlined">assignment_ind</span>
+              </div>
+              <h2 className="text-xl font-black tracking-tight dark:text-white">Faculty Assignment</h2>
+            </div>
+            <div className="space-y-4">
+              <select className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={assignmentFacultyId} onChange={(event) => setAssignmentFacultyId(event.target.value)}>
+                <option value="" className="dark:bg-slate-900">Select evaluator</option>
+                {facultyList.map((member) => (
+                  <option key={member._id} value={member._id} className="dark:bg-slate-900">
                     {member.name}
                   </option>
                 ))}
               </select>
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Department to assign" value={assignmentDepartment} onChange={(event) => setAssignmentDepartment(event.target.value)} />
+              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department key" value={assignmentDepartment} onChange={(event) => setAssignmentDepartment(event.target.value)} />
             </div>
-            <button className="mt-6 rounded-2xl border border-slate-200 px-5 py-3 text-sm font-bold" disabled={saving || !assignmentFacultyId || !assignmentDepartment} onClick={handleAssignFaculty} type="button">
-              Assign Faculty To Department
+            <button className="mt-8 w-full rounded-2xl border border-slate-200 dark:border-white/10 px-5 py-4 text-sm font-black text-slate-700 dark:text-slate-200 transition-all hover:border-primary hover:text-primary disabled:opacity-50" disabled={saving || !assignmentFacultyId || !assignmentDepartment} onClick={handleAssignFaculty} type="button">
+              Assign to Department
             </button>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              ['Students', students.length],
-              ['Faculty', faculty.length],
-              ['Recruiters', recruiters.length],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-3xl bg-white p-6 shadow-sm">
-                <p className="text-sm text-slate-500">{label}</p>
-                <p className="mt-3 text-3xl font-black">{value}</p>
-              </div>
-            ))}
+          
+          <div className="grid grid-cols-3 gap-3">
+             {[
+               { val: students.length, lab: 'Students' },
+               { val: facultyList.length, lab: 'Faculty' },
+               { val: recruiters.length, lab: 'Recruiters' }
+             ].map(s => (
+               <div key={s.lab} className="rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 p-4 text-center">
+                  <p className="text-sm font-black dark:text-white leading-tight">{s.val}</p>
+                  <p className="mt-1 text-[8px] font-black uppercase tracking-widest text-slate-400">{s.lab}</p>
+               </div>
+             ))}
           </div>
         </div>
 
-        <div>
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Search students" value={search} onChange={(event) => setSearch(event.target.value)} />
+        <div className="space-y-6">
+          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
+            <div className="relative group">
+               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+               <input 
+                className="w-full rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-12 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" 
+                placeholder="Search student candidates by name, email, department or degree" 
+                value={search} 
+                onChange={(event) => setSearch(event.target.value)} 
+               />
+            </div>
           </div>
 
-          <div className="mt-6 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {filteredStudents.length ? (
               filteredStudents.map((student) => {
                 const readiness = computeStudentReadiness({
@@ -200,29 +216,40 @@ export default function AdminStudentsPage() {
                   approvedProjects: 0,
                   applications: 0,
                 });
-
                 return (
-                  <div key={student._id} className="rounded-3xl bg-white p-6 shadow-sm">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div>
-                        <p className="text-lg font-bold">{student.name}</p>
-                        <p className="mt-1 text-sm text-slate-500">{student.email}</p>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {student.profile?.department || 'Department not set'} • {student.profile?.batch || 'Batch not set'}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-500">
+                  <div key={student._id} className="group rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-6 shadow-sm transition-all hover:border-primary/20">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex size-12 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-primary font-black shadow-sm group-hover:scale-105 transition-transform">
+                          {student.name?.[0]}
+                        </div>
+                        <div>
+                          <p className="text-base font-black tracking-tight dark:text-white leading-tight">{student.name}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium italic italic">{student.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <span className="text-[10px] font-black">{readiness.score}%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 space-y-3">
+                       <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                          <span className="material-symbols-outlined text-xs">account_balance</span>
+                          {student.profile?.department || 'Applied Science'} <span className="mx-1">•</span> {student.profile?.batch || '2025'}
+                       </div>
+                       <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
+                          <span className="material-symbols-outlined text-xs">person_check</span>
                           Faculty: {student.profile?.assignedFaculty?.name || 'Not assigned'}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold">
-                        Readiness: {readiness.score}%
-                      </div>
+                       </div>
                     </div>
                   </div>
                 );
               })
             ) : (
-              <EmptyState title="No students found" description="Students will appear here once accounts are created." />
+              <div className="md:col-span-2">
+                <EmptyState icon="person_off" title="No matching students" description="Adjust your search parameters or confirm that student accounts have been provisioned." />
+              </div>
             )}
           </div>
         </div>

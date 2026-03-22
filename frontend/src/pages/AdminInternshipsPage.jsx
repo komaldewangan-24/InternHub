@@ -27,11 +27,11 @@ export default function AdminInternshipsPage() {
         setPageLoading(false);
       }
     };
-
     run();
   }, []);
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Delete this internship? This cannot be undone.')) return;
     try {
       await internshipAPI.delete(id);
       toast.success('Internship removed');
@@ -42,47 +42,68 @@ export default function AdminInternshipsPage() {
   };
 
   if (loading || pageLoading) {
-    return <LoadingState label="Loading internships..." />;
+    return <LoadingState label="Indexing internship databases..." />;
   }
 
   return (
     <AppShell
-      title="Placement Internships"
-      description="See every internship in the system and manage placement-wide availability."
+      title="Internship Oversight"
+      description="Monitor and manage all corporate openings to ensure platform quality and student safety."
       navigation={navigationByRole.admin}
       user={user}
     >
-      <div className="space-y-4">
+      <div className="space-y-6">
         {internships.length ? (
           internships.map((internship) => (
-            <div key={internship._id} className="rounded-3xl bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <p className="text-lg font-bold">{internship.title}</p>
-                  <p className="mt-1 text-sm text-slate-500">{internship.company?.name || 'Company'}</p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {internship.location} • Apply by{' '}
-                    {internship.applyBy ? new Date(internship.applyBy).toLocaleDateString() : 'Open'}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(internship.skillTags || []).slice(0, 4).map((tag) => (
-                      <span key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold">
+            <div key={internship._id} className="group rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-black tracking-tight dark:text-white leading-tight">{internship.title}</h3>
+                    <StatusBadge status={internship.status} />
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
+                    <span className="text-primary italic italic">{internship.company?.name || 'Authorized Partner'}</span>
+                    <span className="size-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+                    <span className="flex items-center gap-1.5 leading-none">
+                      <span className="material-symbols-outlined text-[14px]">location_on</span>
+                      {internship.location}
+                    </span>
+                    <span className="size-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+                    <span className="flex items-center gap-1.5 leading-none">
+                      <span className="material-symbols-outlined text-[14px]">event_available</span>
+                      Ends {internship.applyBy ? new Date(internship.applyBy).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Open'}
+                    </span>
+                  </div>
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {(internship.skillTags || []).map((tag) => (
+                      <span key={tag} className="rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={internship.status} />
-                  <button className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600" onClick={() => handleDelete(internship._id)} type="button">
-                    Delete
+                <div className="flex items-center gap-4 border-t border-slate-50 dark:border-white/5 pt-6 lg:border-t-0 lg:pt-0">
+                  <button 
+                    className="flex-1 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 transition-all hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-200" 
+                    onClick={() => handleDelete(internship._id)} 
+                    type="button"
+                  >
+                    Rescind Posting
+                  </button>
+                  <button 
+                    className="flex-1 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95" 
+                    onClick={() => window.open(`/internships/${internship._id}`, '_blank')} 
+                    type="button"
+                  >
+                    Preview
                   </button>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <EmptyState title="No internships yet" description="Internships will appear here when recruiters start creating openings." />
+          <EmptyState icon="work_off" title="No active postings" description="Corporate openings will appear here once recruiters start the fulfillment cycle." />
         )}
       </div>
     </AppShell>

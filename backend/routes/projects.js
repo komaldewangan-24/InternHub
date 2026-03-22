@@ -539,4 +539,34 @@ router.post('/:id/review', protect, authorize('faculty', 'admin'), async (req, r
     }
 });
 
+router.delete('/:id', protect, async (req, res) => {
+    try {
+        const submission = await ProjectSubmission.findById(req.params.id);
+
+        if (!submission) {
+            return res.status(404).json({ success: false, error: 'Project submission not found' });
+        }
+
+        const isOwner = String(submission.student) === String(req.user.id);
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ success: false, error: 'You are not allowed to delete this project' });
+        }
+
+        if (submission.status === 'approved' && !isAdmin) {
+            return res.status(400).json({ success: false, error: 'Approved projects cannot be deleted by students' });
+        }
+
+        await ProjectSubmission.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            data: {},
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;

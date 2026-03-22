@@ -75,6 +75,7 @@ export const projectAPI = {
     submit: (id) => api.post(`/projects/${id}/submit`),
     resubmit: (id, data) => api.post(`/projects/${id}/resubmit`, data),
     review: (id, data) => api.post(`/projects/${id}/review`, data),
+    delete: (id) => api.delete(`/projects/${id}`),
     exportApproved: () => api.get('/projects/export/approved', { responseType: 'blob' }),
     exportBacklog: () => api.get('/projects/export/review-backlog', { responseType: 'blob' }),
 };

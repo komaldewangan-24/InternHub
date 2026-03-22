@@ -32,6 +32,7 @@ export default function AdminCompaniesPage() {
   }, []);
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this company?')) return;
     try {
       await companyAPI.delete(id);
       toast.success('Company removed');
@@ -52,42 +53,86 @@ export default function AdminCompaniesPage() {
   };
 
   if (loading || pageLoading) {
-    return <LoadingState label="Loading companies..." />;
+    return <LoadingState label="Mapping institutional partners..." />;
   }
 
   return (
     <AppShell
-      title="Placement Companies"
-      description="Monitor, verify, and manage recruiter organizations participating in the placement process."
+      title="Company Registry"
+      description="Systematic oversight of recruiter organizations and institutional industry partners."
       navigation={navigationByRole.admin}
       user={user}
     >
-      <div className="space-y-4">
+      <div className="space-y-6">
         {companies.length ? (
           companies.map((company) => (
-            <div key={company._id} className="rounded-3xl bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <p className="text-lg font-bold">{company.name}</p>
-                  <p className="mt-1 text-sm text-slate-500">{company.email || 'No contact email'}</p>
-                  <p className="mt-1 text-sm text-slate-600">{company.description}</p>
+            <div key={company._id} className="group rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:border-primary/20">
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-primary shadow-sm group-hover:scale-105 transition-transform">
+                      <span className="material-symbols-outlined text-[32px]">corporate_fare</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black tracking-tight dark:text-white leading-tight">{company.name}</h3>
+                      <div className="mt-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                        <span className="material-symbols-outlined text-[14px]">alternate_email</span>
+                        {company.email || 'No contact email provided'}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium max-w-2xl italic">{company.description}</p>
+                  
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {company.industry && (
+                      <span className="rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        {company.industry}
+                      </span>
+                    )}
+                    {company.location && (
+                      <span className="rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        {company.location}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <StatusBadge status={company.verificationStatus || 'pending'} />
-                  {['verified', 'flagged', 'pending'].map((status) => (
-                    <button key={status} className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em]" onClick={() => handleVerificationUpdate(company, status)} type="button">
-                      {status}
+
+                <div className="flex flex-col gap-6 lg:items-end">
+                  <div className="flex items-center gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Integrity Status</p>
+                    <StatusBadge status={company.verificationStatus || 'pending'} />
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-2">
+                    {['verified', 'pending', 'flagged'].map((status) => (
+                      <button 
+                        key={status} 
+                        className={`rounded-[1rem] border px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
+                          company.verificationStatus === status 
+                            ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
+                            : 'border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                        }`} 
+                        onClick={() => handleVerificationUpdate(company, status)} 
+                        type="button"
+                      >
+                        {status}
+                      </button>
+                    ))}
+                    <button 
+                      className="ml-2 flex size-10 items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-thin border-rose-100 dark:border-rose-500/20 hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95" 
+                      onClick={() => handleDelete(company._id)} 
+                      type="button"
+                      title="Remove partner"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
                     </button>
-                  ))}
-                  <button className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600" onClick={() => handleDelete(company._id)} type="button">
-                    Delete
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <EmptyState title="No companies yet" description="Recruiter companies will appear here after they create their profiles." />
+          <EmptyState icon="business_center" title="No registered partners" description="Company profiles will appear here after recruiters complete their institutional onboarding." />
         )}
       </div>
     </AppShell>
