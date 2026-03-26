@@ -106,108 +106,118 @@ export default function MessagesPage() {
   };
 
   if (loading || pageLoading) {
-    return <LoadingState label="Synchronizing messages..." />;
+    return <LoadingState label="Loading messages..." />;
   }
 
   return (
     <AppShell
-      title="Messaging Hub"
-      description="Secure multi-role communication channel for project feedback and recruitment."
+      title="Messages"
+      description="Communicate within the institutional hierarchy to optimize recruitment outcomes."
       navigation={navigation}
       user={user}
     >
-      <div className="grid h-[calc(100vh-280px)] gap-6 xl:grid-cols-[380px,1fr]">
-        <section className="flex flex-col overflow-hidden rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 shadow-sm transition-all">
-          <div className="p-6 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+      <div className="flex h-[calc(100vh-280px)] flex-col gap-8 lg:flex-row lg:items-start lg:px-4 uppercase">
+        <aside className="flex-[0.85] flex flex-col overflow-hidden rounded-md bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-white/5 h-full lg:min-w-[340px] relative group uppercase whitespace-nowrap">
+          <div className="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/10 dark:bg-transparent">
+             <div className="flex items-center gap-3 mb-6 px-2">
+                <div className="size-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                <p className="text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-indigo-500">INBOX NODES</p>
+             </div>
+            <div className="relative group/search">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500/40 group-focus-within/search:text-indigo-500 transition-all text-[20px]">search</span>
               <input 
-                className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-11 py-3 text-sm outline-none focus:border-primary transition-all dark:text-white" 
-                placeholder="Search faculty or recruiters" 
+                className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-10 py-4 text-[10px] font-poppins font-bold outline-none focus:border-indigo-500 transition-all dark:text-white" 
+                placeholder="SEARCH CONTACTS..." 
                 value={search} 
                 onChange={(event) => setSearch(event.target.value)} 
               />
             </div>
           </div>
           
-          <div className="flex-1 space-y-2 overflow-y-auto p-4 custom-scrollbar">
+          <div className="flex-1 space-y-2 overflow-y-auto p-6 scrollbar-hide">
             {search.trim().length >= 2 ? (
               searchResults.length ? (
                 searchResults.map((person) => (
                   <button
                     key={person._id || person.id}
-                    className={`group w-full rounded-2xl p-4 text-left transition-all ${
+                    className={`group w-full rounded-sm p-4 text-left transition-all duration-300 border-2 ${
                       (selectedUser?._id || selectedUser?.id) === (person._id || person.id)
-                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                        : 'hover:bg-slate-50 dark:hover:bg-white/5'
+                        ? 'text-white border-transparent shadow-lg scale-[1.01]'
+                        : 'bg-white dark:bg-white/5 border-slate-50 dark:border-white/5 hover:border-indigo-500/30'
                     }`}
+                    style={{ backgroundImage: (selectedUser?._id || selectedUser?.id) === (person._id || person.id) ? 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' : 'none' }}
                     onClick={() => openConversation(person)}
                   >
-                    <p className="font-black tracking-tight">{person.name}</p>
-                    <p className={`mt-1 text-xs font-bold uppercase tracking-widest ${
-                      (selectedUser?._id || selectedUser?.id) === (person._id || person.id) ? 'text-white/70' : 'text-primary'
+                    <p className="text-xs font-poppins font-bold tracking-tighter truncate uppercase leading-tight">{person.name}</p>
+                    <p className={`mt-2 text-[8px] font-poppins font-bold uppercase tracking-widest leading-none ${
+                      (selectedUser?._id || selectedUser?.id) === (person._id || person.id) ? 'text-white/60' : 'text-indigo-500'
                     }`}>{person.role}</p>
                   </button>
                 ))
               ) : (
-                <EmptyState icon="person_off" title="No results" description="Try searching for a different name." />
+                <EmptyState icon="person_off" title="No results" description="Adjust your search parameters." />
               )
             ) : conversations.length ? (
-              conversations.map((conv) => (
-                <button
-                  key={conv.user?._id || conv.user?.id}
-                  className={`group w-full rounded-2xl p-4 text-left transition-all ${
-                    (selectedUser?._id || selectedUser?.id) === (conv.user?._id || conv.user?.id)
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'hover:bg-slate-50 dark:hover:bg-white/5'
-                  }`}
-                  onClick={() => openConversation(conv.user)}
-                >
-                  <div className="flex justify-between items-start">
-                    <p className="font-black tracking-tight">{conv.user?.name}</p>
-                    <span className={`text-[10px] font-bold ${
-                      (selectedUser?._id || selectedUser?.id) === (conv.user?._id || conv.user?.id) ? 'text-white/60' : 'text-slate-400'
+              conversations.map((conv) => {
+                 const isSelected = (selectedUser?._id || selectedUser?.id) === (conv.user?._id || conv.user?.id);
+                 return (
+                  <button
+                    key={conv.user?._id || conv.user?.id}
+                    className={`group w-full rounded-sm p-5 text-left transition-all duration-300 border ${
+                      isSelected
+                        ? 'text-white border-transparent shadow-lg scale-[1.01]'
+                        : 'bg-transparent border-slate-100 dark:border-white/5 hover:border-indigo-500/30 shadow-sm'
+                    }`}
+                    style={{ backgroundImage: isSelected ? 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' : 'none' }}
+                    onClick={() => openConversation(conv.user)}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                       <h4 className="text-[11px] font-poppins font-bold tracking-tighter uppercase leading-none truncate pr-4">{conv.user?.name}</h4>
+                       <span className={`text-[8px] font-poppins font-bold uppercase tracking-widest ${
+                         isSelected ? 'text-white/40' : 'text-slate-400'
+                       }`}>
+                         {new Date(conv.lastMessage.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                       </span>
+                    </div>
+                    <p className={`line-clamp-1 text-[10px] font-roboto font-medium opacity-80 whitespace-normal leading-relaxed lowercase ${
+                      isSelected ? 'text-white/80' : 'text-slate-500'
                     }`}>
-                      {new Date(conv.lastMessage.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                    </span>
-                  </div>
-                  <p className={`mt-1 line-clamp-1 text-sm ${
-                    (selectedUser?._id || selectedUser?.id) === (conv.user?._id || conv.user?.id) ? 'text-white/80' : 'text-slate-500'
-                  }`}>
-                    {conv.lastMessage.content}
-                  </p>
-                </button>
-              ))
+                      {conv.lastMessage.content}
+                    </p>
+                  </button>
+                 );
+              })
             ) : (
-              <EmptyState icon="chat_bubble" title="Inbox empty" description="Start a conversation with a verified user." />
+              <EmptyState icon="chat_bubble" title="No Messages" description="Select a contact to start messaging." />
             )}
           </div>
-        </section>
+        </aside>
 
-        <section className="flex flex-col overflow-hidden rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 shadow-sm transition-all overflow-hidden relative">
+        <section className="flex-[1.15] flex flex-col overflow-hidden rounded-md bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-white/5 h-full relative group">
           {selectedUser ? (
             <>
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 p-6 bg-slate-50/50 dark:bg-white/5">
-                <div className="flex items-center gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary font-black shadow-sm">
-                    {selectedUser.name?.[0]}
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 p-8 bg-slate-50/5 dark:bg-transparent relative z-10">
+                <div className="flex items-center gap-5 group/user">
+                  <div className="flex size-14 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-slate-300 font-poppins font-bold shadow-sm transition-transform group-hover:rotate-3 overflow-hidden border border-slate-100 dark:border-white/10">
+                    {selectedUser.profile?.avatarUrl ? (
+                      <img src={selectedUser.profile.avatarUrl} alt="User" className="size-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined text-[28px]">account_circle</span>
+                    )}
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black tracking-tight dark:text-white leading-none">{selectedUser.name}</h2>
-                    <p className="mt-1.5 text-xs font-bold uppercase tracking-widest text-primary">{selectedUser.role}</p>
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white leading-none uppercase">{selectedUser.name}</h2>
+                    <div className="flex items-center gap-3">
+                       <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <p className="text-[8px] font-poppins font-bold uppercase text-emerald-600 tracking-[0.2em]">CONNECTED</p>
+                       </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="flex size-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
-                    <span className="material-symbols-outlined">call</span>
-                  </button>
-                  <button className="flex size-10 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
-                    <span className="material-symbols-outlined">more_horiz</span>
-                  </button>
                 </div>
               </div>
               
-              <div ref={scrollRef} className="flex-1 space-y-6 overflow-y-auto p-8 custom-scrollbar bg-slate-50/30 dark:bg-transparent">
+              <div ref={scrollRef} className="flex-1 space-y-8 overflow-y-auto p-10 scrollbar-hide bg-transparent">
                 {messages.map((message) => {
                   const senderId = message.sender?._id || message.sender;
                   const isMine = senderId === currentUserId;
@@ -217,14 +227,15 @@ export default function MessagesPage() {
                       className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-[1.5rem] px-6 py-4 text-sm font-medium shadow-sm transition-all ${
+                        className={`max-w-[75%] rounded-sm px-6 py-4 text-sm font-roboto leading-relaxed shadow-sm transition-all duration-300 ${
                           isMine 
-                            ? 'rounded-tr-none bg-primary text-white shadow-primary/10 hover:shadow-primary/20' 
-                            : 'rounded-tl-none bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-white/5'
+                            ? 'text-white translate-x-1' 
+                            : 'bg-white dark:bg-white/5 text-slate-700 dark:text-slate-100 border border-slate-100 dark:border-white/10 -translate-x-1'
                         }`}
+                        style={{ backgroundImage: isMine ? 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' : 'none' }}
                       >
-                        {message.content}
-                        <div className={`mt-2 text-[9px] font-bold uppercase tracking-widest ${isMine ? 'text-white/50 text-right' : 'text-slate-400'}`}>
+                        <p className="whitespace-pre-wrap lowercase">{message.content}</p>
+                        <div className={`mt-2 text-[8px] font-poppins font-bold uppercase tracking-[0.2em] ${isMine ? 'text-white/40 text-right' : 'text-slate-400'}`}>
                           {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -233,34 +244,34 @@ export default function MessagesPage() {
                 })}
               </div>
               
-              <div className="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
+              <div className="p-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-white/5">
                 <form className="flex items-center gap-4" onSubmit={handleSendMessage}>
-                  <div className="flex-1 relative">
-                    <input 
-                      className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" 
-                      placeholder="Type your message..." 
+                  <div className="flex-1 relative group/input">
+                    <textarea 
+                      className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white h-[54px] resize-none overflow-hidden" 
+                      placeholder="SYNCHRONIZE MESSAGE..." 
                       value={newMessage} 
                       onChange={(event) => setNewMessage(event.target.value)} 
                     />
                   </div>
-                  <button className="flex size-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50" disabled={!newMessage.trim()} type="submit">
-                    <span className="material-symbols-outlined">send</span>
+                  <button 
+                    className="flex size-14 shrink-0 items-center justify-center rounded-sm text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50" 
+                    style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+                    disabled={!newMessage.trim()} 
+                    type="submit"
+                  >
+                    <span className="material-symbols-outlined text-[28px]">send</span>
                   </button>
                 </form>
               </div>
             </>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center p-12 text-center">
-              <div className="flex size-24 items-center justify-center rounded-[2.5rem] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-slate-300 mb-8 shadow-sm">
-                <span className="material-symbols-outlined text-[48px]">forum</span>
-              </div>
-              <h3 className="text-2xl font-black tracking-tight dark:text-white">Professional Messaging</h3>
-              <p className="mt-3 max-w-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                Connect with stakeholders. Role-based permissions ensure communications remain professional and relevant to your workflow.
-              </p>
-              <button className="mt-10 rounded-2xl border border-slate-200 dark:border-white/10 px-6 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
-                Search Contacts
-              </button>
+            <div className="flex h-full flex-col items-center justify-center p-16 text-center relative">
+               <div className="flex size-24 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-indigo-500 mb-8 shadow-sm">
+                 <span className="material-symbols-outlined text-[48px] opacity-30">forum</span>
+               </div>
+               <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none mb-4">COMMUNICATION_HUB</h3>
+               <p className="max-w-xs text-[10px] font-poppins font-bold uppercase tracking-widest text-slate-400">Select a conversation node to begin synchronizing correspondence.</p>
             </div>
           )}
         </section>

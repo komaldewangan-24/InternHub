@@ -104,7 +104,7 @@ export default function RecruiterCompanyPage() {
       user={user}
     >
       {ownCompany ? (
-        <div className="mb-6 rounded-3xl bg-white p-6 shadow-sm">
+        <div className="mb-6 rounded-sm bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-slate-400">Verification</p>
@@ -115,16 +115,16 @@ export default function RecruiterCompanyPage() {
         </div>
       ) : null}
 
-      <form className="max-w-4xl rounded-3xl bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
+      <form className="max-w-4xl rounded-sm bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
-          <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Company name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
-          <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Website" value={form.website} onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))} />
-          <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Contact email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
-          <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Phone" value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} />
-          <input className="md:col-span-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Logo URL" value={form.logoUrl} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} />
-          <textarea className="md:col-span-2 min-h-[180px] rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Company description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
+          <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Company name" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+          <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Website" value={form.website} onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))} />
+          <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Contact email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
+          <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Phone" value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} />
+          <input className="md:col-span-2 rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Logo URL" value={form.logoUrl} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} />
+          <textarea className="md:col-span-2 min-h-[180px] rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Company description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
         </div>
-        <button className="mt-6 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
+        <button className="mt-6 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
           {saving ? 'Saving...' : form.id ? 'Update Company' : 'Create Company'}
         </button>
       </form>

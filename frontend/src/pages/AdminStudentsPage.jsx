@@ -127,46 +127,46 @@ export default function AdminStudentsPage() {
       navigation={navigationByRole.admin}
       user={user}
       actions={
-        <button className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-white/10 active:scale-95" onClick={exportStudents} type="button">
+        <button className="rounded-sm border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-50 dark:hover:bg-white/10 active:scale-95" onClick={exportStudents} type="button">
           Export Readiness CSV
         </button>
       }
     >
       <div className="grid gap-8 xl:grid-cols-[400px,1fr]">
         <div className="space-y-8">
-          <form className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all" onSubmit={handleProvision}>
+          <form className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all" onSubmit={handleProvision}>
             <div className="flex items-center gap-3 mb-8">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex size-10 items-center justify-center rounded-sm bg-primary/10 text-primary">
                 <span className="material-symbols-outlined">person_add</span>
               </div>
               <h2 className="text-xl font-black tracking-tight dark:text-white">Account Provision</h2>
             </div>
             <div className="space-y-4">
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Name" value={provisionForm.name} onChange={(event) => setProvisionForm((current) => ({ ...current, name: event.target.value }))} />
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Email" value={provisionForm.email} onChange={(event) => setProvisionForm((current) => ({ ...current, email: event.target.value }))} />
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Password" type="password" value={provisionForm.password} onChange={(event) => setProvisionForm((current) => ({ ...current, password: event.target.value }))} />
-              <select className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={provisionForm.role} onChange={(event) => setProvisionForm((current) => ({ ...current, role: event.target.value }))}>
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Name" value={provisionForm.name} onChange={(event) => setProvisionForm((current) => ({ ...current, name: event.target.value }))} />
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Email" value={provisionForm.email} onChange={(event) => setProvisionForm((current) => ({ ...current, email: event.target.value }))} />
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Password" type="password" value={provisionForm.password} onChange={(event) => setProvisionForm((current) => ({ ...current, password: event.target.value }))} />
+              <select className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={provisionForm.role} onChange={(event) => setProvisionForm((current) => ({ ...current, role: event.target.value }))}>
                 <option value="faculty" className="dark:bg-slate-900 text-slate-900 dark:text-white">Faculty</option>
                 <option value="recruiter" className="dark:bg-slate-900 text-slate-900 dark:text-white">Recruiter</option>
                 <option value="student" className="dark:bg-slate-900 text-slate-900 dark:text-white">Student</option>
                 <option value="admin" className="dark:bg-slate-900 text-slate-900 dark:text-white">Admin</option>
               </select>
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department" value={provisionForm.department} onChange={(event) => setProvisionForm((current) => ({ ...current, department: event.target.value }))} />
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department" value={provisionForm.department} onChange={(event) => setProvisionForm((current) => ({ ...current, department: event.target.value }))} />
             </div>
-            <button className="mt-8 w-full rounded-2xl bg-primary px-5 py-4 text-sm font-black text-white shadow-lg shadow-primary/30 disabled:opacity-50 transition-all hover:scale-105 active:scale-95" disabled={saving} type="submit">
+            <button className="mt-8 w-full rounded-sm bg-primary px-5 py-4 text-sm font-black text-white shadow-lg shadow-primary/30 disabled:opacity-50 transition-all hover:scale-105 active:scale-95" disabled={saving} type="submit">
               {saving ? 'Processing...' : 'Create Account'}
             </button>
           </form>
 
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all">
+          <div className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all">
             <div className="flex items-center gap-3 mb-8">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500">
+              <div className="flex size-10 items-center justify-center rounded-sm bg-indigo-500/10 text-indigo-500">
                 <span className="material-symbols-outlined">assignment_ind</span>
               </div>
               <h2 className="text-xl font-black tracking-tight dark:text-white">Faculty Assignment</h2>
             </div>
             <div className="space-y-4">
-              <select className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={assignmentFacultyId} onChange={(event) => setAssignmentFacultyId(event.target.value)}>
+              <select className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={assignmentFacultyId} onChange={(event) => setAssignmentFacultyId(event.target.value)}>
                 <option value="" className="dark:bg-slate-900">Select evaluator</option>
                 {facultyList.map((member) => (
                   <option key={member._id} value={member._id} className="dark:bg-slate-900">
@@ -174,9 +174,9 @@ export default function AdminStudentsPage() {
                   </option>
                 ))}
               </select>
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department key" value={assignmentDepartment} onChange={(event) => setAssignmentDepartment(event.target.value)} />
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Department key" value={assignmentDepartment} onChange={(event) => setAssignmentDepartment(event.target.value)} />
             </div>
-            <button className="mt-8 w-full rounded-2xl border border-slate-200 dark:border-white/10 px-5 py-4 text-sm font-black text-slate-700 dark:text-slate-200 transition-all hover:border-primary hover:text-primary disabled:opacity-50" disabled={saving || !assignmentFacultyId || !assignmentDepartment} onClick={handleAssignFaculty} type="button">
+            <button className="mt-8 w-full rounded-sm border border-slate-200 dark:border-white/10 px-5 py-4 text-sm font-black text-slate-700 dark:text-slate-200 transition-all hover:border-primary hover:text-primary disabled:opacity-50" disabled={saving || !assignmentFacultyId || !assignmentDepartment} onClick={handleAssignFaculty} type="button">
               Assign to Department
             </button>
           </div>
@@ -187,7 +187,7 @@ export default function AdminStudentsPage() {
                { val: facultyList.length, lab: 'Faculty' },
                { val: recruiters.length, lab: 'Recruiters' }
              ].map(s => (
-               <div key={s.lab} className="rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 p-4 text-center">
+               <div key={s.lab} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 p-4 text-center">
                   <p className="text-sm font-black dark:text-white leading-tight">{s.val}</p>
                   <p className="mt-1 text-[8px] font-black uppercase tracking-widest text-slate-400">{s.lab}</p>
                </div>
@@ -196,11 +196,11 @@ export default function AdminStudentsPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
+          <div className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm">
             <div className="relative group">
                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
                <input 
-                className="w-full rounded-2xl border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-12 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" 
+                className="w-full rounded-sm border border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 px-12 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" 
                 placeholder="Search student candidates by name, email, department or degree" 
                 value={search} 
                 onChange={(event) => setSearch(event.target.value)} 
@@ -217,10 +217,10 @@ export default function AdminStudentsPage() {
                   applications: 0,
                 });
                 return (
-                  <div key={student._id} className="group rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-6 shadow-sm transition-all hover:border-primary/20">
+                  <div key={student._id} className="group rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-6 shadow-sm transition-all hover:border-primary/20">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="flex size-12 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-primary font-black shadow-sm group-hover:scale-105 transition-transform">
+                        <div className="flex size-12 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-primary font-black shadow-sm group-hover:scale-105 transition-transform">
                           {student.name?.[0]}
                         </div>
                         <div>

@@ -64,7 +64,7 @@ export default function AdminApplicationsPage() {
       user={user}
       actions={
         <button 
-          className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10 transition-all active:scale-95" 
+          className="rounded-sm border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/10 transition-all active:scale-95" 
           onClick={exportApplications} 
           type="button"
         >
@@ -75,10 +75,10 @@ export default function AdminApplicationsPage() {
       <div className="space-y-6">
         {applications.length ? (
           applications.map((application) => (
-            <div key={application._id} className="group rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:border-primary/20">
+            <div key={application._id} className="group rounded-sm bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:border-primary/20">
               <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-6">
-                  <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 text-primary shadow-sm group-hover:scale-105 transition-transform">
+                  <div className="flex size-14 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-primary shadow-sm group-hover:scale-105 transition-transform">
                     <span className="material-symbols-outlined text-[32px]">assignment_ind</span>
                   </div>
                   <div>
@@ -100,7 +100,7 @@ export default function AdminApplicationsPage() {
                     {['shortlisted', 'interview', 'selected', 'rejected'].map((status) => (
                       <button 
                         key={status} 
-                        className={`rounded-[1rem] border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`rounded-sm border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                           application.status === status 
                             ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
                             : 'border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'

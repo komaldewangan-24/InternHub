@@ -1,214 +1,221 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
 import LoadingState from '../components/LoadingState';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { authAPI } from '../services/api';
-import { computeProfileCompletion } from '../utils/readiness';
-
-const toSkillsArray = (value) =>
-  value
-    .split('\n')
-    .map((item) => item.trim())
-    .filter(Boolean);
+import { userAPI } from '../services/api';
 
 export default function StudentProfilePage() {
-  const { user, loading, updateUser } = useCurrentUser();
-  const [form, setForm] = useState({
+  const { user, loading, refreshUser } = useCurrentUser();
+  const fileInputRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
-    bio: '',
     phone: '',
-    location: '',
     university: '',
-    degree: '',
     graduationDate: '',
-    department: '',
-    batch: '',
-    section: '',
-    rollNumber: '',
-    resumeUrl: '',
-    githubUrl: '',
-    linkedinUrl: '',
-    skills: '',
+    bio: '',
+    location: '',
+    degree: '',
+    skills: [],
+    avatarUrl: '',
   });
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setForm({
+      setFormData({
         name: user.name || '',
         email: user.email || '',
-        bio: user.profile?.bio || '',
         phone: user.profile?.phone || '',
-        location: user.profile?.location || '',
         university: user.profile?.university || '',
+        graduationDate: user.profile?.graduationDate ? new Date(user.profile.graduationDate).toISOString().split('T')[0] : '',
+        bio: user.profile?.bio || '',
+        location: user.profile?.location || '',
         degree: user.profile?.degree || '',
-        graduationDate: user.profile?.graduationDate || '',
-        department: user.profile?.department || '',
-        batch: user.profile?.batch || '',
-        section: user.profile?.section || '',
-        rollNumber: user.profile?.rollNumber || '',
-        resumeUrl: user.profile?.resumeUrl || '',
-        githubUrl: user.profile?.githubUrl || '',
-        linkedinUrl: user.profile?.linkedinUrl || '',
-        skills: (user.profile?.skills || []).join('\n'),
+        skills: user.profile?.skills || [],
+        avatarUrl: user.profile?.avatarUrl || '',
       });
     }
   }, [user]);
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    if (event) event.preventDefault();
     try {
-      setSaving(true);
-      const { data } = await authAPI.updateMe({
-        name: form.name,
-        email: form.email,
-        profile: {
-          bio: form.bio,
-          phone: form.phone,
-          location: form.location,
-          university: form.university,
-          degree: form.degree,
-          graduationDate: form.graduationDate,
-          department: form.department,
-          batch: form.batch,
-          section: form.section,
-          rollNumber: form.rollNumber,
-          resumeUrl: form.resumeUrl,
-          githubUrl: form.githubUrl,
-          linkedinUrl: form.linkedinUrl,
-          skills: toSkillsArray(form.skills),
-        },
-      });
-      updateUser(data.data);
-      toast.success('Profile updated');
+      await userAPI.updateProfile(formData);
+      await refreshUser();
+      setIsEditing(false);
+      toast.success('Identity node synchronized.');
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to update profile');
-    } finally {
-      setSaving(false);
+      toast.error(error.response?.data?.error || 'Synchronization failed.');
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 1024 * 1024) {
+        toast.error('File exceeds 1MB limit.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result;
+        setFormData((prev) => ({ ...prev, avatarUrl: base64 }));
+        
+        if (!isEditing) {
+          try {
+            await userAPI.updateProfile({ ...formData, avatarUrl: base64 });
+            await refreshUser();
+            toast.success('Profile photo synchronized.');
+          } catch (err) {
+            toast.error('Failed to sync photo.');
+          }
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   if (loading) {
-    return <LoadingState label="Loading profile..." />;
+    return <LoadingState label="Decrypting identity data..." />;
   }
-
-  const profileCompletion = computeProfileCompletion(user);
 
   return (
     <AppShell
-      title="Student Profile"
-      description="Keep your academic, portfolio, and campus details complete so faculty and recruiters can trust your readiness."
+      actions={
+        <button
+          className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+          style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+          onClick={() => (isEditing ? handleSubmit() : setIsEditing(true))}
+          type="button"
+        >
+          {isEditing ? 'COMMIT CHANGES' : 'EDIT CREDENTIALS'}
+        </button>
+      }
+      title={`Hi ${user?.name || 'Student'} 👋`}
+      description="Manage your professional profile"
       navigation={navigationByRole.student}
       user={user}
     >
-      <div className="mb-8 rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-primary mb-2">Readiness base</p>
-            <h2 className="text-3xl font-black tracking-tight dark:text-white">Profile completion: {profileCompletion}%</h2>
-            <div className="mt-3 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-              <span className="material-symbols-outlined text-[18px]">verified_user</span>
-              Assigned faculty: <span className="font-bold text-slate-700 dark:text-slate-200">{user?.profile?.assignedFaculty?.name || 'Not assigned yet'}</span>
-            </div>
-          </div>
-          {user?.profile?.assignedFaculty ? (
-            <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 px-6 py-5 text-sm transition-all hover:bg-slate-50 dark:hover:bg-white/10">
-              <p className="font-black text-slate-800 dark:text-white">{user.profile.assignedFaculty.name}</p>
-              <p className="mt-1 text-slate-500 dark:text-slate-400 font-medium">{user.profile.assignedFaculty.email}</p>
-              <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary">
-                <span className="size-1.5 rounded-full bg-primary" />
-                Primary Reviewer
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      <form className="grid gap-6 lg:grid-cols-2" onSubmit={handleSubmit}>
-        <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-          <div className="flex items-center gap-3 mb-8">
-            <span className="material-symbols-outlined text-primary">person_outline</span>
-            <h2 className="text-xl font-black tracking-tight dark:text-white">Identity Details</h2>
-          </div>
-          <div className="grid gap-5">
-            {[
-              { id: 'name', label: 'Full Name', placeholder: 'Ex: John Doe' },
-              { id: 'email', label: 'Email Address', placeholder: 'name@university.edu', type: 'email' },
-              { id: 'phone', label: 'Phone Number', placeholder: '+1 234 567 890' },
-              { id: 'location', label: 'Location', placeholder: 'City, Country' },
-              { id: 'department', label: 'Department', placeholder: 'Computer Science' },
-              { id: 'batch', label: 'Batch/Year', placeholder: '2024' },
-              { id: 'section', label: 'Section', placeholder: 'A' },
-              { id: 'rollNumber', label: 'Roll Number', placeholder: 'University ID' },
-            ].map((field) => (
-              <div key={field.id} className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{field.label}</label>
-                <input 
-                  className="w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-primary transition-all dark:text-white" 
-                  placeholder={field.placeholder} 
-                  type={field.type || 'text'}
-                  value={form[field.id]} 
-                  onChange={(event) => setForm((current) => ({ ...current, [field.id]: event.target.value }))} 
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-primary">school</span>
-              <h2 className="text-xl font-black tracking-tight dark:text-white">Academic & Links</h2>
-            </div>
-            <div className="grid gap-5">
-              {[
-                { id: 'university', label: 'University', placeholder: 'University Name' },
-                { id: 'degree', label: 'Degree / Program', placeholder: 'B.Tech / M.B.A' },
-                { id: 'graduationDate', label: 'Expected Graduation', placeholder: 'Month Year' },
-                { id: 'resumeUrl', label: 'Resume URL', placeholder: 'Drive / Dropbox link' },
-                { id: 'githubUrl', label: 'GitHub Portfolio', placeholder: 'github.com/username' },
-                { id: 'linkedinUrl', label: 'LinkedIn Profile', placeholder: 'linkedin.com/in/username' },
-              ].map((field) => (
-                <div key={field.id} className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{field.label}</label>
-                  <input 
-                    className="w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-primary transition-all dark:text-white" 
-                    placeholder={field.placeholder} 
-                    value={form[field.id]} 
-                    onChange={(event) => setForm((current) => ({ ...current, [field.id]: event.target.value }))} 
-                  />
+      <form className="space-y-10" onSubmit={handleSubmit}>
+        <section className="rounded-xl bg-white dark:bg-slate-900 p-12 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden group transition-all duration-500 hover:shadow-2xl">
+          <div className="absolute top-0 right-0 size-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-20 pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row sm:items-center gap-12 mb-16 relative z-10">
+            <div className="relative group/avatar shrink-0">
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+              <div 
+                className="relative flex size-40 items-center justify-center rounded-xl transition-all overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm cursor-pointer hover:border-indigo-500 bg-slate-50 dark:bg-white/5 group-hover/avatar:shadow-2xl"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {formData.avatarUrl ? (
+                  <img src={formData.avatarUrl} alt="Identity" className="size-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-300">
+                    <span className="material-symbols-outlined text-[48px]">account_circle</span>
+                    <p className="text-[8px] font-poppins font-bold uppercase mt-1 tracking-widest text-[#003366] opacity-30">NO PHOTO</p>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-[#003366]/60 flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                  <span className="material-symbols-outlined text-white text-[28px]">photo_camera</span>
+                  <p className="text-[9px] text-white font-poppins font-bold mt-2 uppercase tracking-widest">POST PHOTO</p>
                 </div>
-              ))}
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+               <h2 className="text-4xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none">{formData.name || 'ANONYMOUS NODE'}</h2>
+               <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                    <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-emerald-600">ID: ACTIVE</p>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 rounded-sm border border-indigo-500/20">
+                    <span className="material-symbols-outlined text-[14px] text-indigo-500">verified</span>
+                    <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-indigo-500">INSTITUTIONAL POOL</p>
+                  </div>
+               </div>
             </div>
           </div>
 
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="material-symbols-outlined text-primary">psychology</span>
-              <h2 className="text-xl font-black tracking-tight dark:text-white">Expertise</h2>
-            </div>
-            <div className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Skills Array</label>
-                <textarea className="min-h-[120px] w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" placeholder={'One skill per line\nReact.js\nSystem Design\nPython'} value={form.skills} onChange={(event) => setForm((current) => ({ ...current, skills: event.target.value }))} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Professional Bio</label>
-                <textarea className="min-h-[140px] w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary transition-all dark:text-white" placeholder="Tell recruiters about your career goals and technical focus." value={form.bio} onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))} />
-              </div>
-            </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
+             {[
+               { label: 'Full Identity Name', name: 'name', type: 'text', icon: 'person' },
+               { label: 'Primary Network Email', name: 'email', type: 'email', icon: 'alternate_email' },
+               { label: 'Mobile Frequency', name: 'phone', type: 'tel', icon: 'call' },
+               { label: 'Partner Institution', name: 'university', type: 'text', icon: 'school' },
+               { label: 'Academic Designation', name: 'degree', type: 'text', icon: 'architecture' },
+               { label: 'Graduation Window', name: 'graduationDate', type: 'date', icon: 'history' },
+             ].map((field) => (
+               <div key={field.name} className="group/field relative">
+                  <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-2.5 px-1 flex items-center gap-2.5 group-hover/field:text-indigo-500 transition-all">
+                    <span className="material-symbols-outlined text-[16px] text-indigo-500 opacity-60 group-hover/field:opacity-100">{field.icon}</span>
+                    {field.label}
+                  </p>
+                  <input 
+                    className={`w-full rounded-md border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-4 text-[11px] font-poppins font-bold uppercase tracking-widest outline-none transition-all dark:text-white 
+                      ${isEditing ? 'focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 shadow-md transform -translate-y-0.5' : 'cursor-not-allowed opacity-60'}
+                    `}
+                    disabled={!isEditing}
+                    name={field.name}
+                    placeholder={field.label}
+                    type={field.type}
+                    value={formData[field.name]}
+                    onChange={(event) => setFormData({ ...formData, [field.name]: event.target.value })}
+                  />
+               </div>
+             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="lg:col-span-2">
-          <button className="rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-white shadow-lg shadow-primary/30 disabled:opacity-70 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={saving} type="submit">
-            {saving ? 'Syncing Profile...' : 'Update Student Workspace Profile'}
-          </button>
-        </div>
+        <section className="grid gap-10 lg:grid-cols-2">
+           <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl group">
+              <div className="flex items-center gap-4 mb-10">
+                 <div className="flex size-12 items-center justify-center rounded-sm bg-indigo-500 text-white shadow-lg transition-transform group-hover:rotate-3">
+                   <span className="material-symbols-outlined text-[24px]">description</span>
+                 </div>
+                 <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none group-hover:text-indigo-500 transition-colors">PROFESSIONAL_SUMMARY</h3>
+              </div>
+              <textarea 
+                className={`w-full h-56 rounded-md border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-8 py-6 text-[11px] font-poppins font-bold uppercase tracking-widest leading-relaxed outline-none transition-all dark:text-white shadow-inner resize-none
+                  ${isEditing ? 'focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 shadow-md transform -translate-y-0.5' : 'cursor-not-allowed opacity-60'}
+                `}
+                disabled={!isEditing}
+                placeholder="Synchronize your professional intent node..."
+                value={formData.bio}
+                onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
+              />
+           </div>
+
+           <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl group">
+              <div className="flex items-center gap-4 mb-10 px-2">
+                 <div className="flex size-12 items-center justify-center rounded-sm bg-indigo-500 text-white shadow-lg transition-transform group-hover:rotate-3">
+                   <span className="material-symbols-outlined text-[24px]">hub</span>
+                 </div>
+                 <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none group-hover:text-indigo-500 transition-colors">TECHNOLOGICAL_STACK</h3>
+              </div>
+              <div className="flex flex-col h-56 justify-between px-2">
+                 <div className="flex flex-wrap gap-3 overflow-y-auto scrollbar-hide">
+                    {formData.skills.length ? formData.skills.map((skill, index) => (
+                      <span key={index} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 text-[9px] font-poppins font-bold uppercase tracking-widest text-slate-500 hover:border-indigo-500/50 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all cursor-default">
+                         {skill}
+                      </span>
+                    )) : (
+                      <div className="flex flex-col items-center justify-center h-full w-full opacity-30 text-center text-indigo-500">
+                         <span className="material-symbols-outlined text-[48px] mb-6">analytics</span>
+                         <p className="text-[12px] font-poppins font-bold uppercase tracking-widest text-slate-400">No capability nodes detected</p>
+                      </div>
+                    )}
+                 </div>
+                 <div className="mt-8 flex items-center gap-4 text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400">
+                    <span className="material-symbols-outlined text-[20px] text-emerald-500">verified_user</span>
+                    Synchronize stack to optimize mission fit.
+                 </div>
+              </div>
+           </div>
+        </section>
       </form>
     </AppShell>
   );

@@ -51,6 +51,20 @@ export const userAPI = {
     assignFaculty: (data) => api.post('/users/faculty-assignments', data),
     getPortfolio: (id) => api.get(`/users/portfolio/${id}`),
     exportStudents: () => api.get('/users/export/students', { responseType: 'blob' }),
+    updateProfile: (data) => api.put('/auth/me', {
+        name: data.name,
+        email: data.email,
+        profile: {
+            phone: data.phone,
+            university: data.university,
+            degree: data.degree,
+            graduationDate: data.graduationDate,
+            bio: data.bio,
+            location: data.location,
+            skills: data.skills,
+            avatarUrl: data.avatarUrl,
+        }
+    }),
 };
 
 export const applicationAPI = {

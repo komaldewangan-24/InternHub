@@ -20,6 +20,7 @@ const profileFields = [
     'designation',
     'githubUrl',
     'linkedinUrl',
+    'avatarUrl',
     'assignedFaculty',
 ];
 

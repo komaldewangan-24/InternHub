@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
 import EmptyState from '../components/EmptyState';
@@ -6,318 +6,299 @@ import LoadingState from '../components/LoadingState';
 import StatusBadge from '../components/StatusBadge';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { projectAPI, userAPI } from '../services/api';
-
-const blankForm = {
-  title: '',
-  description: '',
-  links: '',
-  tags: '',
-  faculty: '',
-};
-
-const toLinesArray = (value) =>
-  value
-    .split('\n')
-    .map((item) => item.trim())
-    .filter(Boolean);
+import { projectAPI } from '../services/api';
 
 export default function StudentProjectsPage() {
   const { user, loading } = useCurrentUser();
   const [projects, setProjects] = useState([]);
-  const [faculty, setFaculty] = useState([]);
-  const [selectedId, setSelectedId] = useState('');
-  const [form, setForm] = useState(blankForm);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
-  const selectedProject = useMemo(
-    () => projects.find((project) => project._id === selectedId) || null,
-    [projects, selectedId]
-  );
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setPageLoading(true);
-        const [projectResponse, facultyResponse] = await Promise.all([
-          projectAPI.getAll(),
-          userAPI.search('', 'faculty'),
-        ]);
-        setProjects(projectResponse.data.data || []);
-        setFaculty(facultyResponse.data.data || []);
-      } finally {
-        setPageLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedProject) {
-      setForm({
-        title: selectedProject.title || '',
-        description: selectedProject.description || '',
-        links: (selectedProject.links || []).join('\n'),
-        tags: (selectedProject.tags || []).join('\n'),
-        faculty: selectedProject.faculty?._id || '',
-      });
-    } else {
-      setForm({
-        ...blankForm,
-        faculty: user?.profile?.assignedFaculty?._id || '',
-      });
-    }
-  }, [selectedProject, user]);
-
-  const refreshProjects = async (nextSelectedId) => {
-    const { data } = await projectAPI.getAll();
-    setProjects(data.data || []);
-    if (nextSelectedId) {
-      setSelectedId(nextSelectedId);
-    }
+  const initialFormState = {
+    title: '',
+    description: '',
+    githubLink: '',
+    liveLink: '',
+    tags: '',
   };
 
-  const saveDraft = async () => {
-    try {
-      setSaving(true);
-      if (!form.title || !form.description || !form.faculty) {
-        toast.error('Title, description, and faculty are required');
-        return;
-      }
+  const [formData, setFormData] = useState(initialFormState);
 
-      const payload = {
-        title: form.title,
-        description: form.description,
-        links: toLinesArray(form.links),
-        tags: toLinesArray(form.tags),
-        faculty: form.faculty,
-      };
-
-      if (selectedProject) {
-        const { data } = await projectAPI.update(selectedProject._id, payload);
-        await refreshProjects(data.data._id);
-      } else {
-        const { data } = await projectAPI.create(payload);
-        await refreshProjects(data.data._id);
-      }
-
-      toast.success('Draft saved');
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to save draft');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const submitCurrent = async () => {
-    if (!selectedProject) {
-      toast.info('Save the project as a draft first');
-      return;
-    }
-
-    try {
-      setSaving(true);
-      if (selectedProject.status === 'draft') {
-        await projectAPI.submit(selectedProject._id);
-      } else if (selectedProject.status === 'needs_resubmission') {
-        await projectAPI.resubmit(selectedProject._id, {
-          title: form.title,
-          description: form.description,
-          links: toLinesArray(form.links),
-          tags: toLinesArray(form.tags),
-        });
-      } else {
-        toast.info('This project is already in review');
-        return;
-      }
-
-      await refreshProjects(selectedProject._id);
-      toast.success(selectedProject.status === 'draft' ? 'Project submitted' : 'Project resubmitted');
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to submit project');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDeleteProject = async (projectId) => {
-    if (!window.confirm('Are you sure you want to permanently delete this project?')) {
-      return;
-    }
-
+  const loadProjects = async () => {
     try {
       setPageLoading(true);
-      await projectAPI.delete(projectId);
-      if (selectedId === projectId) {
-        setSelectedId('');
-      }
-      await refreshProjects();
-      toast.success('Project deleted');
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to delete project');
+      const { data } = await projectAPI.getAll();
+      setProjects(data.data || []);
     } finally {
       setPageLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const handleCreate = () => {
+    setSelectedProject(null);
+    setFormData(initialFormState);
+    setIsEditing(false);
+    setIsCreating(true);
+  };
+
+  const handleEdit = (project) => {
+    setSelectedProject(project);
+    setFormData({
+      title: project.title,
+      description: project.description,
+      githubLink: project.links?.github || '',
+      liveLink: project.links?.live || '',
+      tags: project.tags?.join(', ') || '',
+    });
+    setIsEditing(true);
+    setIsCreating(false);
+  };
+
+  const handleDelete = async (projectId) => {
+    if (!window.confirm('Delete this project?')) return;
+    try {
+      await projectAPI.delete(projectId);
+      toast.success('Project deleted successfully.');
+      if (selectedProject?._id === projectId) {
+        setSelectedProject(null);
+        setIsEditing(false);
+      }
+      loadProjects();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to delete project.');
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formattedData = {
+      ...formData,
+      tags: formData.tags.split(',').map((t) => t.trim()).filter((t) => t),
+    };
+
+    try {
+      if (isCreating) {
+        await projectAPI.create(formattedData);
+        toast.success('Project created successfully.');
+      } else {
+        await projectAPI.update(selectedProject._id, formattedData);
+        toast.success('Project updated successfully.');
+      }
+      setIsEditing(false);
+      setIsCreating(false);
+      loadProjects();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Submission failed.');
+    }
+  };
+
   if (loading || pageLoading) {
-    return <LoadingState label="Loading project workspace..." />;
+    return <LoadingState label="Loading projects..." />;
   }
 
   return (
     <AppShell
-      title="Student Projects"
-      description="Draft projects, tag your work, submit to faculty, and iterate until the work is approved for recruiters."
-      navigation={navigationByRole.student}
-      user={user}
       actions={
-        <button className="rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm font-semibold dark:text-white transition hover:bg-slate-50 dark:hover:bg-white/10" onClick={() => setSelectedId('')} type="button">
-          New Project
+        <button
+          className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+          style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+          onClick={handleCreate}
+        >
+          Add New Project
         </button>
       }
+      title="Projects"
+      description="Showcase your technological nodes and implementation proficiency."
+      navigation={navigationByRole.student}
+      user={user}
     >
-      <div className="grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
-        <section className="space-y-4">
-          {projects.length ? (
-            projects.map((project) => (
+      <div className="flex h-[calc(100vh-280px)] flex-col gap-10 lg:flex-row lg:items-start lg:px-4 uppercase">
+        <section className="flex-[0.85] flex flex-col overflow-hidden rounded-sm bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full lg:min-w-[340px] transition-all group hover:shadow-2xl duration-500">
+          <div className="p-10 border-b border-slate-100 dark:border-white/5 bg-slate-50/10 dark:bg-transparent relative">
+             <div className="flex items-center gap-4 mb-5 relative">
+                <span className="size-2 rounded-full bg-indigo-500 animate-pulse" />
+                <p className="text-[11px] font-poppins font-bold uppercase tracking-[0.3em] text-indigo-500">PORTFOLIO NODES</p>
+             </div>
+             <p className="text-[11px] font-poppins font-bold uppercase tracking-widest text-slate-400 opacity-60">Total Nodes: {projects.length}</p>
+          </div>
+          
+          <div className="flex-1 space-y-4 overflow-y-auto p-8 scrollbar-hide">
+            {projects.length ? projects.map((project) => {
+              const isSelected = selectedProject?._id === project._id;
+              return (
               <div
                 key={project._id}
-                className={`group relative w-full rounded-[2rem] border p-6 transition-all duration-300 ${
-                  selectedId === project._id 
-                    ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-lg shadow-primary/5' 
-                    : 'border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/40 hover:border-primary/50'
-                }`}
+                className={`group relative rounded-sm p-6 text-left transition-all duration-500 border-2 cursor-pointer 
+                  ${isSelected
+                    ? 'text-white border-transparent shadow-xl scale-[1.01]'
+                    : 'bg-white dark:bg-white/5 border-slate-50 dark:border-white/5 hover:border-indigo-500/30 hover:shadow-lg'
+                  }
+                `}
+                style={{ backgroundImage: isSelected ? 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' : 'none' }}
+                onClick={() => handleEdit(project)}
               >
-                <button
-                  className="w-full text-left"
-                  onClick={() => setSelectedId(project._id)}
-                  type="button"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-lg font-bold dark:text-white">{project.title}</p>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Faculty: {project.faculty?.name || 'Not assigned'}
-                      </p>
-                    </div>
-                    <StatusBadge status={project.status} />
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {(project.tags || []).slice(0, 4).map((tag) => (
-                      <span key={tag} className="rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="mt-4 line-clamp-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {project.description}
-                  </p>
-                </button>
-                
-                <div className="absolute bottom-6 right-6 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button 
-                    onClick={() => setSelectedId(project._id)}
-                    className="flex size-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition-all shadow-sm"
-                    title="Edit project"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                  </button>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteProject(project._id);
-                    }}
-                    className="flex size-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                    title="Delete project"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  </button>
+                <div className="flex justify-between items-start mb-3">
+                   <h4 className={`text-xs font-poppins font-bold tracking-tight uppercase leading-none truncate pr-4 ${isSelected ? 'text-white' : 'text-[#003366] dark:text-white'}`}>{project.title}</h4>
+                   {project.status === 'approved' ? (
+                     <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                       <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                       <p className="text-[8px] font-poppins font-bold text-emerald-600">ACTIVE</p>
+                     </div>
+                   ) : (
+                     <StatusBadge status={project.status} />
+                   )}
                 </div>
-              </div>
-            ))
-          ) : (
-            <EmptyState title="Start your first project" description="Create a draft, use your assigned faculty reviewer, and submit it when you are ready." />
-          )}
-        </section>
-
-        <section className="space-y-6">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-white/5 p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <span className="material-symbols-outlined text-[20px]">{selectedProject ? 'edit_note' : 'add_notes'}</span>
-              </div>
-              <h2 className="text-2xl font-black tracking-tight dark:text-white">{selectedProject ? 'Refine Project' : 'Initiate New Project'}</h2>
-            </div>
-            <div className="mt-6 space-y-4">
-              <input className="w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Project title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
-              <select className="w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" value={form.faculty} onChange={(event) => setForm((current) => ({ ...current, faculty: event.target.value }))}>
-                <option value="" className="dark:bg-slate-900">Select faculty reviewer</option>
-                {faculty.map((member) => (
-                  <option key={member._id} value={member._id} className="dark:bg-slate-900">
-                    {member.name}
-                    {user?.profile?.assignedFaculty?._id === member._id ? ' (Assigned Faculty)' : ''}
-                  </option>
-                ))}
-              </select>
-              <textarea className="min-h-[180px] w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder="Project description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
-              <textarea className="min-h-[100px] w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder={'Project tags, one per line\nReact\nNode.js\nMachine Learning'} value={form.tags} onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))} />
-              <textarea className="min-h-[120px] w-full rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" placeholder={'One link per line\nhttps://github.com/...\nhttps://demo.example.com'} value={form.links} onChange={(event) => setForm((current) => ({ ...current, links: event.target.value }))} />
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 disabled:opacity-70 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={saving} onClick={saveDraft} type="button">
-                {saving ? 'Saving...' : 'Save Draft'}
-              </button>
-              <button className="rounded-2xl border border-slate-200 dark:border-white/5 px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 disabled:opacity-60 transition-all hover:bg-slate-50 dark:hover:bg-white/5" disabled={saving || !selectedProject} onClick={submitCurrent} type="button">
-                {selectedProject?.status === 'needs_resubmission' ? 'Resubmit Project' : 'Submit for Review'}
-              </button>
-            </div>
-          </div>
-
-          {selectedProject ? (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-white/5 p-8">
-                <h3 className="text-xl font-bold dark:text-white">Version History</h3>
-                <div className="mt-6 space-y-4">
-                  {selectedProject.versions?.map((version) => (
-                    <div key={version._id} className="rounded-3xl border border-slate-200 dark:border-white/5 p-5 bg-slate-50/50 dark:bg-white/5">
-                      <p className="font-bold dark:text-white">Version {version.versionNumber}</p>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Submitted {new Date(version.submittedAt).toLocaleString()}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {(version.tags || []).map((tag) => (
-                          <span key={tag} className="rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                <div className="flex flex-wrap gap-2 mb-5">
+                   {(project.tags || []).slice(0, 3).map((tag) => (
+                    <span key={tag} className={`text-[8px] font-poppins font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm border ${
+                      isSelected ? 'border-white/20 text-white/60' : 'border-slate-100 dark:border-white/10 text-slate-400'
+                    }`}>
+                      {tag}
+                    </span>
                   ))}
                 </div>
-              </div>
-
-              <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-white/5 p-8">
-                <h3 className="text-xl font-bold dark:text-white">Faculty Comments</h3>
-                <div className="mt-6 space-y-4">
-                  {selectedProject.comments?.length ? (
-                    selectedProject.comments.map((comment) => (
-                      <div key={comment._id} className="rounded-3xl border border-slate-200 dark:border-white/5 p-5 bg-slate-50/50 dark:bg-white/5">
-                        <div className="flex items-center justify-between gap-4">
-                          <p className="font-bold dark:text-white">{comment.author?.name || 'Faculty'}</p>
-                          <StatusBadge status={comment.action} />
-                        </div>
-                        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{comment.message}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <EmptyState title="No comments yet" description="Faculty feedback will appear here after they review your submission." />
-                  )}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-50/10">
+                   <p className={`text-[8px] font-poppins font-bold uppercase tracking-widest ${isSelected ? 'text-white/40' : 'text-slate-300'}`}>NODE_LINK</p>
+                   <button 
+                     onClick={(e) => { e.stopPropagation(); handleDelete(project._id); }}
+                     className={`material-symbols-outlined text-[18px] transition-all hover:scale-125 ${isSelected ? 'text-rose-400' : 'text-slate-200 hover:text-rose-500'}`}
+                   >
+                     delete_forever
+                   </button>
                 </div>
               </div>
+            )}) : (
+              <EmptyState icon="folder_off" title="No Projects" description="Start by adding your first project." />
+            )}
+          </div>
+        </section>
+
+        {/* Project Editor */}
+        <section className="flex-[1.15] flex flex-col overflow-hidden rounded-sm bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full relative group transition-all duration-500 hover:shadow-2xl">
+          {(isEditing || isCreating) ? (
+            <form className="flex h-full flex-col px-12 py-12 relative" onSubmit={handleSubmit}>
+              <div className="flex items-center justify-between mb-12 border-b border-slate-100 dark:border-white/5 pb-10">
+                <div className="flex items-center gap-8">
+                  <div 
+                    className="flex size-16 items-center justify-center rounded-sm text-white text-2xl font-poppins font-bold shadow-lg transition-transform group-hover:rotate-3"
+                    style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+                  >
+                    {isCreating ? 'N' : 'E'}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none">{isCreating ? 'New Project Node' : 'Edit Project Node'}</h2>
+                    <p className="mt-3 text-[10px] font-poppins font-bold uppercase tracking-[0.4em] text-indigo-500">INSTITUTIONAL DATA ENTRY</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-8 overflow-y-auto pr-2 scrollbar-hide">
+                <div className="grid gap-8 sm:grid-cols-2">
+                    <div className="group/field relative">
+                       <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-3 px-1 flex items-center gap-3 group-hover/field:text-indigo-500 transition-all">
+                         <span className="material-symbols-outlined text-[18px]">title</span>
+                         Project Title
+                       </p>
+                        <input 
+                          required 
+                          className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-5 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm focus:shadow-md transform focus:-translate-y-0.5" 
+                          placeholder="e.g. Neural Matching System" 
+                          type="text" 
+                          value={formData.title} 
+                          onChange={(event) => setFormData({ ...formData, title: event.target.value })} 
+                        />
+                    </div>
+                    <div className="group/field relative">
+                       <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-3 px-1 flex items-center gap-3 group-hover/field:text-indigo-500 transition-all">
+                         <span className="material-symbols-outlined text-[18px]">hub</span>
+                         Tech Stack
+                       </p>
+                        <input 
+                          className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-5 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm focus:shadow-md transform focus:-translate-y-0.5" 
+                          placeholder="React, Node.js, Tailwind..." 
+                          type="text" 
+                          value={formData.tags} 
+                          onChange={(event) => setFormData({ ...formData, tags: event.target.value })} 
+                        />
+                    </div>
+                </div>
+
+                <div className="group/field relative">
+                   <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-3 px-1 flex items-center gap-3 group-hover/field:text-indigo-500 transition-all">
+                     <span className="material-symbols-outlined text-[18px]">description</span>
+                     Project Architecture
+                   </p>
+                   <textarea 
+                     required 
+                     className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-8 py-6 text-sm font-roboto leading-relaxed outline-none focus:border-indigo-500 transition-all dark:text-white resize-none h-48 lowercase shadow-inner focus:shadow-md transform focus:-translate-y-0.5" 
+                     placeholder="Outline the architectural decisions and your specific implementation role..." 
+                     value={formData.description} 
+                     onChange={(event) => setFormData({ ...formData, description: event.target.value })} 
+                   />
+                </div>
+
+                <div className="grid gap-8 sm:grid-cols-2">
+                   <div className="group/field relative">
+                      <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-3 px-1 flex items-center gap-3 group-hover/field:text-indigo-500 transition-all">
+                        <span className="material-symbols-outlined text-[18px]">terminal</span>
+                        Repository
+                      </p>
+                      <input 
+                        className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-5 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm focus:shadow-md transform focus:-translate-y-0.5" 
+                        placeholder="https://github.com/..." 
+                        type="url" 
+                        value={formData.githubLink} 
+                        onChange={(event) => setFormData({ ...formData, githubLink: event.target.value })} 
+                      />
+                   </div>
+                   <div className="group/field relative">
+                      <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-3 px-1 flex items-center gap-3 group-hover/field:text-indigo-500 transition-all">
+                        <span className="material-symbols-outlined text-[18px]">captive_portal</span>
+                        Live Service
+                      </p>
+                      <input 
+                        className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-5 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm focus:shadow-md transform focus:-translate-y-0.5" 
+                        placeholder="https://..." 
+                        type="url" 
+                        value={formData.liveLink} 
+                        onChange={(event) => setFormData({ ...formData, liveLink: event.target.value })} 
+                      />
+                   </div>
+                </div>
+              </div>
+
+              <div className="mt-12 pt-10 border-t border-slate-100 dark:border-white/5 flex gap-6">
+                <button 
+                  className="flex-1 rounded-sm text-white py-5 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]" 
+                  style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+                  type="submit"
+                >
+                  Synchronize Node
+                </button>
+                <button 
+                  className="px-10 rounded-sm bg-slate-50 dark:bg-white/5 text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all" 
+                  onClick={() => { setIsEditing(false); setIsCreating(false); }}
+                  type="button"
+                >
+                  Abort
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center p-20 text-center relative">
+               <div className="flex size-32 items-center justify-center rounded-sm bg-[#f8fafc] dark:bg-white/5 border border-slate-100 dark:border-white/5 text-indigo-500/20 mb-10 shadow-inner">
+                 <span className="material-symbols-outlined text-[56px] opacity-20 transition-transform group-hover:scale-110">add_task</span>
+               </div>
+               <h3 className="text-3xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none mb-6">Select Project Node</h3>
+               <p className="max-w-xs text-[11px] font-poppins font-bold uppercase tracking-widest text-slate-400 leading-relaxed overflow-hidden opacity-70">Choose an existing technological node to visualize or modify system data.</p>
             </div>
-          ) : null}
+          )}
         </section>
       </div>
     </AppShell>

@@ -59,116 +59,121 @@ export default function InternshipDetailsPage() {
   };
 
   if (loading || pageLoading) {
-    return <LoadingState label="Loading internship details..." />;
+    return <LoadingState label="Decompressing mission brief..." />;
   }
 
   return (
     <AppShell
-      title={internship?.title || 'Internship Details'}
-      description="Review the mission and eligibility before submitting your candidacy."
+      title={internship?.title || 'Mission Cluster'}
+      description="Validate institutional alignment and analyze eligibility matrices before commitment."
       navigation={navigationByRole.student}
       user={user}
     >
-      <div className="grid gap-8 lg:grid-cols-[1.3fr,0.7fr]">
-        <section className="space-y-8">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all">
-            <div className="flex items-start justify-between gap-6 mb-10">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start relative">
+        <section className="flex-[1.25] space-y-8 min-w-0">
+          <div className="rounded-md bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-sm">
+            <div className="flex items-start justify-between gap-8 mb-10">
               <div>
-                <h1 className="text-4xl font-black tracking-tight dark:text-white leading-tight">{internship?.title}</h1>
-                <p className="mt-3 flex items-center gap-2 text-lg font-bold text-primary">
-                  <span className="material-symbols-outlined">corporate_fare</span>
-                  {internship?.company?.name || 'Company Profile'}
+                <h1 className="text-4xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white leading-none uppercase">{internship?.title}</h1>
+                <p className="mt-4 flex items-center gap-3 text-lg font-poppins font-bold uppercase tracking-widest text-primary">
+                  <span className="material-symbols-outlined text-[24px]">corporate_fare</span>
+                  {internship?.company?.name || 'Institutional Partner'}
                 </p>
               </div>
-              <StatusBadge status={internship?.status} />
+              <div className="flex flex-col items-end gap-3">
+                 <StatusBadge status={internship?.status} />
+                 <div className="px-3 py-1 bg-primary/5 rounded-sm border border-primary/10">
+                    <p className="text-[10px] font-poppins font-bold text-primary uppercase tracking-widest">{fit.score}% Alignment</p>
+                 </div>
+              </div>
             </div>
             
             <div className="space-y-4">
-              <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Mission Description</h2>
-              <p className="whitespace-pre-wrap text-base leading-8 text-slate-600 dark:text-slate-300 font-medium italic italic leading-relaxed">{internship?.description}</p>
+              <h2 className="text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">MISSION_ABSTRACT</h2>
+              <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-600 dark:text-slate-300 font-roboto border-l-2 border-slate-100 dark:border-white/5 pl-6 py-1">{internship?.description}</p>
             </div>
           </div>
 
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all">
-            <h2 className="text-xl font-black tracking-tight dark:text-white mb-6 flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary">task_alt</span>
-              Key Requirements
+          <div className="rounded-md bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5">
+            <h2 className="text-xl font-poppins font-bold tracking-tight text-[#003366] dark:text-white mb-8 flex items-center gap-4 uppercase">
+              <span className="material-symbols-outlined text-primary text-[24px]">science</span>
+              Institutional Requirements
             </h2>
             <div className="flex flex-wrap gap-3">
               {(internship?.skillTags?.length ? internship.skillTags : internship?.requirements || []).map((requirement) => (
-                <span key={requirement} className="rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-200 transition-all hover:border-primary/30">
+                <span key={requirement} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-4 py-2 text-[10px] font-poppins font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">
                   {requirement}
                 </span>
               ))}
             </div>
             {fit.missingSkills.length ? (
-              <div className="mt-8 flex items-start gap-4 rounded-3xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 p-6 transition-all">
-                <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">lightbulb</span>
-                <div className="text-sm">
-                  <p className="font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest mb-1">Fit Insight</p>
-                  <p className="text-amber-700 dark:text-amber-400 font-medium leading-relaxed">Consider highlighting experiences in: {fit.missingSkills.slice(0, 4).join(', ')} to stand out.</p>
+              <div className="mt-10 flex items-start gap-4 rounded-sm bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 p-6">
+                <span className="material-symbols-outlined text-amber-500 text-[24px]">tips_and_updates</span>
+                <div className="text-[11px]">
+                  <p className="font-poppins font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest mb-1.5">REFINEMENT_INSIGHT</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-roboto leading-relaxed">Optimize your repository by highlighting: <span className="text-amber-600 dark:text-amber-300 font-bold">{fit.missingSkills.slice(0, 4).join(', ').toUpperCase()}</span> to maximize system alignment.</p>
                 </div>
               </div>
             ) : (
-              <div className="mt-8 flex items-start gap-4 rounded-3xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 p-6 transition-all">
-                <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400">check_circle</span>
-                <div className="text-sm">
-                  <p className="font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-1">Perfect Fit</p>
-                  <p className="text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed">Your professional profile and verified projects perfectly align with this role's requirements.</p>
+              <div className="mt-10 flex items-start gap-4 rounded-sm bg-emerald-500/10 dark:bg-emerald-500/10 border border-emerald-500/20 p-6">
+                <span className="material-symbols-outlined text-emerald-500 text-[24px]">verified_user</span>
+                <div className="text-[11px]">
+                  <p className="font-poppins font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1.5">HIGH_INTEGRITY_MATCH</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-roboto leading-relaxed italic">System analysis confirms 1:1 parity between your technological nodes and role requirements.</p>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        <aside className="space-y-8">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all">
-            <h2 className="text-xl font-black tracking-tight dark:text-white mb-8">Role Snapshot</h2>
+        <aside className="flex-[0.75] space-y-8 min-w-0">
+          <div className="rounded-md bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
+            <h2 className="text-lg font-poppins font-bold tracking-tighter text-[#003366] dark:text-white mb-10 uppercase leading-none">ROLE_MATRIX</h2>
             <div className="space-y-6">
               {[
-                { label: 'Location', value: internship?.location || 'TBD', icon: 'location_on' },
-                { label: 'Compensation', value: internship?.stipend || 'Unpaid', icon: 'payments' },
-                { label: 'Duration', value: internship?.duration || 'Not specified', icon: 'timelapse' },
-                { label: 'Deadline', value: internship?.applyBy ? new Date(internship.applyBy).toLocaleDateString() : 'Rolling', icon: 'calendar_today' },
-                { label: 'Eligibility', value: internship?.eligibleDepartments?.length ? internship.eligibleDepartments.join(', ') : 'Open to All', icon: 'diversity_3' },
+                { label: 'Geographic Locale', value: internship?.location || 'Unspecified', icon: 'location_on' },
+                { label: 'Credit Allocation', value: internship?.stipend || 'Unpaid Allocation', icon: 'payments' },
+                { label: 'System Duration', value: internship?.duration || 'Institutional Scope', icon: 'timelapse' },
+                { label: 'Registry Deadline', value: internship?.applyBy ? new Date(internship.applyBy).toLocaleDateString() : 'Rolling Admission', icon: 'history_toggle_off' },
+                { label: 'Academic Pool', value: internship?.eligibleDepartments?.length ? internship.eligibleDepartments.join(', ') : 'Open Repository', icon: 'hub' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-4 group">
-                  <div className="flex size-10 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm group-hover:shadow-none">
-                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                  <div className="flex size-10 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 text-slate-300 group-hover:text-primary transition-all shadow-sm">
+                    <span className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110">{item.icon}</span>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{item.label}</p>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.value}</p>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-0.5 leading-none">{item.label}</p>
+                    <p className="text-xs font-poppins font-bold text-slate-900 dark:text-slate-100 truncate">{item.value.toUpperCase()}</p>
                   </div>
                 </div>
               ))}
             </div>
             
             <button 
-              className="mt-10 w-full rounded-2xl bg-primary px-6 py-4 text-sm font-black text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-[0.98] group" 
+              className="mt-10 w-full rounded-sm bg-[#003366] dark:bg-white px-6 py-4 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] text-white dark:text-[#003366] shadow-lg transition-all hover:bg-primary hover:text-white active:scale-[0.98] group disabled:opacity-50" 
               disabled={hasApplied || applying || internship?.status === 'closed'} 
               onClick={handleApply} 
               type="button"
             >
               <div className="flex items-center justify-center gap-3">
-                {applying ? null : <span className="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">{hasApplied ? 'task_alt' : 'rocket_launch'}</span>}
-                {hasApplied ? 'Already Applied' : applying ? 'Processing Request...' : 'Submit Application'}
+                {applying ? null : <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">{hasApplied ? 'verified_user' : 'rocket_launch'}</span>}
+                {hasApplied ? 'NODE_SECURED' : applying ? 'TRANSMITTING...' : 'COMMIT CANDIDACY'}
               </div>
             </button>
             {hasApplied && (
-              <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 italic">
-                Wait for recruiter response in applications
+              <p className="mt-4 text-center text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-400">
+                AWAITING_RESPONSE
               </p>
             )}
           </div>
           
-          <div className="rounded-[2.5rem] bg-primary/5 dark:bg-white/5 border border-primary/10 dark:border-white/5 p-8 transition-all">
-            <p className="text-xs font-black uppercase tracking-widest text-primary mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[14px]">info</span>
-              Transparency Notice
+          <div className="rounded-sm bg-primary/5 dark:bg-white/5 border border-dashed border-primary/20 p-8">
+            <p className="text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-primary mb-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">verified</span>
+              PROTOCOL_NOTICE
             </p>
-            <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
-              By applying, your <span className="text-slate-700 dark:text-slate-200 font-bold underline decoration-primary/30">Readiness Score</span> and <span className="text-slate-700 dark:text-slate-200 font-bold underline decoration-primary/30">Verified Projects</span> will be shared with the recruiter to facilitate merit-based hiring.
+            <p className="text-[10px] font-poppins font-bold uppercase tracking-widest leading-relaxed text-slate-400 opacity-80">
+              COMMITTING CANDIDACY SYNCHRONIZES YOUR READINESS MOMENTUM WITH INSTITUTIONAL RECRUITMENT REGISTRIES.
             </p>
           </div>
         </aside>

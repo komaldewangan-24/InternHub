@@ -55,7 +55,7 @@ export default function AdminInternshipsPage() {
       <div className="space-y-6">
         {internships.length ? (
           internships.map((internship) => (
-            <div key={internship._id} className="group rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
+            <div key={internship._id} className="group rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
@@ -85,14 +85,14 @@ export default function AdminInternshipsPage() {
                 </div>
                 <div className="flex items-center gap-4 border-t border-slate-50 dark:border-white/5 pt-6 lg:border-t-0 lg:pt-0">
                   <button 
-                    className="flex-1 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 transition-all hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-200" 
+                    className="flex-1 rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 transition-all hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 hover:border-rose-200" 
                     onClick={() => handleDelete(internship._id)} 
                     type="button"
                   >
                     Rescind Posting
                   </button>
                   <button 
-                    className="flex-1 rounded-2xl bg-primary px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95" 
+                    className="flex-1 rounded-sm bg-primary px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95" 
                     onClick={() => window.open(`/internships/${internship._id}`, '_blank')} 
                     type="button"
                   >

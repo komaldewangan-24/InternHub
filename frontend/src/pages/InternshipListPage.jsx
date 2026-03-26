@@ -6,26 +6,21 @@ import LoadingState from '../components/LoadingState';
 import StatusBadge from '../components/StatusBadge';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { internshipAPI, projectAPI } from '../services/api';
+import { internshipAPI } from '../services/api';
 import { computeInternshipFit } from '../utils/readiness';
 
 export default function InternshipListPage() {
   const { user, loading } = useCurrentUser();
   const [internships, setInternships] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [search, setSearch] = useState('');
   const [pageLoading, setPageLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const loadInternships = async () => {
       try {
         setPageLoading(true);
-        const [internshipResponse, projectResponse] = await Promise.all([
-          internshipAPI.getAll(),
-          projectAPI.getAll(),
-        ]);
-        setInternships(internshipResponse.data.data || []);
-        setProjects(projectResponse.data.data || []);
+        const { data } = await internshipAPI.getAll();
+        setInternships(data.data || []);
       } finally {
         setPageLoading(false);
       }
@@ -34,37 +29,25 @@ export default function InternshipListPage() {
     loadInternships();
   }, []);
 
-  const approvedProjectTags = useMemo(
+  const filteredInternships = useMemo(
     () =>
-      projects
-        .filter((project) => project.status === 'approved')
-        .flatMap((project) => project.tags || []),
-    [projects]
-  );
-
-  const filteredInternships = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    const items = internships.map((internship) => ({
-      ...internship,
-      fit: computeInternshipFit({ internship, user, approvedProjectTags }),
-    }));
-
-    const searched = term
-      ? items.filter((internship) =>
-          [
-            internship.title,
-            internship.company?.name,
-            internship.location,
-            ...(internship.requirements || []),
-            ...(internship.skillTags || []),
-          ]
-            .filter(Boolean)
-            .some((value) => value.toLowerCase().includes(term))
+      internships
+        .filter(
+          (internship) =>
+            internship.title.toLowerCase().includes(search.toLowerCase()) ||
+            internship.company?.name.toLowerCase().includes(search.toLowerCase())
         )
-      : items;
-
-    return searched.sort((left, right) => right.fit.score - left.fit.score);
-  }, [approvedProjectTags, internships, search, user]);
+        .map((internship) => ({
+          ...internship,
+          fit: computeInternshipFit({
+            internship,
+            user,
+            approvedProjectTags: user?.profile?.skills || [],
+          }),
+        }))
+        .sort((left, right) => right.fit.score - left.fit.score),
+    [internships, search, user]
+  );
 
   if (loading || pageLoading) {
     return <LoadingState label="Loading internships..." />;
@@ -73,86 +56,101 @@ export default function InternshipListPage() {
   return (
     <AppShell
       title="Internships"
-      description="Discover recruiter-posted internships ranked by your current skills, approved projects, and eligibility."
+      description="Scan and identify high-fit internship nodes matching your proficiency."
       navigation={navigationByRole.student}
       user={user}
     >
-      <div className="mb-8 rounded-[2.5rem] bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-white/5 transition-all">
-        <div className="relative group">
-          <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-          <input 
-            className="w-full rounded-[1.5rem] border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 px-14 py-4 text-sm outline-none focus:border-primary/50 transition-all dark:text-white" 
-            placeholder="Search by title, company, location, or skill" 
-            value={search} 
-            onChange={(event) => setSearch(event.target.value)} 
-          />
+      <div className="mb-16 flex justify-center px-4 relative uppercase">
+        <div className="relative w-full max-w-4xl group">
+          <div className="absolute -top-10 left-6 flex items-center gap-3">
+             <div className="size-1.5 rounded-full bg-indigo-500 animate-pulse" />
+             <p className="text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-indigo-500">OPPORTUNITY SEARCH</p>
+          </div>
+          <div className="relative">
+            <input 
+              className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 py-6 pl-14 pr-10 text-lg font-poppins font-bold tracking-tight placeholder:italic placeholder:font-bold placeholder:opacity-30 focus:border-indigo-500 transition-all outline-none dark:text-white shadow-sm" 
+              placeholder="Search by title, company, or skills..." 
+              type="text" 
+              value={search} 
+              onChange={(event) => setSearch(event.target.value)} 
+            />
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-indigo-500/40 group-focus-within:text-indigo-500 transition-colors">hub</span>
+          </div>
+          <div className="absolute -bottom-6 right-6 text-[9px] font-poppins font-bold uppercase tracking-widest text-slate-400 opacity-60">
+             Total Nodes Detected: {filteredInternships.length}
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 lg:px-4 uppercase">
         {filteredInternships.length ? (
-          filteredInternships.map((internship) => (
-            <div key={internship._id} className="group relative flex flex-col rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:shadow-xl dark:hover:shadow-none hover:-translate-y-1">
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div className="flex-1">
-                  <h3 className="text-xl font-black tracking-tight dark:text-white line-clamp-1">{internship.title}</h3>
-                  <p className="mt-1 text-xs font-bold uppercase tracking-widest text-primary">{internship.company?.name || 'Company'}</p>
+          filteredInternships.map((internship) => {
+            return (
+              <div
+                key={internship._id}
+                className="group relative flex flex-col overflow-hidden rounded-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-indigo-500/30"
+              >
+                <div className="flex items-start justify-between gap-6 mb-8">
+                   <div className="space-y-2">
+                     <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-indigo-500">INSTITUTIONAL NODE</p>
+                     <h2 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white leading-tight uppercase group-hover:text-indigo-500 transition-colors">{internship.title}</h2>
+                   </div>
+                   <div className="shrink-0 text-right">
+                      <p className="text-[8px] font-poppins font-bold uppercase text-indigo-500 mb-2">{internship.fit.score}% Match</p>
+                      {internship.status === 'open' ? (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                          <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                          <p className="text-[8px] font-poppins font-bold uppercase text-emerald-600">ACTIVE</p>
+                        </div>
+                      ) : (
+                        <StatusBadge status={internship.status} />
+                      )}
+                   </div>
                 </div>
-                <StatusBadge status={internship.status} />
-              </div>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">location_on</span>
-                  <span className="font-medium">{internship.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">payments</span>
-                  <span className="font-medium text-slate-700 dark:text-slate-200">{internship.stipend || 'Unpaid'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">event_available</span>
-                  <span className="font-medium">
-                    Apply by {internship.applyBy ? new Date(internship.applyBy).toLocaleDateString() : 'Rolling'}
-                  </span>
-                </div>
-              </div>
 
-              <div className="mt-auto space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {(internship.skillTags?.length ? internship.skillTags : internship.requirements || []).slice(0, 3).map((requirement) => (
-                    <span key={requirement} className="rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                      {requirement}
+                <div className="flex items-center gap-4 mb-6 group/company border-b border-slate-100 dark:border-white/5 pb-6">
+                   <div className="flex size-12 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-indigo-500/40 group-hover/company:text-indigo-500 transition-all shadow-sm">
+                      <span className="material-symbols-outlined text-[20px]">corporate_fare</span>
+                   </div>
+                   <div>
+                      <p className="text-[8px] font-poppins font-bold uppercase tracking-widest text-slate-400">Organization</p>
+                      <p className="text-xs font-poppins font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tighter">{internship.company?.name || 'Company Name'}</p>
+                   </div>
+                </div>
+
+                <div className="mb-8 flex flex-wrap gap-2 px-1">
+                  {(internship.skillTags || []).slice(0, 4).map((tag) => (
+                    <span key={tag} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-1.5 text-[8px] font-poppins font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                      {tag}
                     </span>
                   ))}
                 </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {internship.fit.matchedSkills.slice(0, 2).map((skill) => (
-                    <span key={skill} className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
-                      <span className="size-1 rounded-full bg-emerald-500 animate-pulse" />
-                      Fit: {skill}
-                    </span>
-                  ))}
-                  {!internship.fit.eligible ? (
-                    <span className="rounded-full bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-rose-700 dark:text-rose-400">
-                      Eligibility Alert
-                    </span>
-                  ) : null}
-                </div>
 
-                <Link 
-                  className="mt-6 flex w-full items-center justify-center rounded-2xl bg-primary px-4 py-4 text-sm font-black text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 group-hover:scale-[1.02] active:scale-[0.98]" 
-                  to={`/internships/${internship._id}`}
-                >
-                  Explore Opportunity
-                </Link>
+                <p className="line-clamp-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400 font-roboto mb-8 border-l-2 border-slate-100 dark:border-white/5 pl-5 opacity-80 lowercase">
+                   {internship.description}
+                </p>
+
+                 <div className="mt-auto pt-8 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-indigo-500/40 text-[20px]">location_on</span>
+                      <p className="text-[10px] font-poppins font-bold uppercase tracking-widest text-slate-400 truncate max-w-[140px]">
+                         {internship.location || 'Remote / On-site'}
+                      </p>
+                   </div>
+                   <Link 
+                     to={`/internships/${internship._id}`} 
+                     className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+                   >
+                     Inspect Node
+                   </Link>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
-          <div className="xl:col-span-3">
-            <EmptyState icon="find_in_page" title="No matching internships" description="Expand your search terms or wait for our campus partners to publish new listings." />
+          <div className="md:col-span-2 lg:col-span-3 py-20">
+             <EmptyState title="No Internships detected" description="Increase your search parameters to find more matching nodes." />
           </div>
         )}
       </div>

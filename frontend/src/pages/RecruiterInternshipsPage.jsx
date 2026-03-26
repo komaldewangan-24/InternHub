@@ -146,11 +146,11 @@ export default function RecruiterInternshipsPage() {
       user={user}
     >
       <div className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
-        <form className="rounded-3xl bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
+        <form className="rounded-sm bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
           <h2 className="text-xl font-bold">{form.id ? 'Edit Internship' : 'Create Internship'}</h2>
           <div className="mt-6 space-y-4">
-            <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
-            <select className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={form.company} onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}>
+            <input className="w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
+            <select className="w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={form.company} onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}>
               <option value="">Select company</option>
               {ownCompanies.map((company) => (
                 <option key={company._id} value={company._id}>
@@ -158,29 +158,29 @@ export default function RecruiterInternshipsPage() {
                 </option>
               ))}
             </select>
-            <textarea className="min-h-[140px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
-            <textarea className="min-h-[120px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Requirements, one per line'} value={form.requirements} onChange={(event) => setForm((current) => ({ ...current, requirements: event.target.value }))} />
-            <textarea className="min-h-[100px] w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Skill tags, one per line'} value={form.skillTags} onChange={(event) => setForm((current) => ({ ...current, skillTags: event.target.value }))} />
+            <textarea className="min-h-[140px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
+            <textarea className="min-h-[120px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Requirements, one per line'} value={form.requirements} onChange={(event) => setForm((current) => ({ ...current, requirements: event.target.value }))} />
+            <textarea className="min-h-[100px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Skill tags, one per line'} value={form.skillTags} onChange={(event) => setForm((current) => ({ ...current, skillTags: event.target.value }))} />
             <div className="grid gap-4 md:grid-cols-2">
-              <textarea className="min-h-[100px] rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Eligible departments, one per line'} value={form.eligibleDepartments} onChange={(event) => setForm((current) => ({ ...current, eligibleDepartments: event.target.value }))} />
-              <textarea className="min-h-[100px] rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Eligible batches, one per line'} value={form.eligibleBatches} onChange={(event) => setForm((current) => ({ ...current, eligibleBatches: event.target.value }))} />
+              <textarea className="min-h-[100px] rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Eligible departments, one per line'} value={form.eligibleDepartments} onChange={(event) => setForm((current) => ({ ...current, eligibleDepartments: event.target.value }))} />
+              <textarea className="min-h-[100px] rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Eligible batches, one per line'} value={form.eligibleBatches} onChange={(event) => setForm((current) => ({ ...current, eligibleBatches: event.target.value }))} />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Location" value={form.location} onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Stipend" value={form.stipend} onChange={(event) => setForm((current) => ({ ...current, stipend: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Duration" value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: event.target.value }))} />
-              <input className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" type="date" value={form.applyBy} onChange={(event) => setForm((current) => ({ ...current, applyBy: event.target.value }))} />
+              <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Location" value={form.location} onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))} />
+              <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Stipend" value={form.stipend} onChange={(event) => setForm((current) => ({ ...current, stipend: event.target.value }))} />
+              <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Duration" value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: event.target.value }))} />
+              <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" type="date" value={form.applyBy} onChange={(event) => setForm((current) => ({ ...current, applyBy: event.target.value }))} />
             </div>
-            <select className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))}>
+            <select className="w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))}>
               <option value="open">Open</option>
               <option value="closed">Closed</option>
             </select>
           </div>
           <div className="mt-6 flex gap-3">
-            <button className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
+            <button className="rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">
               {saving ? 'Saving...' : form.id ? 'Update Internship' : 'Create Internship'}
             </button>
-            <button className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-bold" onClick={() => setForm(blankForm)} type="button">
+            <button className="rounded-sm border border-slate-200 px-5 py-3 text-sm font-bold" onClick={() => setForm(blankForm)} type="button">
               Reset
             </button>
           </div>
@@ -189,7 +189,7 @@ export default function RecruiterInternshipsPage() {
         <section className="space-y-4">
           {internships.length ? (
             internships.map((internship) => (
-              <div key={internship._id} className="rounded-3xl bg-white p-6 shadow-sm">
+              <div key={internship._id} className="rounded-sm bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-lg font-bold">{internship.title}</p>
@@ -206,10 +206,10 @@ export default function RecruiterInternshipsPage() {
                   ))}
                 </div>
                 <div className="mt-4 flex gap-3">
-                  <button className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold" onClick={() => handleEdit(internship)} type="button">
+                  <button className="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold" onClick={() => handleEdit(internship)} type="button">
                     Edit
                   </button>
-                  <button className="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600" onClick={() => handleDelete(internship._id)} type="button">
+                  <button className="rounded-sm border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600" onClick={() => handleDelete(internship._id)} type="button">
                     Delete
                   </button>
                 </div>

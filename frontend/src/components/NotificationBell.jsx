@@ -48,7 +48,7 @@ export default function NotificationBell() {
     <div className="relative" ref={bellRef}>
       <button
         onClick={toggleOpen}
-        className={`flex size-11 items-center justify-center rounded-2xl border transition-all shadow-sm ${
+        className={`flex size-11 items-center justify-center rounded-sm border transition-all shadow-sm ${
           open 
             ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
             : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 hover:border-primary hover:text-primary'
@@ -67,7 +67,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-16 z-50 w-[380px] rounded-[2.5rem] border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-8 shadow-2xl backdrop-blur-3xl animate-in zoom-in-95 duration-200 transform origin-top-right">
+        <div className="absolute right-0 top-16 z-50 w-[380px] rounded-sm border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-8 shadow-2xl backdrop-blur-3xl animate-in zoom-in-95 duration-200 transform origin-top-right">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Activity stream</h3>
             {unreadCount > 0 && (
@@ -86,7 +86,7 @@ export default function NotificationBell() {
                     key={note._id || Math.random()}
                     to={note.link || '#'}
                     onClick={() => setOpen(false)}
-                    className={`block rounded-3xl border p-5 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                    className={`block rounded-sm border p-5 transition-all hover:scale-[1.02] active:scale-[0.98] ${
                       note.readAt 
                         ? 'border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 opacity-70' 
                         : 'border-primary/20 dark:border-primary/30 bg-primary/5 dark:bg-primary/10'
@@ -105,7 +105,7 @@ export default function NotificationBell() {
                 );
               })
             ) : (
-              <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 p-12 text-center">
+              <div className="rounded-sm border border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 p-12 text-center">
                 <span className="material-symbols-outlined text-[32px] text-slate-300 dark:text-slate-700 block mb-4">notifications_off</span>
                 <p className="text-sm font-bold text-slate-400 dark:text-slate-500 leading-relaxed">System status optimal.<br/>No pending notifications.</p>
               </div>

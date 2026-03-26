@@ -42,6 +42,7 @@ const UserSchema = new mongoose.Schema({
         designation: String,
         githubUrl: String,
         linkedinUrl: String,
+        avatarUrl: String,
         assignedFaculty: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',

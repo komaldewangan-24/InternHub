@@ -4,7 +4,6 @@ export const computeProfileCompletion = (user) => {
     user?.email,
     user?.profile?.department,
     user?.profile?.batch,
-    user?.profile?.section,
     user?.profile?.rollNumber,
     user?.profile?.university,
     user?.profile?.degree,
@@ -23,12 +22,20 @@ export const computeStudentReadiness = ({ user, approvedProjects = 0, applicatio
   const profileCompletion = computeProfileCompletion(user);
   const resumeReady = Boolean(user?.profile?.resumeUrl);
   const hasApprovedProject = approvedProjects > 0;
+  
   const score = Math.round(
     profileCompletion * 0.45 +
       (resumeReady ? 20 : 0) +
       (hasApprovedProject ? 25 : 0) +
       (applications > 0 ? 10 : 0)
   );
+
+  const breakdown = [
+    { label: 'Institutional Profile', score: profileCompletion },
+    { label: 'Registry Resume', score: resumeReady ? 100 : 0 },
+    { label: 'Milestone Approval', score: hasApprovedProject ? 100 : 0 },
+    { label: 'Registry Participation', score: applications > 0 ? 100 : 0 }
+  ];
 
   const flags = [];
   if (profileCompletion < 80) flags.push('Complete profile');
@@ -41,6 +48,7 @@ export const computeStudentReadiness = ({ user, approvedProjects = 0, applicatio
     profileCompletion,
     resumeReady,
     score,
+    breakdown,
     flags,
     isPlacementReady: score >= 75 && resumeReady && hasApprovedProject,
   };

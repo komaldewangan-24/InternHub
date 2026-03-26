@@ -1,9 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Roboto:wght@400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary: #0B67C2;
+    --color-secondary: #003366;
+    --color-accent: #3D9BFF;
+    --color-neutral: #F1F5F9;
+    --color-dark-accent: #0F172A;
+  }
+  
   body {
-    @apply bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100;
+    @apply bg-neutral dark:bg-background-dark font-roboto text-dark-accent dark:text-neutral;
   }
 }

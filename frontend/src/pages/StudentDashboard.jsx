@@ -1,254 +1,207 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppShell from '../components/AppShell';
-import EmptyState from '../components/EmptyState';
 import LoadingState from '../components/LoadingState';
-import StatusBadge from '../components/StatusBadge';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { applicationAPI, internshipAPI, projectAPI } from '../services/api';
-import { computeInternshipFit, computeStudentReadiness } from '../utils/readiness';
+import { applicationAPI, projectAPI, internshipAPI } from '../services/api';
+import { computeStudentReadiness } from '../utils/readiness';
+
+const ProgressCircle = ({ percentage, color = '#6366f1', size = 80 }) => {
+  const radius = 32;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg className="rotate-[-90deg]" width={size} height={size} viewBox="0 0 80 80">
+        <circle stroke="rgba(99, 102, 241, 0.05)" fill="none" strokeWidth="8" cx="40" cy="40" r={radius} />
+        <circle 
+          stroke={color} 
+          fill="none" 
+          strokeDasharray={circumference} 
+          strokeDashoffset={offset} 
+          strokeLinecap="round" 
+          strokeWidth="8" 
+          cx="40" cy="40" r={radius} 
+          className="transition-all duration-1000 ease-out" 
+        />
+      </svg>
+      <span className="absolute text-[11px] font-poppins font-bold uppercase tracking-tighter" style={{ color }}>{percentage}%</span>
+    </div>
+  );
+};
 
 export default function StudentDashboard() {
   const { user, loading } = useCurrentUser();
-  const [projects, setProjects] = useState([]);
-  const [applications, setApplications] = useState([]);
-  const [internships, setInternships] = useState([]);
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ applications: 0, underReview: 0, approved: 0, internships: 0 });
   const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadDashboardData = async () => {
       try {
         setPageLoading(true);
-        const [projectResponse, applicationResponse, internshipResponse] = await Promise.all([
-          projectAPI.getAll(),
+        const [appRes, projRes, internRes] = await Promise.all([
           applicationAPI.getAll(),
+          projectAPI.getAll(),
           internshipAPI.getAll(),
         ]);
-        setProjects(projectResponse.data.data || []);
-        setApplications(applicationResponse.data.data || []);
-        setInternships(internshipResponse.data.data || []);
+
+        const allProjects = projRes.data.data || [];
+        setStats({
+          applications: (appRes.data.data || []).length,
+          underReview: allProjects.filter(p => p.status === 'pending' || p.status === 'submitted').length,
+          approved: allProjects.filter(p => p.status === 'approved').length,
+          internships: (internRes.data.data || []).length,
+        });
       } finally {
         setPageLoading(false);
       }
     };
+    if (user) loadDashboardData();
+  }, [user]);
 
-    loadData();
-  }, []);
+  if (loading || pageLoading) return <LoadingState label="Loading dashboard..." />;
 
-  const approvedProjectTags = useMemo(
-    () =>
-      projects
-        .filter((project) => project.status === 'approved')
-        .flatMap((project) => project.tags || []),
-    [projects]
-  );
-
-  const readiness = useMemo(
-    () =>
-      computeStudentReadiness({
-        user,
-        approvedProjects: projects.filter((project) => project.status === 'approved').length,
-        applications: applications.length,
-      }),
-    [applications.length, projects, user]
-  );
-
-  const recommendedInternships = useMemo(
-    () =>
-      internships
-        .map((internship) => ({
-          internship,
-          fit: computeInternshipFit({ internship, user, approvedProjectTags }),
-        }))
-        .sort((left, right) => right.fit.score - left.fit.score)
-        .slice(0, 4),
-    [approvedProjectTags, internships, user]
-  );
-
-  if (loading || pageLoading) {
-    return <LoadingState label="Preparing your dashboard..." />;
-  }
-
-  const submittedProjects = projects.filter((project) => project.status === 'submitted').length;
-  const approvedProjects = projects.filter((project) => project.status === 'approved').length;
-  const pendingApplications = applications.filter((application) =>
-    ['pending', 'shortlisted', 'interview'].includes(application.status)
-  ).length;
-  const overdueReviews = projects.filter(
-    (project) => project.status === 'submitted' && project.reviewDueAt && new Date(project.reviewDueAt) < new Date()
-  ).length;
+  const readiness = computeStudentReadiness({
+    user,
+    approvedProjects: stats.approved,
+    applications: stats.applications,
+  });
 
   return (
     <AppShell
       title="Student Dashboard"
-      description="Track your placement readiness, project approvals, internship fit, and application momentum in one place."
+      description="Track your placement readiness and internship progress through institutional data analysis."
       navigation={navigationByRole.student}
       user={user}
     >
-      <div className="grid gap-6 xl:grid-cols-[1.08fr,0.92fr]">
-        <section className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-4">
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
+        <div className="flex-1 space-y-8 min-w-0">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 font-poppins">
             {[
-              ['Readiness Score', `${readiness.score}%`, 'trending_up'],
-              ['Under Review', submittedProjects, 'pending_actions'],
-              ['Approved', approvedProjects, 'verified'],
-              ['Active Applications', pendingApplications, 'send'],
-            ].map(([label, value, icon]) => (
-              <div key={label} className="rounded-[2rem] bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:scale-[1.02]">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{label}</p>
-                  <span className="material-symbols-outlined text-[20px] text-primary/50">{icon}</span>
+              { label: 'READINESS SCORE', value: readiness.score, color: '#6366f1', icon: 'speed', isPct: true },
+              { label: 'UNDER REVIEW', value: stats.underReview, color: '#6366f1', icon: 'history_edu' },
+              { label: 'APPROVED', value: stats.approved, color: '#6366f1', icon: 'task_alt' },
+              { label: 'ACTIVE APPLICATIONS', value: stats.applications, color: '#6366f1', icon: 'near_me' }
+            ].map((item) => (
+              <div key={item.label} className="group relative rounded-xl bg-white dark:bg-slate-900 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 transition-all duration-500 hover:shadow-2xl hover:border-indigo-500/50 hover:-translate-y-1">
+                <div className="flex items-center justify-between mb-8">
+                   <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">{item.label}</p>
+                   <span className="material-symbols-outlined text-[18px] opacity-60" style={{ color: item.color }}>{item.icon}</span>
                 </div>
-                <p className="text-3xl font-black tracking-tight dark:text-white">{value}</p>
+                <div className="flex items-end justify-between gap-4">
+                   <p className="text-3xl font-poppins font-bold tracking-tighter uppercase text-[#003366] dark:text-white">{item.isPct ? `${item.value}%` : item.value}</p>
+                   <div className="flex items-end gap-[2px] h-8 pb-1 opacity-5">
+                      {[30, 60, 45, 80, 55, 90, 75].map((h, i) => (
+                        <div key={i} className="w-[2px] rounded-full" style={{ height: `${h}%`, backgroundColor: '#003366' }} />
+                      ))}
+                   </div>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-black tracking-tight dark:text-white">Placement Readiness</h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  Faculty assignment: <span className="font-semibold text-slate-700 dark:text-slate-200">{user?.profile?.assignedFaculty?.name || 'Pending assignment'}</span>
-                </p>
-              </div>
-              <StatusBadge status={readiness.isPlacementReady ? 'approved' : 'pending'} />
-            </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Profile completion</p>
-                <p className="mt-2 text-3xl font-black dark:text-white">{readiness.profileCompletion}%</p>
-              </div>
-              <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Resume uploaded</p>
-                <p className="mt-2 text-3xl font-black dark:text-white">{readiness.resumeReady ? 'Yes' : 'No'}</p>
-              </div>
-              <div className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Overdue reviews</p>
-                <p className={`mt-2 text-3xl font-black ${overdueReviews > 0 ? 'text-rose-500' : 'dark:text-white'}`}>{overdueReviews}</p>
-              </div>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {readiness.flags.length ? (
-                readiness.flags.map((flag) => (
-                  <span key={flag} className="rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 px-4 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm">
-                    {flag}
-                  </span>
-                ))
-              ) : (
-                <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-sm">
-                  Ready for recruiter visibility
-                </span>
-              )}
-            </div>
+          <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 relative overflow-hidden group hover:shadow-2xl">
+             <div className="absolute top-0 right-0 size-64 rounded-full -mr-32 -mt-32 blur-3xl opacity-20 pointer-events-none bg-indigo-500/10" />
+             
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 relative z-10 font-poppins">
+                <div>
+                   <div className="flex items-center gap-4 mb-4">
+                      <h2 className="text-3xl font-poppins font-bold tracking-tighter uppercase leading-none text-[#003366] dark:text-white">Placement Readiness</h2>
+                      <span className="rounded-sm px-3 py-1 text-[8px] font-poppins font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">ACTIVE_NODE</span>
+                   </div>
+                   <div className="flex items-center gap-2.5">
+                     <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse" />
+                     <p className="text-[10px] font-roboto font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                       Faculty Lead: <span className="font-poppins font-bold uppercase text-indigo-500">{user?.profile?.assignedFaculty?.name || 'In local queue'}</span>
+                     </p>
+                   </div>
+                </div>
+             </div>
+ 
+             <div className="grid gap-6 sm:grid-cols-3 mb-10 relative z-10 font-poppins">
+                <div className="rounded-lg p-8 border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:border-indigo-500/30 flex items-center justify-between gap-6 hover:shadow-lg">
+                   <div className="min-w-0">
+                      <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-slate-500">PROFILE INTEGRITY</p>
+                      <p className="text-3xl font-poppins font-bold uppercase tracking-tighter text-[#003366] dark:text-white">{readiness.profileCompletion}%</p>
+                   </div>
+                   <ProgressCircle percentage={readiness.profileCompletion} color="#6366f1" />
+                </div>
+ 
+                <div className="rounded-lg p-8 border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:border-indigo-500/30 flex items-center justify-between gap-6 hover:shadow-lg">
+                   <div className="min-w-0">
+                      <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-slate-500">CREDENTIALS</p>
+                      <p className="text-2xl font-poppins font-bold uppercase tracking-tighter leading-tight text-[#003366] dark:text-white">{readiness.resumeReady ? 'Node Sync' : 'Action Required'}</p>
+                   </div>
+                   <div className="flex size-16 items-center justify-center rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm text-indigo-500">
+                      <span className="material-symbols-outlined text-[28px]">{readiness.resumeReady ? 'task_alt' : 'pending'}</span>
+                   </div>
+                </div>
+ 
+                <div className="rounded-lg p-8 border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 transition-all hover:border-indigo-500/30 flex items-center justify-between gap-6 hover:shadow-lg">
+                   <div className="min-w-0">
+                      <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] mb-6 text-slate-400 dark:text-slate-500">OPPORTUNITIES</p>
+                      <button 
+                        onClick={() => navigate('/internships')}
+                        className="rounded-lg text-white px-5 py-3 text-[10px] font-poppins font-bold uppercase tracking-widest shadow-md transition-all active:scale-[0.98] hover:opacity-90"
+                        style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+                      >
+                        EXPLORE MISSIONS
+                      </button>
+                   </div>
+                   <div className="flex size-16 items-center justify-center rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 shadow-sm text-indigo-500">
+                      <span className="material-symbols-outlined text-[28px]">rocket_launch</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="flex flex-wrap gap-2 relative z-10 font-poppins">
+                {(readiness.flags || []).map((flag, index) => (
+                   <button key={index} className="rounded-sm px-5 py-2 text-[8px] font-poppins font-bold uppercase tracking-[0.2em] transition-all hover:bg-indigo-500/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
+                     {flag}
+                   </button>
+                ))}
+             </div>
           </div>
 
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-black tracking-tight dark:text-white">Project Briefs</h2>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{projects.length} Total</p>
-            </div>
-            <div className="space-y-4">
-              {projects.length ? (
-                projects.slice(0, 3).map((project) => (
-                  <div key={project._id} className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 p-6 transition-all hover:bg-slate-50 dark:hover:bg-white/10 group">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-lg font-bold dark:text-white group-hover:text-primary transition-colors">{project.title}</p>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                          Reviewer: {project.faculty?.name || 'Unassigned'}
-                        </p>
-                        {project.reviewDueAt ? (
-                          <div className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-                            Due {new Date(project.reviewDueAt).toLocaleDateString()}
-                          </div>
-                        ) : null}
-                      </div>
-                      <StatusBadge status={project.status} />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                      {project.comments?.length ? (
-                        <div className="flex gap-3">
-                          <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-[18px]">chat_bubble</span>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 italic">
-                            "{project.comments[project.comments.length - 1].message}"
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-slate-400 dark:text-slate-600">Pending initial faculty screening.</p>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  title="No projects yet"
-                  description="Create your first project submission to start the faculty review workflow."
-                />
-              )}
-            </div>
+          <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 group flex flex-col font-poppins hover:shadow-2xl">
+             <div className="flex items-center justify-between mb-10">
+                <h3 className="text-2xl font-poppins font-bold tracking-tighter uppercase leading-none text-[#003366] dark:text-white">Active Research</h3>
+                <div className="rounded-sm px-4 py-1.5 border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 flex items-center gap-2">
+                   <span className="size-1 rounded-full animate-pulse bg-emerald-500" />
+                   <p className="text-[8px] font-poppins font-bold uppercase tracking-widest text-[#003366] dark:text-slate-400">0 TOTAL</p>
+                </div>
+             </div>
+             <div className="rounded-sm border-2 border-dashed border-slate-100 dark:border-white/5 p-14 flex flex-col items-center justify-center text-center relative overflow-hidden bg-slate-50/50 dark:bg-white/5">
+                <div className="relative z-10 flex flex-col items-center">
+                   <div className="flex size-14 items-center justify-center rounded-lg bg-white dark:bg-white/10 mb-6 shadow-sm text-indigo-500 opacity-60"><span className="material-symbols-outlined text-[28px]">science</span></div>
+                   <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-slate-400 dark:text-slate-500 max-w-sm">Real-time registry tracking enabled. Initializing data nodes...</p>
+                </div>
+             </div>
           </div>
-        </section>
+        </div>
 
-        <section className="space-y-6">
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <h2 className="text-2xl font-black tracking-tight dark:text-white mb-8">Recommendations</h2>
-            <div className="space-y-4">
-              {recommendedInternships.length ? (
-                recommendedInternships.map(({ internship, fit }) => (
-                  <div key={internship._id} className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 p-6 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-bold dark:text-white">{internship.title}</p>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{internship.company?.name || 'Company'}</p>
-                      </div>
-                      <div className="px-3 py-1 bg-primary/10 rounded-full">
-                        <p className="text-[10px] font-black uppercase text-primary">{fit.score}% Match</p>
-                      </div>
-                    </div>
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {fit.matchedSkills.slice(0, 3).map((skill) => (
-                        <span key={skill} className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  title="Discovering opportunities"
-                  description="Great fits will appear here as soon as recruiters post relevant roles."
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-[2.5rem] bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5">
-            <h2 className="text-2xl font-black tracking-tight dark:text-white mb-8">Snapshot</h2>
-            <div className="space-y-4">
-              {applications.length ? (
-                applications.slice(0, 4).map((application) => (
-                  <div key={application._id} className="flex items-center justify-between rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-white/5 p-6 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors">
-                    <div>
-                      <p className="font-bold dark:text-white">{application.internship?.title || 'Internship'}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {application.internship?.company?.name || 'Company'}
-                      </p>
-                    </div>
-                    <StatusBadge status={application.status} />
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  title="No applications yet"
-                  description="Apply to internships after your profile and projects are ready."
-                />
-              )}
-            </div>
-          </div>
-        </section>
+        <div className="w-full xl:w-[340px] space-y-8 shrink-0 font-poppins">
+           <div className="rounded-xl bg-white dark:bg-slate-900 p-7 shadow-sm border border-slate-200 dark:border-white/5 transition-all duration-500 group">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className="h-5 w-1 rounded-full bg-indigo-500" />
+                 <h3 className="text-xl font-poppins font-bold tracking-tighter uppercase text-[#003366] dark:text-white">Recommendations</h3>
+              </div>
+              <div className="rounded-xl border-2 border-dashed border-slate-100 dark:border-white/5 p-8 text-center flex flex-col items-center justify-center mb-6 min-h-[200px] bg-slate-50/50 dark:bg-white/5">
+                 <div className="flex size-14 items-center justify-center rounded-lg bg-white dark:bg-white/10 mb-6 shadow-sm text-indigo-500 opacity-60"><span className="material-symbols-outlined text-[28px]">tips_and_updates</span></div>
+                 <h4 className="text-lg font-poppins font-bold tracking-tight uppercase mb-3 leading-none text-[#003366] dark:text-white">Analyzing market data</h4>
+                 <p className="text-[10px] font-medium uppercase tracking-widest leading-relaxed max-w-[170px] text-slate-400 dark:text-slate-500">Optimized career alignments will populate as you complete your profile readiness status.</p>
+              </div>
+              <button 
+                className="w-full rounded-sm py-3 text-[9px] font-poppins font-bold uppercase tracking-[0.4em] transition-all text-white shadow-md active:scale-[0.98] hover:opacity-90"
+                style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+              >
+                EXPLORE FULL REGISTRY
+              </button>
+           </div>
+        </div>
       </div>
     </AppShell>
   );
