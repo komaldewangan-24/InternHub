@@ -21,6 +21,11 @@ const profileFields = [
     'githubUrl',
     'linkedinUrl',
     'avatarUrl',
+    'certifications',
+    'achievements',
+    'experience',
+    'achievementsSummary',
+    'achievementsImageUrl',
     'assignedFaculty',
 ];
 

@@ -177,6 +177,32 @@ export default function StudentProfilePage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Horizontal Information Grid (Relocated for efficiency) */}
+                <div className="mt-14 group/grid">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10">
+                    {[
+                      { label: 'Full Name', val: formData.name, icon: 'person', color: 'bg-indigo-50 text-indigo-500' },
+                      { label: 'Email Address', val: formData.email, icon: 'alternate_email', color: 'text-indigo-500 bg-indigo-50' },
+                      { label: 'Phone Number', val: formData.phone, icon: 'call', color: 'text-emerald-500 bg-emerald-50' },
+                      { label: 'College / University', val: formData.university, icon: 'school', color: 'text-indigo-500 bg-indigo-50' },
+                      { label: 'Academic Designation', val: formData.degree, icon: 'bookmark', color: 'text-amber-500 bg-amber-50' },
+                      { label: 'Graduation Window', val: formData.graduationDate, icon: 'event', color: 'text-rose-500 bg-rose-50' },
+                    ].map((field, idx) => (
+                      <div key={field.label} className={`flex items-center gap-5 px-6 ${idx % 3 !== 2 ? 'md:border-r border-slate-100 dark:border-white/5' : ''} group/field`}>
+                        <div className={`size-14 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all group-hover/field:scale-110 ${field.color} dark:bg-white/5`}>
+                          <span className="material-symbols-outlined text-[24px]">{field.icon}</span>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">{field.label}</p>
+                          <p className="text-[15px] font-black text-[#003366] dark:text-white leading-tight">
+                            {field.val || '—'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Action Column on Right */}
@@ -206,9 +232,36 @@ export default function StudentProfilePage() {
                         12% <span className="text-slate-400 font-normal ml-1">this week</span>
                       </div>
                     </div>
-                    <svg className="w-20 h-10 overflow-visible opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 100 40">
-                      <path d="M0,35 Q10,10 20,30 T40,15 T60,25 T80,5 T100,20" fill="none" stroke="#4F46E5" strokeWidth="4" strokeLinecap="round" />
-                    </svg>
+                    <div className="h-10 w-24 relative group/chart">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 40" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        {/* Area Fill */}
+                        <path 
+                          d="M0 40 L0 32 Q15 15 30 28 T60 12 T100 22 L100 40 Z" 
+                          fill="url(#chartGradient)" 
+                          className="transition-all duration-700"
+                        />
+                        {/* Line */}
+                        <path 
+                          d="M0 32 Q15 15 30 28 T60 12 T100 22" 
+                          fill="none" 
+                          stroke="#4F46E5" 
+                          strokeWidth="3" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                          className="drop-shadow-[0_2px_4px_rgba(79,70,229,0.3)]"
+                        />
+                        {/* Data Points */}
+                        <circle cx="30" cy="28" r="3" fill="#4F46E5" className="opacity-0 group-hover/chart:opacity-100 transition-opacity" />
+                        <circle cx="60" cy="12" r="3" fill="#4F46E5" className="opacity-0 group-hover/chart:opacity-100 transition-opacity" />
+                        <circle cx="100" cy="22" r="3" fill="#4F46E5" className="opacity-0 group-hover/chart:opacity-100 transition-opacity" />
+                      </svg>
+                    </div>
                   </div>
                   <ul className="space-y-4">
                     {[
@@ -232,31 +285,6 @@ export default function StudentProfilePage() {
               </div>
             </div>
 
-            {/* Horizontal Information Grid (Exact Reference Location) */}
-            <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/5">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 group/grid">
-                {[
-                  { label: 'Full Name', val: formData.name, icon: 'person', color: 'bg-indigo-50 text-indigo-500' },
-                  { label: 'Email Address', val: formData.email, icon: 'alternate_email', color: 'text-indigo-500 bg-indigo-50' },
-                  { label: 'Phone Number', val: formData.phone, icon: 'call', color: 'text-emerald-500 bg-emerald-50' },
-                  { label: 'College / University', val: formData.university, icon: 'school', color: 'text-indigo-500 bg-indigo-50' },
-                  { label: 'Academic Designation', val: formData.degree, icon: 'bookmark', color: 'text-amber-500 bg-amber-50' },
-                  { label: 'Graduation Window', val: formData.graduationDate, icon: 'event', color: 'text-rose-500 bg-rose-50' },
-                ].map((field, idx) => (
-                  <div key={field.label} className={`flex items-center gap-5 px-6 ${idx % 3 !== 2 ? 'md:border-r border-slate-100 dark:border-white/5' : ''} group/field`}>
-                    <div className={`size-14 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all group-hover/field:scale-110 ${field.color} dark:bg-white/5`}>
-                      <span className="material-symbols-outlined text-[24px]">{field.icon}</span>
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">{field.label}</p>
-                      <p className="text-[15px] font-black text-[#003366] dark:text-white leading-tight">
-                        {field.val || '—'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -397,117 +425,174 @@ export default function StudentProfilePage() {
            </div>
         </section>
 
-        <section className="rounded-3xl bg-white dark:bg-slate-900 p-10 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 group">
-           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        {/* LinkedIn-style Experience Section */}
+        <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 overflow-hidden group">
+          <div className="p-10">
+            <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-4">
-                 <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-xl shadow-amber-200/50 dark:shadow-none">
-                   <span className="material-symbols-outlined text-[28px]">workspace_premium</span>
-                 </div>
-                 <div>
-                    <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Certifications & Achievements</h3>
-                    <p className="text-[11px] font-bold text-slate-400">Validate your expertise 🏆</p>
-                 </div>
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-200/50">
+                  <span className="material-symbols-outlined text-[28px]">work</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Professional Experience</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Your professional journey 📍</p>
+                </div>
               </div>
-              {isEditing && (
-                <div className="flex gap-4">
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                        const title = prompt("Certificate Title:");
-                        if (title) setFormData(prev => ({ ...prev, certifications: [...prev.certifications, { title, issuer: prompt("Issuer:"), date: new Date() }] }));
-                    }}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-[11px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                    Add Credential
-                  </button>
-                  <label className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-[11px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
-                    <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
-                    Feature Image
-                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => setFormData(prev => ({ ...prev, achievementsImageUrl: reader.result }));
-                          reader.readAsDataURL(file);
-                        }
-                    }} />
-                  </label>
+              <button 
+                type="button"
+                onClick={() => window.location.href = '/student/credentials'}
+                className="flex items-center gap-2 px-6 py-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-500/20 hover:bg-blue-100 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                Manage Experience
+              </button>
+            </div>
+
+            <div className="space-y-12">
+              {formData.experience?.length > 0 ? (
+                formData.experience.map((exp, idx) => (
+                  <div key={idx} className="relative pl-10 md:pl-20 group/exp">
+                    {/* Vertical Timeline Line */}
+                    {idx !== formData.experience.length - 1 && (
+                      <div className="absolute left-[23px] md:left-[35px] top-12 bottom-[-40px] w-0.5 bg-slate-100 dark:bg-white/5" />
+                    )}
+                    
+                    <div className="absolute left-0 size-12 md:size-16 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-center overflow-hidden">
+                      {exp.companyLogoUrl ? (
+                        <img src={exp.companyLogoUrl} alt={exp.company} className="size-full object-cover" />
+                      ) : (
+                        <span className="material-symbols-outlined text-slate-300 text-3xl">corporate_fare</span>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-[17px] font-black text-[#003366] dark:text-white">{exp.title}</h4>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <p className="text-[14px] font-bold text-slate-700 dark:text-slate-300">{exp.company}</p>
+                          <span className="size-1 rounded-full bg-slate-300" />
+                          <p className="text-[14px] font-medium text-slate-500">{exp.employmentType || 'Full-time'}</p>
+                        </div>
+                        <p className="text-[13px] font-medium text-slate-400 mt-1">
+                          {new Date(exp.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} – 
+                          {exp.isCurrent ? ' Present' : ` ${new Date(exp.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
+                        </p>
+                        <p className="text-[13px] font-medium text-slate-400">{exp.location} • {exp.locationType || 'On-site'}</p>
+                      </div>
+
+                      <p className="text-[14px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-4xl">
+                        {exp.description}
+                      </p>
+
+                      {exp.skills?.length > 0 && (
+                        <div className="flex items-center gap-3 pt-2">
+                          <span className="material-symbols-outlined text-[18px] text-indigo-500">diamond</span>
+                          <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+                            {exp.skills.join(', ')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-20 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-[32px] opacity-60">
+                   <div className="size-20 rounded-full bg-blue-50 flex items-center justify-center mb-6">
+                      <span className="material-symbols-outlined text-4xl text-blue-500">history_edu</span>
+                   </div>
+                   <p className="text-lg font-black text-[#003366] dark:text-white uppercase tracking-widest">No Experience Found</p>
+                   <p className="text-sm font-medium text-slate-400 mt-2">Highlight your professional history to impress recruiters.</p>
                 </div>
               )}
-           </div>
+            </div>
+          </div>
+        </section>
 
-           <div className="grid gap-12 lg:grid-cols-12">
-              <div className="lg:col-span-7 space-y-8">
-                <div className="relative">
-                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4">Excellence Narrative</p>
-                   <textarea 
-                     className={`w-full h-48 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-8 py-7 text-[14px] font-bold font-roboto leading-relaxed outline-none transition-all dark:text-white shadow-inner resize-none
-                       ${isEditing ? 'focus:border-amber-500 focus:bg-white border-dashed' : 'cursor-not-allowed opacity-80'}
-                     `}
-                     disabled={!isEditing}
-                     placeholder="Demonstrate your professional and non-academic excellence..."
-                     value={formData.achievementsSummary}
-                     onChange={(e) => setFormData(prev => ({ ...prev, achievementsSummary: e.target.value }))}
-                   />
+        {/* LinkedIn-style Certifications & Achievements Section */}
+        <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 overflow-hidden group">
+          <div className="p-10">
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-4">
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-xl shadow-amber-200/50">
+                  <span className="material-symbols-outlined text-[28px]">workspace_premium</span>
                 </div>
-                
-                {formData.achievementsImageUrl && (
-                  <div className="relative group/feat rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
-                    <img src={formData.achievementsImageUrl} alt="Feat" className="w-full h-56 object-cover group-hover/feat:scale-105 transition-transform duration-1000" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
-                    {isEditing && (
-                      <button 
-                        onClick={() => setFormData(prev => ({ ...prev, achievementsImageUrl: '' }))}
-                        className="absolute top-6 right-6 size-10 bg-rose-500 text-white rounded-xl flex items-center justify-center shadow-2xl hover:bg-rose-600 transition-colors"
-                      >
-                         <span className="material-symbols-outlined">close</span>
-                      </button>
-                    )}
-                  </div>
-                )}
+                <div>
+                  <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Certifications & Achievements</h3>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Verified Credentials & Excellence 🏆</p>
+                </div>
               </div>
+              <button 
+                type="button"
+                onClick={() => window.location.href = '/student/credentials'}
+                className="flex items-center gap-2 px-6 py-2.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                Add Credential
+              </button>
+            </div>
 
-              <div className="lg:col-span-5 space-y-6">
-                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Verified Credentials</p>
-                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
-                    {formData.certifications.length > 0 || formData.achievements.length > 0 ? (
-                      [...formData.certifications.map(c => ({...c, type: 'cert'})), ...formData.achievements.map(a => ({...a, type: 'ach'}))].map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-5 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl group/item hover:border-amber-500/30 hover:shadow-xl transition-all">
-                           <div className="flex items-center gap-5">
-                              <div className={`size-12 rounded-2xl flex items-center justify-center ${item.type === 'cert' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                                 <span className="material-symbols-outlined text-[24px]">{item.type === 'cert' ? 'verified' : 'military_tech'}</span>
-                              </div>
-                              <div>
-                                 <p className="text-[14px] font-black text-[#003366] dark:text-white leading-tight">{item.title}</p>
-                                 <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.issuer || item.description || 'Global Standard'}</p>
-                              </div>
-                           </div>
-                           {isEditing && (
-                              <button 
-                                onClick={() => {
-                                  if (item.type === 'cert') setFormData(prev => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== formData.certifications.indexOf(item)) }));
-                                  else setFormData(prev => ({ ...prev, achievements: prev.achievements.filter((_, i) => i !== formData.achievements.indexOf(item)) }));
-                                }}
-                                className="opacity-0 group-hover/item:opacity-100 size-9 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all"
-                              >
-                                 <span className="material-symbols-outlined text-[18px]">delete</span>
-                              </button>
-                           )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10 text-center px-10">
-                         <div className="size-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
-                            <span className="material-symbols-outlined text-[32px] text-amber-500">card_membership</span>
-                         </div>
-                         <p className="text-[13px] font-black text-slate-400 uppercase tracking-widest mb-2">Build Your Legacy</p>
-                         <p className="text-[11px] font-medium text-slate-400">Add verified certificates to increase your authority in the recruitment pool.</p>
+            <div className="divide-y divide-slate-100 dark:divide-white/5">
+              {formData.certifications?.length > 0 ? (
+                formData.certifications.map((cert, idx) => (
+                  <div key={idx} className="py-10 flex flex-col md:flex-row gap-8 items-start group/cert">
+                    <div className="size-16 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {cert.issuerLogoUrl ? (
+                         <img src={cert.issuerLogoUrl} alt={cert.issuer} className="size-full object-cover" />
+                      ) : (
+                         <span className="material-symbols-outlined text-slate-300 text-4xl">verified</span>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 space-y-4">
+                      <div>
+                        <h4 className="text-[17px] font-black text-[#003366] dark:text-white leading-tight">
+                          {cert.title}
+                        </h4>
+                        <p className="text-[15px] font-bold text-slate-700 dark:text-slate-300 mt-1">{cert.issuer}</p>
+                        <p className="text-[13px] font-medium text-slate-400 mt-1">
+                          Issued {cert.issueDate ? new Date(cert.issueDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Jan 2024'}
+                        </p>
+                        {cert.credentialId && (
+                          <p className="text-[13px] font-medium text-slate-400 uppercase tracking-wider">Credential ID {cert.credentialId}</p>
+                        )}
                       </div>
-                    )}
-                 </div>
-              </div>
-           </div>
+
+                      {cert.skills?.length > 0 && (
+                        <div className="flex items-center gap-3">
+                          <span className="material-symbols-outlined text-[18px] text-indigo-500">diamond</span>
+                          <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+                            {cert.skills.join(', ')}
+                          </p>
+                        </div>
+                      )}
+
+                      {cert.imageUrl && (
+                        <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 group-hover/cert:border-indigo-500/20 transition-all max-w-2xl">
+                          <div className="size-48 md:size-32 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shrink-0">
+                             <img src={cert.imageUrl} alt="Credential Preview" className="size-full object-cover" />
+                          </div>
+                          <div>
+                            <p className="text-[14px] font-black text-[#003366] dark:text-white mb-2">{cert.imageDescription || 'Certification Media'}</p>
+                            <p className="text-[12px] text-slate-500 line-clamp-3">
+                              Displaying proof of academic and professional excellence through verified institutional credentials.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-20 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-[32px] opacity-60">
+                   <div className="size-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+                      <span className="material-symbols-outlined text-4xl text-amber-500">military_tech</span>
+                   </div>
+                   <p className="text-lg font-black text-[#003366] dark:text-white uppercase tracking-widest">No Certifications Found</p>
+                   <p className="text-sm font-medium text-slate-400 mt-2">Add your verified licenses to boost your professional authority.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </section>
 
       </form>

@@ -13,6 +13,7 @@ import ApplicationsPage from './pages/ApplicationsPage';
 import FacultyDashboard from './pages/FacultyDashboard';
 import FacultyReviewsPage from './pages/FacultyReviewsPage';
 import FacultyStudentPage from './pages/FacultyStudentPage';
+import CredentialsPage from './pages/CredentialsPage';
 import InternshipDetailsPage from './pages/InternshipDetailsPage';
 import InternshipListPage from './pages/InternshipListPage';
 import LandingPage from './pages/LandingPage';
@@ -59,6 +60,7 @@ function App() {
 
         <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
         <Route path="/student/profile" element={<ProtectedRoute allowedRoles={['student']}><StudentProfilePage /></ProtectedRoute>} />
+        <Route path="/student/credentials" element={<ProtectedRoute allowedRoles={['student']}><CredentialsPage /></ProtectedRoute>} />
         <Route path="/student/projects" element={<ProtectedRoute allowedRoles={['student']}><StudentProjectsPage /></ProtectedRoute>} />
         <Route path="/student/settings" element={<ProtectedRoute allowedRoles={['student']}><SettingsPage /></ProtectedRoute>} />
         <Route path="/internships" element={<ProtectedRoute allowedRoles={['student']}><InternshipListPage /></ProtectedRoute>} />

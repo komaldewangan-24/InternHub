@@ -49,16 +49,35 @@ const UserSchema = new mongoose.Schema({
             {
                 title: String,
                 issuer: String,
-                url: String,
-                date: Date,
-                imageUrl: String
+                issueDate: Date,
+                credentialId: String,
+                skills: [String],
+                imageUrl: String,
+                imageDescription: String,
+                url: String
+            }
+        ],
+        experience: [
+            {
+                title: String,
+                company: String,
+                employmentType: String,
+                location: String,
+                locationType: String, // Remote, On-site, Hybrid
+                startDate: Date,
+                endDate: Date,
+                isCurrent: { type: Boolean, default: false },
+                description: String,
+                skills: [String],
+                companyLogoUrl: String
             }
         ],
         achievements: [
             {
                 title: String,
                 description: String,
-                imageUrl: String
+                imageUrl: String,
+                date: Date
             }
         ],
         assignedFaculty: {
