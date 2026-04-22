@@ -45,10 +45,10 @@ export default function AppShell({
 
   return (
     <div 
-      className="min-h-screen w-full transition-colors duration-500 overflow-x-hidden relative font-roboto uppercase"
+      className="min-h-screen w-full transition-colors duration-500 overflow-x-hidden relative font-roboto"
       style={{ 
-        backgroundColor: theme === 'light' ? '#FFFFFF' : '#00152b',
-        color: theme === 'light' ? '#0F172A' : '#F1F5F9'
+        backgroundColor: theme === 'light' ? '#F8FAFC' : '#00152b',
+        color: theme === 'light' ? '#0F172A' : '#F8FAFC'
       }}
     >
       <div className="flex min-h-screen relative">
@@ -144,36 +144,61 @@ export default function AppShell({
         {/* Header and Main */}
         <div className="flex-1 w-full lg:ml-72 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
           <header 
-            className="sticky top-0 z-20 w-full border-b px-10 py-10 backdrop-blur-xl"
+            className="sticky top-0 z-20 w-full border-b px-8 py-3 backdrop-blur-xl"
             style={{ 
               backgroundColor: theme === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 21, 43, 0.95)',
               borderColor: 'rgba(0, 51, 102, 0.05)'
             }}
           >
-            <div className="max-w-6xl mx-auto flex items-center justify-between gap-10">
-              <div className="min-w-0">
-                  <h1 className="text-2xl font-poppins font-bold tracking-tighter leading-none truncate uppercase" style={{ color: theme === 'light' ? '#003366' : '#FFFFFF' }}>{title}</h1>
-                {description && (
-                  <p className="mt-3 text-[9px] font-roboto font-bold uppercase tracking-[0.2em] line-clamp-1 italic" style={{ color: theme === 'light' ? 'rgba(0, 51, 102, 0.5)' : 'rgba(255, 255, 255, 0.5)' }}>{description}</p>
-                )}
+            <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-10 px-4">
+              {/* Institutional Search Bar */}
+              <div className="flex-1 max-w-lg hidden md:block">
+                <div className="relative group">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors text-[20px]">search</span>
+                  <input 
+                    type="text" 
+                    placeholder="Search internships, projects or documents..."
+                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl py-3 pl-12 pr-6 text-[12px] font-medium font-roboto text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all shadow-inner"
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1.5 opacity-0 group-focus-within:opacity-100 transition-opacity">
+                     <span className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-[9px] font-black text-slate-500 uppercase tracking-tighter">CMD</span>
+                     <span className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-[9px] font-black text-slate-500 uppercase tracking-tighter">K</span>
+                  </div>
+                </div>
               </div>
+
               <div className="flex items-center gap-6 shrink-0">
-                <NotificationBell />
-                <button 
-                  onClick={toggleTheme}
-                  className="flex size-14 items-center justify-center rounded-sm bg-white dark:bg-white/5 border text-indigo-500 transition-all shadow-sm hover:border-indigo-500/50"
-                  style={{ borderColor: 'rgba(99, 102, 241, 0.1)' }}
-                >
-                  <span className="material-symbols-outlined text-[24px]">
-                    {theme === 'light' ? 'dark_mode' : 'light_mode'}
-                  </span>
-                </button>
+                <div className="hidden sm:flex items-center gap-4">
+                  <NotificationBell xOffset={-2} />
+                  <button 
+                    onClick={toggleTheme}
+                    className="flex size-10 items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-500 hover:text-indigo-500 transition-all shadow-sm hover:border-indigo-500/50"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {theme === 'light' ? 'dark_mode' : 'light_mode'}
+                    </span>
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-white/10 ml-2 group cursor-pointer" onClick={() => navigate('/profile')}>
+                   <div className="text-right hidden sm:block">
+                      <p className="text-[12px] font-black text-slate-800 dark:text-white leading-none uppercase tracking-tight group-hover:text-indigo-500 transition-colors font-poppins">{user?.name || 'Student'}</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 opacity-60 font-poppins">{user?.role || 'Registry'}</p>
+                   </div>
+                   <div className="size-11 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100 dark:bg-white/10 shadow-md group-hover:shadow-indigo-500/10 group-hover:border-indigo-500/30 overflow-hidden transition-all duration-300 flex items-center justify-center text-indigo-500">
+                      {user?.profile?.avatarUrl ? (
+                         <img src={user.profile.avatarUrl} alt="User" className="size-full object-cover" />
+                      ) : (
+                         <span className="material-symbols-outlined text-[26px]">person</span>
+                      )}
+                   </div>
+                </div>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 p-8 sm:p-14 min-h-0 bg-transparent">
-            <div className="mx-auto max-w-6xl">
+          <main className="flex-1 p-6 pt-2 sm:p-10 sm:pt-4 min-h-0 bg-transparent">
+            <div className="mx-auto max-w-7xl">
               <LocalErrorBoundary>
                 {children}
               </LocalErrorBoundary>

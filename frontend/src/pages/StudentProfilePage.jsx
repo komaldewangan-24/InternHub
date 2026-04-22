@@ -21,6 +21,10 @@ export default function StudentProfilePage() {
     degree: '',
     skills: [],
     avatarUrl: '',
+    certifications: [],
+    achievements: [],
+    achievementsSummary: '',
+    achievementsImageUrl: '',
   });
 
   useEffect(() => {
@@ -36,6 +40,10 @@ export default function StudentProfilePage() {
         degree: user.profile?.degree || '',
         skills: user.profile?.skills || [],
         avatarUrl: user.profile?.avatarUrl || '',
+        certifications: user.profile?.certifications || [],
+        achievements: user.profile?.achievements || [],
+        achievementsSummary: user.profile?.achievementsSummary || '',
+        achievementsImageUrl: user.profile?.achievementsImageUrl || '',
       });
     }
   }, [user]);
@@ -86,12 +94,11 @@ export default function StudentProfilePage() {
     <AppShell
       actions={
         <button
-          className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
-          style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
+          className="rounded-xl text-white px-8 py-3 text-[12px] font-poppins font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-[0.98] bg-blue-600"
           onClick={() => (isEditing ? handleSubmit() : setIsEditing(true))}
           type="button"
         >
-          {isEditing ? 'COMMIT CHANGES' : 'EDIT CREDENTIALS'}
+          {isEditing ? 'Save Changes' : 'Edit Profile'}
         </button>
       }
       title={`Hi ${user?.name || 'Student'} 👋`}
@@ -100,122 +107,409 @@ export default function StudentProfilePage() {
       user={user}
     >
       <form className="space-y-10" onSubmit={handleSubmit}>
-        <section className="rounded-xl bg-white dark:bg-slate-900 p-12 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none relative overflow-hidden group transition-all duration-500 hover:shadow-2xl">
-          <div className="absolute top-0 right-0 size-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-20 pointer-events-none" />
-          
-          <div className="flex flex-col sm:flex-row sm:items-center gap-12 mb-16 relative z-10">
-            <div className="relative group/avatar shrink-0">
-              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
-              <div 
-                className="relative flex size-40 items-center justify-center rounded-xl transition-all overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm cursor-pointer hover:border-indigo-500 bg-slate-50 dark:bg-white/5 group-hover/avatar:shadow-2xl"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="Identity" className="size-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-slate-300">
-                    <span className="material-symbols-outlined text-[48px]">account_circle</span>
-                    <p className="text-[8px] font-poppins font-bold uppercase mt-1 tracking-widest text-[#003366] opacity-30">NO PHOTO</p>
+        <section className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 shadow-2xl shadow-slate-200/60 dark:shadow-none transition-all duration-500 overflow-hidden">
+          <div className="p-8 lg:p-10">
+            {/* Header: Avatar | Identity | Strength Widget */}
+            <div className="flex flex-col lg:flex-row gap-10">
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
+                  <div className="relative shrink-0">
+                    <div className="size-52 rounded-full p-2 bg-white dark:bg-slate-800 shadow-xl relative ring-1 ring-slate-100 dark:ring-white/5">
+                      <svg className="absolute inset-0 size-full -rotate-90 scale-[1.02]" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-slate-50 dark:text-white/5" />
+                        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="295" strokeDashoffset="153" strokeLinecap="round" className="text-indigo-600 transition-all duration-1000" />
+                      </svg>
+                      <div className="size-full rounded-full overflow-hidden cursor-pointer relative z-10 group" onClick={() => fileInputRef.current?.click()}>
+                        {formData.avatarUrl ? (
+                          <img src={formData.avatarUrl} alt="Rahul" className="size-full object-cover transition-transform group-hover:scale-110" />
+                        ) : (
+                          <div className="size-full bg-slate-50 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-slate-200 text-7xl">face</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="material-symbols-outlined text-white">photo_camera</span>
+                        </div>
+                      </div>
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-indigo-50 dark:bg-slate-700 px-4 py-1 rounded-full shadow-lg border-4 border-white dark:border-slate-900 z-20">
+                        <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">48%</span>
+                      </div>
+                    </div>
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
                   </div>
-                )}
-                <div className="absolute inset-0 bg-[#003366]/60 flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                  <span className="material-symbols-outlined text-white text-[28px]">photo_camera</span>
-                  <p className="text-[9px] text-white font-poppins font-bold mt-2 uppercase tracking-widest">POST PHOTO</p>
+
+                  <div className="flex-1 space-y-4 pt-2">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center md:justify-start gap-3">
+                        <h2 className="text-[44px] font-poppins font-black text-[#003366] dark:text-white leading-tight tracking-tight">
+                          {formData.name || 'Anonymous'}
+                        </h2>
+                        <span className="material-symbols-outlined text-indigo-500 text-3xl">verified</span>
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 font-medium text-[16px] leading-relaxed max-w-md mx-auto md:mx-0">
+                        Aspiring Data Scientist | Turning data into insights <span className="animate-pulse">🚀</span>
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                      <div className="flex items-center gap-2 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-100/50 dark:border-emerald-500/20">
+                        <div className="size-1.5 rounded-full bg-emerald-500" />
+                        ID: ACTIVE
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100/50 dark:border-indigo-500/20">
+                        <span className="material-symbols-outlined text-[14px]">stars</span>
+                        INSTITUTIONAL POOL
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50/40 dark:bg-white/5 border border-blue-100/50 dark:border-white/5 rounded-2xl p-4 flex items-start gap-4 max-w-lg transition-all hover:bg-white dark:hover:bg-slate-800 group">
+                      <div className="size-9 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 items-center flex gap-1 leading-none">
+                          Complete your profile to increase your visibility
+                        </p>
+                        <p className="text-[12px] font-bold text-slate-600 dark:text-slate-300">
+                          Complete <span className="text-indigo-600 underline underline-offset-4 cursor-pointer">3 more sections</span> to get a 80% profile strength
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Column on Right */}
+              <div className="w-full lg:w-[340px] flex flex-col gap-6">
+                <div className="flex gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] font-black uppercase tracking-widest text-indigo-600 dark:text-slate-300 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">{isEditing ? 'save' : 'edit'}</span>
+                    {isEditing ? 'Save' : 'Edit Profile'}
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none active:scale-95">
+                    <span className="material-symbols-outlined text-[18px]">description</span>
+                    View Resume
+                  </button>
+                </div>
+
+                <div className="bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-[32px] p-6 flex flex-col group">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Profile Strength</p>
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-end gap-2">
+                      <span className="text-4xl font-black text-[#003366] dark:text-white leading-none">48%</span>
+                      <div className="flex items-center text-emerald-500 font-bold text-[11px] pb-0.5 whitespace-nowrap">
+                        <span className="material-symbols-outlined text-[16px] mr-0.5">trending_up</span>
+                        12% <span className="text-slate-400 font-normal ml-1">this week</span>
+                      </div>
+                    </div>
+                    <svg className="w-20 h-10 overflow-visible opacity-50 group-hover:opacity-100 transition-opacity" viewBox="0 0 100 40">
+                      <path d="M0,35 Q10,10 20,30 T40,15 T60,25 T80,5 T100,20" fill="none" stroke="#4F46E5" strokeWidth="4" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <ul className="space-y-4">
+                    {[
+                      { l: 'Basic Information', s: 'Completed', d: true },
+                      { l: 'Contact Details', s: 'Completed', d: true },
+                      { l: 'Professional Summary', s: 'Add a short summary', d: false },
+                      { l: 'Skills & Technologies', s: 'Add your skills', d: false },
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-4">
+                        <div className={`mt-0.5 size-5 rounded-full flex items-center justify-center shrink-0 border ${item.d ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white dark:bg-slate-800 border-slate-200'}`}>
+                          {item.d && <span className="material-symbols-outlined text-[12px] font-black">check</span>}
+                        </div>
+                        <div className="space-y-0.5 min-w-0">
+                          <p className="text-[12px] font-black text-slate-700 dark:text-slate-200 leading-tight truncate">{item.l}</p>
+                          <p className="text-[10px] font-medium text-slate-400 truncate">{item.s}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
-            
-            <div className="space-y-3">
-               <h2 className="text-4xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none">{formData.name || 'ANONYMOUS NODE'}</h2>
-               <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
-                    <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                    <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-emerald-600">ID: ACTIVE</p>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 rounded-sm border border-indigo-500/20">
-                    <span className="material-symbols-outlined text-[14px] text-indigo-500">verified</span>
-                    <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-indigo-500">INSTITUTIONAL POOL</p>
-                  </div>
-               </div>
-            </div>
-          </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
-             {[
-               { label: 'Full Identity Name', name: 'name', type: 'text', icon: 'person' },
-               { label: 'Primary Network Email', name: 'email', type: 'email', icon: 'alternate_email' },
-               { label: 'Mobile Frequency', name: 'phone', type: 'tel', icon: 'call' },
-               { label: 'Partner Institution', name: 'university', type: 'text', icon: 'school' },
-               { label: 'Academic Designation', name: 'degree', type: 'text', icon: 'architecture' },
-               { label: 'Graduation Window', name: 'graduationDate', type: 'date', icon: 'history' },
-             ].map((field) => (
-               <div key={field.name} className="group/field relative">
-                  <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400 mb-2.5 px-1 flex items-center gap-2.5 group-hover/field:text-indigo-500 transition-all">
-                    <span className="material-symbols-outlined text-[16px] text-indigo-500 opacity-60 group-hover/field:opacity-100">{field.icon}</span>
-                    {field.label}
-                  </p>
-                  <input 
-                    className={`w-full rounded-md border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-4 py-4 text-[11px] font-poppins font-bold uppercase tracking-widest outline-none transition-all dark:text-white 
-                      ${isEditing ? 'focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 shadow-md transform -translate-y-0.5' : 'cursor-not-allowed opacity-60'}
-                    `}
-                    disabled={!isEditing}
-                    name={field.name}
-                    placeholder={field.label}
-                    type={field.type}
-                    value={formData[field.name]}
-                    onChange={(event) => setFormData({ ...formData, [field.name]: event.target.value })}
-                  />
-               </div>
-             ))}
+            {/* Horizontal Information Grid (Exact Reference Location) */}
+            <div className="mt-10 pt-10 border-t border-slate-100 dark:border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10 group/grid">
+                {[
+                  { label: 'Full Name', val: formData.name, icon: 'person', color: 'bg-indigo-50 text-indigo-500' },
+                  { label: 'Email Address', val: formData.email, icon: 'alternate_email', color: 'text-indigo-500 bg-indigo-50' },
+                  { label: 'Phone Number', val: formData.phone, icon: 'call', color: 'text-emerald-500 bg-emerald-50' },
+                  { label: 'College / University', val: formData.university, icon: 'school', color: 'text-indigo-500 bg-indigo-50' },
+                  { label: 'Academic Designation', val: formData.degree, icon: 'bookmark', color: 'text-amber-500 bg-amber-50' },
+                  { label: 'Graduation Window', val: formData.graduationDate, icon: 'event', color: 'text-rose-500 bg-rose-50' },
+                ].map((field, idx) => (
+                  <div key={field.label} className={`flex items-center gap-5 px-6 ${idx % 3 !== 2 ? 'md:border-r border-slate-100 dark:border-white/5' : ''} group/field`}>
+                    <div className={`size-14 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all group-hover/field:scale-110 ${field.color} dark:bg-white/5`}>
+                      <span className="material-symbols-outlined text-[24px]">{field.icon}</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">{field.label}</p>
+                      <p className="text-[15px] font-black text-[#003366] dark:text-white leading-tight">
+                        {field.val || '—'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
+
+
+
+
+
+
+
         <section className="grid gap-10 lg:grid-cols-2">
-           <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl group">
-              <div className="flex items-center gap-4 mb-10">
-                 <div className="flex size-12 items-center justify-center rounded-sm bg-indigo-500 text-white shadow-lg transition-transform group-hover:rotate-3">
-                   <span className="material-symbols-outlined text-[24px]">description</span>
+           <div className="rounded-3xl bg-white dark:bg-slate-900 p-10 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 group">
+              <div className="flex items-center justify-between mb-10 px-2">
+                 <div className="flex items-center gap-4">
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-200/50 dark:shadow-none">
+                      <span className="material-symbols-outlined text-[28px]">description</span>
+                    </div>
+                    <div>
+                       <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Professional Summary</h3>
+                       <p className="text-[11px] font-bold text-slate-400">Tell us about yourself ✨</p>
+                    </div>
                  </div>
-                 <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none group-hover:text-indigo-500 transition-colors">PROFESSIONAL_SUMMARY</h3>
+                 <button 
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, bio: "Motivated Computer Science student with strong interest in data science and machine learning. Skilled in Python, SQL, and data visualization. Passionate about solving real-world problems with data-driven solutions and contributing to impactful projects." }))}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 transition-all"
+                 >
+                    <span className="material-symbols-outlined text-[16px]">temp_preferences_custom</span>
+                    Generate with AI
+                 </button>
               </div>
-              <textarea 
-                className={`w-full h-56 rounded-md border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-8 py-6 text-[11px] font-poppins font-bold uppercase tracking-widest leading-relaxed outline-none transition-all dark:text-white shadow-inner resize-none
-                  ${isEditing ? 'focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 shadow-md transform -translate-y-0.5' : 'cursor-not-allowed opacity-60'}
-                `}
-                disabled={!isEditing}
-                placeholder="Synchronize your professional intent node..."
-                value={formData.bio}
-                onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
-              />
+              
+              <div className="relative">
+                <textarea 
+                  className={`w-full h-64 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-8 py-8 text-[14px] font-bold font-roboto leading-relaxed outline-none transition-all dark:text-white shadow-inner resize-none
+                    ${isEditing ? 'focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800' : 'cursor-not-allowed'}
+                  `}
+                  disabled={!isEditing}
+                  placeholder="Write 2–3 lines about your skills, interests, and career goals…"
+                  value={formData.bio}
+                  onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
+                />
+                <div className="absolute bottom-6 right-8 flex items-center gap-4">
+                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{formData.bio.length}/300 characters</p>
+                   {isEditing && (
+                     <button 
+                      type="button"
+                      className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-200"
+                      onClick={() => setIsEditing(false)}
+                     >
+                       Save <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                     </button>
+                   )}
+                </div>
+              </div>
            </div>
 
-           <div className="rounded-xl bg-white dark:bg-slate-900 p-10 border border-slate-200 dark:border-white/5 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl group">
-              <div className="flex items-center gap-4 mb-10 px-2">
-                 <div className="flex size-12 items-center justify-center rounded-sm bg-indigo-500 text-white shadow-lg transition-transform group-hover:rotate-3">
-                   <span className="material-symbols-outlined text-[24px]">hub</span>
+           <div className="rounded-3xl bg-white dark:bg-slate-900 p-10 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 group">
+              <div className="flex items-center justify-between mb-10 px-2">
+                 <div className="flex items-center gap-4">
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-200/50 dark:shadow-none">
+                      <span className="material-symbols-outlined text-[28px]">hub</span>
+                    </div>
+                    <div>
+                       <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Technological Stack</h3>
+                       <p className="text-[11px] font-bold text-slate-400">Showcase your skills and tools ⚡</p>
+                    </div>
                  </div>
-                 <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none group-hover:text-indigo-500 transition-colors">TECHNOLOGICAL_STACK</h3>
+                 <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-500/20 hover:bg-blue-100 transition-all">
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    Add Skill
+                 </button>
               </div>
-              <div className="flex flex-col h-56 justify-between px-2">
-                 <div className="flex flex-wrap gap-3 overflow-y-auto scrollbar-hide">
-                    {formData.skills.length ? formData.skills.map((skill, index) => (
-                      <span key={index} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3 text-[9px] font-poppins font-bold uppercase tracking-widest text-slate-500 hover:border-indigo-500/50 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all cursor-default">
-                         {skill}
-                      </span>
-                    )) : (
-                      <div className="flex flex-col items-center justify-center h-full w-full opacity-30 text-center text-indigo-500">
-                         <span className="material-symbols-outlined text-[48px] mb-6">analytics</span>
-                         <p className="text-[12px] font-poppins font-bold uppercase tracking-widest text-slate-400">No capability nodes detected</p>
+
+              <div className="space-y-8 px-2">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {formData.skills.length ? formData.skills.map((skill, index) => {
+                      const skillConfigs = {
+                        'Python': { color: 'bg-emerald-500', level: 'Advanced', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+                        'SQL': { color: 'bg-amber-500', level: 'Intermediate', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
+                        'Pandas': { color: 'bg-indigo-500', level: 'Intermediate', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg' },
+                        'NumPy': { color: 'bg-blue-500', level: 'Intermediate', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg' }
+                      };
+                      const config = skillConfigs[skill] || { color: 'bg-slate-400', level: 'Intermediate', icon: null };
+                      
+                      return (
+                        <div key={index} className="flex items-center justify-between bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 p-4 rounded-2xl transition-all hover:border-indigo-500 hover:shadow-lg group/skill">
+                           <div className="flex items-center gap-4">
+                              <div className="size-10 rounded-xl bg-slate-50 flex items-center justify-center p-2">
+                                {config.icon ? <img src={config.icon} alt={skill} className="size-full" /> : <span className="material-symbols-outlined text-slate-300">code</span>}
+                              </div>
+                              <div>
+                                <p className="text-[14px] font-bold text-[#003366] dark:text-white leading-tight">{skill}</p>
+                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${config.color.replace('bg-', 'text-')} bg-opacity-10 ${config.color.replace('bg-', 'bg-opacity-10 bg-')}`}>
+                                  {config.level}
+                                </span>
+                              </div>
+                           </div>
+                           <div className="flex items-center gap-2 opacity-0 group-hover/skill:opacity-100 transition-opacity">
+                              <span className="material-symbols-outlined text-slate-300 text-[18px] cursor-pointer hover:text-indigo-600">more_vert</span>
+                           </div>
+                        </div>
+                      );
+                    }) : (
+                      <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-3xl opacity-50">
+                         <span className="material-symbols-outlined text-5xl text-slate-300 mb-4">terminal</span>
+                         <p className="text-sm font-bold text-slate-400">No skills identified yet.</p>
                       </div>
                     )}
                  </div>
-                 <div className="mt-8 flex items-center gap-4 text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-slate-400">
-                    <span className="material-symbols-outlined text-[20px] text-emerald-500">verified_user</span>
-                    Synchronize stack to optimize mission fit.
+
+                 {isEditing && (
+                    <div className="relative">
+                      <input 
+                        type="text"
+                        placeholder="Add more skills..."
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-white/10 bg-indigo-50/10 text-[14px] font-bold outline-none focus:border-indigo-500 transition-all text-indigo-600 placeholder:text-indigo-300"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = e.target.value.trim();
+                            if (val && !formData.skills.includes(val)) {
+                              setFormData(prev => ({ ...prev, skills: [...prev.skills, val] }));
+                              e.target.value = '';
+                            }
+                          }
+                        }}
+                      />
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400">add</span>
+                    </div>
+                 )}
+
+                 <div className="flex items-center gap-3 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
+                    <span className="material-symbols-outlined text-emerald-500">verified_user</span>
+                    <p className="text-[11px] font-bold text-emerald-700">Adding more skills increases your match with relevant opportunities.</p>
                  </div>
               </div>
            </div>
         </section>
+
+        <section className="rounded-3xl bg-white dark:bg-slate-900 p-10 border border-slate-100 dark:border-white/5 shadow-2xl transition-all duration-500 group">
+           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+              <div className="flex items-center gap-4">
+                 <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-xl shadow-amber-200/50 dark:shadow-none">
+                   <span className="material-symbols-outlined text-[28px]">workspace_premium</span>
+                 </div>
+                 <div>
+                    <h3 className="text-xl font-poppins font-black text-[#003366] dark:text-white">Certifications & Achievements</h3>
+                    <p className="text-[11px] font-bold text-slate-400">Validate your expertise 🏆</p>
+                 </div>
+              </div>
+              {isEditing && (
+                <div className="flex gap-4">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                        const title = prompt("Certificate Title:");
+                        if (title) setFormData(prev => ({ ...prev, certifications: [...prev.certifications, { title, issuer: prompt("Issuer:"), date: new Date() }] }));
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-[11px] font-black uppercase tracking-widest hover:bg-blue-100 transition-all border border-blue-100"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                    Add Credential
+                  </button>
+                  <label className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-[11px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100 cursor-pointer">
+                    <span className="material-symbols-outlined text-[18px]">cloud_upload</span>
+                    Feature Image
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => setFormData(prev => ({ ...prev, achievementsImageUrl: reader.result }));
+                          reader.readAsDataURL(file);
+                        }
+                    }} />
+                  </label>
+                </div>
+              )}
+           </div>
+
+           <div className="grid gap-12 lg:grid-cols-12">
+              <div className="lg:col-span-7 space-y-8">
+                <div className="relative">
+                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 mb-4">Excellence Narrative</p>
+                   <textarea 
+                     className={`w-full h-48 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-8 py-7 text-[14px] font-bold font-roboto leading-relaxed outline-none transition-all dark:text-white shadow-inner resize-none
+                       ${isEditing ? 'focus:border-amber-500 focus:bg-white border-dashed' : 'cursor-not-allowed opacity-80'}
+                     `}
+                     disabled={!isEditing}
+                     placeholder="Demonstrate your professional and non-academic excellence..."
+                     value={formData.achievementsSummary}
+                     onChange={(e) => setFormData(prev => ({ ...prev, achievementsSummary: e.target.value }))}
+                   />
+                </div>
+                
+                {formData.achievementsImageUrl && (
+                  <div className="relative group/feat rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
+                    <img src={formData.achievementsImageUrl} alt="Feat" className="w-full h-56 object-cover group-hover/feat:scale-105 transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                    {isEditing && (
+                      <button 
+                        onClick={() => setFormData(prev => ({ ...prev, achievementsImageUrl: '' }))}
+                        className="absolute top-6 right-6 size-10 bg-rose-500 text-white rounded-xl flex items-center justify-center shadow-2xl hover:bg-rose-600 transition-colors"
+                      >
+                         <span className="material-symbols-outlined">close</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="lg:col-span-5 space-y-6">
+                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Verified Credentials</p>
+                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                    {formData.certifications.length > 0 || formData.achievements.length > 0 ? (
+                      [...formData.certifications.map(c => ({...c, type: 'cert'})), ...formData.achievements.map(a => ({...a, type: 'ach'}))].map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-5 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl group/item hover:border-amber-500/30 hover:shadow-xl transition-all">
+                           <div className="flex items-center gap-5">
+                              <div className={`size-12 rounded-2xl flex items-center justify-center ${item.type === 'cert' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                 <span className="material-symbols-outlined text-[24px]">{item.type === 'cert' ? 'verified' : 'military_tech'}</span>
+                              </div>
+                              <div>
+                                 <p className="text-[14px] font-black text-[#003366] dark:text-white leading-tight">{item.title}</p>
+                                 <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.issuer || item.description || 'Global Standard'}</p>
+                              </div>
+                           </div>
+                           {isEditing && (
+                              <button 
+                                onClick={() => {
+                                  if (item.type === 'cert') setFormData(prev => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== formData.certifications.indexOf(item)) }));
+                                  else setFormData(prev => ({ ...prev, achievements: prev.achievements.filter((_, i) => i !== formData.achievements.indexOf(item)) }));
+                                }}
+                                className="opacity-0 group-hover/item:opacity-100 size-9 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all"
+                              >
+                                 <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                           )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10 text-center px-10">
+                         <div className="size-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                            <span className="material-symbols-outlined text-[32px] text-amber-500">card_membership</span>
+                         </div>
+                         <p className="text-[13px] font-black text-slate-400 uppercase tracking-widest mb-2">Build Your Legacy</p>
+                         <p className="text-[11px] font-medium text-slate-400">Add verified certificates to increase your authority in the recruitment pool.</p>
+                      </div>
+                    )}
+                 </div>
+              </div>
+           </div>
+        </section>
+
       </form>
     </AppShell>
   );

@@ -181,16 +181,33 @@ export default function RecruiterApplicantsPage() {
                                 </div>
                               </div>
                               <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 italic italic">{project.description}</p>
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {(project.tags || []).map((tag) => (
-                                  <span key={tag} className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">#{tag}</span>
-                                ))}
-                              </div>
                             </div>
                           ))
                         ) : (
                           <EmptyState icon="history_edu" title="No approved projects" description="This student hasn't cleared faculty verification for any specific projects yet." />
                         )}
+                      </div>
+
+                      <div className="pt-10 border-t border-slate-100 dark:border-white/5 space-y-8">
+                         <div>
+                            <p className="text-xs font-black uppercase tracking-widest text-primary mb-4">Credentials & Excellence Summary</p>
+                            <div className="rounded-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-950/20 p-6">
+                               <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400 font-medium italic italic opacity-80 whitespace-pre-wrap">
+                                  {portfolio.student?.profile?.achievementsSummary || "No achievement summary provided yet."}
+                               </p>
+                               {portfolio.student?.profile?.achievementsImageUrl && (
+                                 <img src={portfolio.student?.profile?.achievementsImageUrl} alt="Featured" className="mt-6 rounded-sm w-full h-40 object-cover opacity-80" />
+                               )}
+                            </div>
+                         </div>
+                         <div className="grid gap-3">
+                            {[...(portfolio.student?.profile?.certifications || []), ...(portfolio.student?.profile?.achievements || [])].slice(0, 4).map((item, idx) => (
+                              <div key={idx} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-white/5 rounded-sm border border-slate-100 dark:border-white/5">
+                                 <span className="material-symbols-outlined text-primary text-[20px]">workspace_premium</span>
+                                 <p className="text-[11px] font-black dark:text-white uppercase tracking-tight">{item.title}</p>
+                              </div>
+                            ))}
+                         </div>
                       </div>
                     </div>
                   ) : (

@@ -43,6 +43,24 @@ const UserSchema = new mongoose.Schema({
         githubUrl: String,
         linkedinUrl: String,
         avatarUrl: String,
+        achievementsSummary: String,
+        achievementsImageUrl: String,
+        certifications: [
+            {
+                title: String,
+                issuer: String,
+                url: String,
+                date: Date,
+                imageUrl: String
+            }
+        ],
+        achievements: [
+            {
+                title: String,
+                description: String,
+                imageUrl: String
+            }
+        ],
         assignedFaculty: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',

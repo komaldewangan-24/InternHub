@@ -156,6 +156,55 @@ export default function FacultyStudentPage() {
         )}
       </div>
 
+      <div className="mt-24 space-y-12">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-2xl font-black tracking-tighter dark:text-white flex items-center gap-5 uppercase">
+            <span className="material-symbols-outlined text-primary text-[28px] transition-transform hover:rotate-12">workspace_premium</span>
+            Credentials & Excellence
+          </h3>
+        </div>
+
+        <div className="grid gap-12 lg:grid-cols-2">
+           <div className="space-y-8 rounded-sm bg-white dark:bg-[#003366] p-10 border border-slate-200 dark:border-white/5 shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-6">Excellence Summary</p>
+              <p className="text-md leading-relaxed text-slate-500 dark:text-slate-400 font-medium italic italic opacity-80 whitespace-pre-wrap border-l-4 border-primary/20 pl-8 py-2">
+                 {portfolio.student?.profile?.achievementsSummary || "No achievement summary provided yet. This student is currently building their academic and professional record."}
+              </p>
+              {portfolio.student?.profile?.achievementsImageUrl && (
+                <div className="mt-10 rounded-sm overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl">
+                  <img src={portfolio.student?.profile?.achievementsImageUrl} alt="Featured Achievement" className="w-full h-64 object-cover" />
+                </div>
+              )}
+           </div>
+
+           <div className="space-y-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary px-2">Verified Certifications & Honors</p>
+              <div className="grid gap-4">
+                 {(portfolio.student?.profile?.certifications?.length > 0 || portfolio.student?.profile?.achievements?.length > 0) ? (
+                   [...(portfolio.student?.profile?.certifications || []).map(c => ({...c, type: 'cert'})), ...(portfolio.student?.profile?.achievements || []).map(a => ({...a, type: 'ach'}))].map((item, idx) => (
+                     <div key={idx} className="flex items-center justify-between p-6 bg-white dark:bg-[#003366] border border-slate-200 dark:border-white/5 rounded-sm hover:border-primary/30 transition-all shadow-sm">
+                        <div className="flex items-center gap-6">
+                           <div className={`size-12 rounded-sm flex items-center justify-center ${item.type === 'cert' ? 'bg-blue-500/10 text-blue-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                              <span className="material-symbols-outlined text-[24px]">{item.type === 'cert' ? 'verified_user' : 'military_tech'}</span>
+                           </div>
+                           <div>
+                              <p className="text-md font-black dark:text-white leading-none uppercase tracking-tight">{item.title}</p>
+                              <p className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em]">{item.issuer || item.description || 'Verified Recognition'}</p>
+                           </div>
+                        </div>
+                     </div>
+                   ))
+                 ) : (
+                   <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-white/5 rounded-sm border border-dashed border-slate-200 dark:border-white/10 opacity-40 text-center">
+                      <span className="material-symbols-outlined text-[40px] mb-4 text-primary">military_tech</span>
+                      <p className="text-[12px] font-black uppercase tracking-widest text-slate-500">No verified credentials uploaded yet</p>
+                   </div>
+                 )}
+              </div>
+           </div>
+        </div>
+      </div>
+
       <div className="mt-48 p-12 text-center opacity-30 invert dark:invert-0">
          <p className="text-[9px] font-black uppercase tracking-[1.5em] text-slate-500">InternHub Portal © 2026</p>
       </div>
