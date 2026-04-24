@@ -51,20 +51,25 @@ export const userAPI = {
     assignFaculty: (data) => api.post('/users/faculty-assignments', data),
     getPortfolio: (id) => api.get(`/users/portfolio/${id}`),
     exportStudents: () => api.get('/users/export/students', { responseType: 'blob' }),
-    updateProfile: (data) => api.put('/auth/me', {
-        name: data.name,
-        email: data.email,
-        profile: {
-            phone: data.phone,
-            university: data.university,
-            degree: data.degree,
-            graduationDate: data.graduationDate,
-            bio: data.bio,
-            location: data.location,
-            skills: data.skills,
-            avatarUrl: data.avatarUrl,
+    updateProfile: (data) => {
+        const payload = {};
+        if (data.name) payload.name = data.name;
+        if (data.email) payload.email = data.email;
+        
+        // Use the profile object if provided; otherwise, use the remaining fields as profile
+        const profilePayload = data.profile || { ...data };
+        
+        // Remove non-profile fields from the nested profile object
+        if (!data.profile) {
+            delete profilePayload.name;
+            delete profilePayload.email;
+            delete profilePayload.password;
         }
-    }),
+        
+        payload.profile = profilePayload;
+        
+        return api.put('/auth/me', payload);
+    },
 };
 
 export const applicationAPI = {
