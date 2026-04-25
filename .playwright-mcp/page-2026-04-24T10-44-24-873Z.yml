@@ -1,0 +1,148 @@
+- generic [ref=e2]:
+  - region "Notifications Alt+T"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - generic [ref=e7] [cursor=pointer]:
+            - generic [ref=e9]: hub
+            - paragraph [ref=e10]: InternHub
+          - navigation [ref=e11]:
+            - button "Home" [ref=e12] [cursor=pointer]
+            - button "About" [ref=e13] [cursor=pointer]
+            - button "Highlights" [ref=e14] [cursor=pointer]
+            - button "How to Apply" [ref=e15] [cursor=pointer]
+        - generic [ref=e16]:
+          - button "dark_mode" [ref=e17] [cursor=pointer]:
+            - generic [ref=e18]: dark_mode
+          - link "Login" [ref=e19] [cursor=pointer]:
+            - /url: /login
+          - link "Register" [ref=e20] [cursor=pointer]:
+            - /url: /register
+    - generic [ref=e25]:
+      - heading "Unlock Opportunities. Build Skills. Shape Your Career." [level=1] [ref=e26]:
+        - text: Unlock Opportunities. Build Skills.
+        - text: Shape Your Career.
+      - paragraph [ref=e27]: A complete platform to discover internships, manage projects, track your applications, and build a powerful professional profile.
+      - button "Apply Now" [ref=e29] [cursor=pointer]
+    - generic [ref=e32]:
+      - generic [ref=e34]:
+        - paragraph [ref=e37]: Our Strategic Vision
+        - heading "Empowering the Next Generation." [level=2] [ref=e38]:
+          - text: Empowering the
+          - text: Next Generation.
+        - generic [ref=e39]:
+          - paragraph [ref=e40]: This portal is a centralized platform designed to help students discover internships, manage applications, and track their placement readiness. It enables seamless interaction between students, faculty, and recruiters by providing tools for profile management, project approvals, and real-time application tracking.
+          - paragraph [ref=e41]: The goal is to simplify the internship process, improve transparency, and enhance student outcomes by connecting them with relevant opportunities and structured guidance.
+      - img "Statistical Tablet Dashboard" [ref=e45]
+    - generic [ref=e47]:
+      - heading "Key Features" [level=2] [ref=e49]
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e53]: school
+          - heading "Student" [level=3] [ref=e54]
+          - paragraph [ref=e55]: Discover internships, manage applications, and track your placement readiness.
+        - generic [ref=e56]:
+          - generic [ref=e58]: supervisor_account
+          - heading "Faculty" [level=3] [ref=e59]
+          - paragraph [ref=e60]: Review student projects, manage approvals, and provide structured mentorship.
+        - generic [ref=e61]:
+          - generic [ref=e63]: business_center
+          - heading "Recruiter" [level=3] [ref=e64]
+          - paragraph [ref=e65]: Post opportunities, screen top talent, and manage seamless placements.
+        - generic [ref=e66]:
+          - generic [ref=e68]: admin_panel_settings
+          - heading "Admin" [level=3] [ref=e69]
+          - paragraph [ref=e70]: Oversee entire portal operations, manage users, and ensure data integrity.
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e76]: Seamless Workflow
+        - heading "Steps to Apply" [level=2] [ref=e77]
+        - paragraph [ref=e78]: Follow our streamlined four-step process to get started with your national internship journey through the MoSPI portal.
+      - generic [ref=e79]:
+        - generic [ref=e81]:
+          - generic: "1"
+          - generic [ref=e85]: app_registration
+          - generic [ref=e86]:
+            - generic [ref=e87]: Step 01
+            - heading "Register" [level=3] [ref=e88]
+            - paragraph [ref=e89]: Securely create your account on the official MoSPI internship portal.
+        - generic [ref=e91]:
+          - generic: "2"
+          - generic [ref=e95]: person_edit
+          - generic [ref=e96]:
+            - generic [ref=e97]: Step 02
+            - heading "Profile" [level=3] [ref=e98]
+            - paragraph [ref=e99]: Complete your academic profile and showcase your skills to recruiters.
+        - generic [ref=e101]:
+          - generic: "3"
+          - generic [ref=e105]: upload_file
+          - generic [ref=e106]:
+            - generic [ref=e107]: Step 03
+            - heading "Documents" [level=3] [ref=e108]
+            - paragraph [ref=e109]: Upload necessary academic certificates and identity verification.
+        - generic [ref=e111]:
+          - generic: "4"
+          - generic [ref=e115]: task_alt
+          - generic [ref=e116]:
+            - generic [ref=e117]: Step 04
+            - heading "Selection" [level=3] [ref=e118]
+            - paragraph [ref=e119]: Monitor your application status and attend interviews as required.
+      - generic [ref=e121]:
+        - link "Start Registration Now east" [ref=e122] [cursor=pointer]:
+          - /url: /register
+          - generic [ref=e124]: Start Registration Now
+          - generic [ref=e126]: east
+        - paragraph [ref=e127]: No Application Fees Required
+    - contentinfo [ref=e130]:
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - generic [ref=e135]:
+                - generic [ref=e137]: hub
+                - paragraph [ref=e138]: InternHub
+              - paragraph [ref=e139]: Empowering the next generation of statisticians and professionals through immersive, high-impact internship opportunities nationwide.
+            - generic [ref=e140]:
+              - link [ref=e141] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e142]
+              - link [ref=e144] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e145]
+              - link [ref=e147] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e148]
+              - link [ref=e150] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e151]
+            - button "north Back to Top" [ref=e153] [cursor=pointer]:
+              - generic [ref=e154]: north
+              - paragraph [ref=e155]: Back to Top
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - paragraph [ref=e158]: Site Map
+              - list [ref=e159]:
+                - listitem [ref=e160]:
+                  - button "Homepage" [ref=e161] [cursor=pointer]
+                - listitem [ref=e162]:
+                  - button "About" [ref=e163] [cursor=pointer]
+                - listitem [ref=e164]:
+                  - button "Highlights" [ref=e165] [cursor=pointer]
+                - listitem [ref=e166]:
+                  - button "How to Apply" [ref=e167] [cursor=pointer]
+                - listitem [ref=e168]:
+                  - button "Portal" [ref=e169] [cursor=pointer]
+            - generic [ref=e170]:
+              - paragraph [ref=e171]: Legal
+              - list [ref=e172]:
+                - listitem [ref=e173]:
+                  - link "Privacy Policy" [ref=e174] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e175]:
+                  - link "Terms of Service" [ref=e176] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e177]:
+                  - link "Lawyer's Corner" [ref=e178] [cursor=pointer]:
+                    - /url: "#"
+        - paragraph [ref=e180]: © 2026 INTERNHUB NATIONAL PORTAL [MoSPI]. ALL RIGHTS RESERVED.

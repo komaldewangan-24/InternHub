@@ -42,6 +42,16 @@ export default function AppShell({
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
   const blueGradient = 'linear-gradient(135deg, #003366 0%, #0066cc 100%)';
+  const profilePathByRole = {
+    student: '/student/profile',
+    faculty: '/faculty',
+    recruiter: '/recruiter/company',
+    admin: '/admin/settings',
+  };
+
+  const handleProfileNavigation = () => {
+    navigate(profilePathByRole[user?.role] || '/student/profile');
+  };
 
   return (
     <div 
@@ -180,7 +190,7 @@ export default function AppShell({
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-white/10 ml-2 group cursor-pointer" onClick={() => navigate('/profile')}>
+                <div className="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-white/10 ml-2 group cursor-pointer" onClick={handleProfileNavigation}>
                    <div className="text-right hidden sm:block">
                       <p className="text-[12px] font-black text-slate-800 dark:text-white leading-none uppercase tracking-tight group-hover:text-indigo-500 transition-colors font-poppins">{user?.name || 'Student'}</p>
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 opacity-60 font-poppins">{user?.role || 'Registry'}</p>
@@ -199,6 +209,15 @@ export default function AppShell({
 
           <main className="flex-1 p-6 pt-2 sm:p-10 sm:pt-4 min-h-0 bg-transparent">
             <div className="mx-auto max-w-7xl">
+              <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <h1 className="text-2xl font-poppins font-bold tracking-tight text-[#003366] dark:text-white uppercase">{title}</h1>
+                  {description && (
+                    <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">{description}</p>
+                  )}
+                </div>
+                {actions && <div className="shrink-0">{actions}</div>}
+              </div>
               <LocalErrorBoundary>
                 {children}
               </LocalErrorBoundary>

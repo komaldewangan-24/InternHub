@@ -32,6 +32,18 @@ router.get('/', protect, async (req, res) => {
 // @access    Private
 router.get('/conversation/:userId', protect, async (req, res) => {
     try {
+        const otherUser = await User.findById(req.params.userId);
+        if (!otherUser) {
+            return res.status(404).json({ success: false, error: 'Conversation user not found' });
+        }
+
+        if (
+            !canSendMessage(req.user.role, otherUser.role) &&
+            !canSendMessage(otherUser.role, req.user.role)
+        ) {
+            return res.status(403).json({ success: false, error: 'You are not allowed to view this conversation' });
+        }
+
         const messages = await Message.find({
             $or: [
                 { sender: req.user.id, recipient: req.params.userId },

@@ -6,6 +6,12 @@ const connectDB = require('./config/db');
 // Load env vars
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+    console.error('Missing required environment variable: JWT_SECRET');
+    console.error('Create backend/.env from backend/.env.example and set JWT_SECRET before starting the server.');
+    process.exit(1);
+}
+
 // Connect to database
 connectDB();
 
@@ -22,8 +28,8 @@ const settings = require('./routes/settings');
 
 const app = express();
 
-// Body parser
-app.use(express.json());
+// Body parser. Resume uploads are stored as profile data URLs and capped in the UI.
+app.use(express.json({ limit: '8mb' }));
 
 // Enable CORS
 app.use(cors());

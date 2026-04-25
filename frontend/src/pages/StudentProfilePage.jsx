@@ -1,52 +1,74 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
 import LoadingState from '../components/LoadingState';
+import ResumeUploadSync from '../components/ResumeUploadSync';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { userAPI } from '../services/api';
+import { openResumeDataUrl } from '../utils/resumeParser';
+
+const emptyProfileForm = {
+  name: '',
+  email: '',
+  phone: '',
+  university: '',
+  graduationDate: '',
+  bio: '',
+  location: '',
+  degree: '',
+  skills: [],
+  avatarUrl: '',
+  resumeUrl: '',
+  resumeFileName: '',
+  resumeMimeType: '',
+  resumeUploadedAt: '',
+  certifications: [],
+  achievements: [],
+  experience: [],
+  achievementsSummary: '',
+  achievementsImageUrl: '',
+};
+
+const buildProfileFormData = (user) => ({
+  ...emptyProfileForm,
+  name: user?.name || '',
+  email: user?.email || '',
+  phone: user?.profile?.phone || '',
+  university: user?.profile?.university || '',
+  graduationDate: user?.profile?.graduationDate ? new Date(user.profile.graduationDate).toISOString().split('T')[0] : '',
+  bio: user?.profile?.bio || '',
+  location: user?.profile?.location || '',
+  degree: user?.profile?.degree || '',
+  skills: user?.profile?.skills || [],
+  avatarUrl: user?.profile?.avatarUrl || '',
+  resumeUrl: user?.profile?.resumeUrl || '',
+  resumeFileName: user?.profile?.resumeFileName || '',
+  resumeMimeType: user?.profile?.resumeMimeType || '',
+  resumeUploadedAt: user?.profile?.resumeUploadedAt || '',
+  certifications: user?.profile?.certifications || [],
+  achievements: user?.profile?.achievements || [],
+  experience: user?.profile?.experience || [],
+  achievementsSummary: user?.profile?.achievementsSummary || '',
+  achievementsImageUrl: user?.profile?.achievementsImageUrl || '',
+});
 
 export default function StudentProfilePage() {
   const { user, loading, refreshUser } = useCurrentUser();
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    university: '',
-    graduationDate: '',
-    bio: '',
-    location: '',
-    degree: '',
-    skills: [],
-    avatarUrl: '',
-    certifications: [],
-    achievements: [],
-    achievementsSummary: '',
-    achievementsImageUrl: '',
-  });
+  const currentFormData = useMemo(() => buildProfileFormData(user), [user]);
+  const [editableFormData, setEditableFormData] = useState(emptyProfileForm);
+  const formData = isEditing ? editableFormData : currentFormData;
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.profile?.phone || '',
-        university: user.profile?.university || '',
-        graduationDate: user.profile?.graduationDate ? new Date(user.profile.graduationDate).toISOString().split('T')[0] : '',
-        bio: user.profile?.bio || '',
-        location: user.profile?.location || '',
-        degree: user.profile?.degree || '',
-        skills: user.profile?.skills || [],
-        avatarUrl: user.profile?.avatarUrl || '',
-        certifications: user.profile?.certifications || [],
-        achievements: user.profile?.achievements || [],
-        achievementsSummary: user.profile?.achievementsSummary || '',
-        achievementsImageUrl: user.profile?.achievementsImageUrl || '',
-      });
-    }
-  }, [user]);
+  const setFormData = (updater) => {
+    setEditableFormData((current) => (typeof updater === 'function' ? updater(current) : updater));
+  };
+
+  const startEditing = (patch = {}) => {
+    setEditableFormData({ ...currentFormData, ...patch });
+    setIsEditing(true);
+  };
 
   const handleSubmit = async (event) => {
     if (event) event.preventDefault();
@@ -74,15 +96,30 @@ export default function StudentProfilePage() {
         
         if (!isEditing) {
           try {
-            await userAPI.updateProfile({ ...formData, avatarUrl: base64 });
+            await userAPI.updateProfile({ ...currentFormData, avatarUrl: base64 });
             await refreshUser();
             toast.success('Profile photo synchronized.');
-          } catch (err) {
+          } catch {
             toast.error('Failed to sync photo.');
           }
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleViewResume = async () => {
+    if (!formData.resumeUrl) {
+      toast.info('Upload a PDF resume first.');
+      return;
+    }
+
+    try {
+      if (!(await openResumeDataUrl(formData.resumeUrl))) {
+        toast.error('Browser blocked the resume preview.');
+      }
+    } catch (error) {
+      toast.error(error?.message || 'Unable to open resume.');
     }
   };
 
@@ -95,7 +132,7 @@ export default function StudentProfilePage() {
       actions={
         <button
           className="rounded-xl text-white px-8 py-3 text-[12px] font-poppins font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-[0.98] bg-blue-600"
-          onClick={() => (isEditing ? handleSubmit() : setIsEditing(true))}
+          onClick={() => (isEditing ? handleSubmit() : startEditing())}
           type="button"
         >
           {isEditing ? 'Save Changes' : 'Edit Profile'}
@@ -210,17 +247,24 @@ export default function StudentProfilePage() {
                 <div className="flex gap-3">
                   <button 
                     type="button" 
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => (isEditing ? handleSubmit() : startEditing())}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] font-black uppercase tracking-widest text-indigo-600 dark:text-slate-300 hover:bg-slate-50 transition-all shadow-sm active:scale-95"
                   >
                     <span className="material-symbols-outlined text-[18px]">{isEditing ? 'save' : 'edit'}</span>
                     {isEditing ? 'Save' : 'Edit Profile'}
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none active:scale-95">
+                  <button type="button" onClick={handleViewResume} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none active:scale-95">
                     <span className="material-symbols-outlined text-[18px]">description</span>
                     View Resume
                   </button>
                 </div>
+
+                <ResumeUploadSync
+                  user={user}
+                  refreshUser={refreshUser}
+                  compact
+                  onProfilePatch={(patch) => setFormData((prev) => ({ ...prev, ...patch }))}
+                />
 
                 <div className="bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-[32px] p-6 flex flex-col group">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Profile Strength</p>
@@ -309,7 +353,14 @@ export default function StudentProfilePage() {
                  </div>
                  <button 
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, bio: "Motivated Computer Science student with strong interest in data science and machine learning. Skilled in Python, SQL, and data visualization. Passionate about solving real-world problems with data-driven solutions and contributing to impactful projects." }))}
+                  onClick={() => {
+                    const bio = "Motivated Computer Science student with strong interest in data science and machine learning. Skilled in Python, SQL, and data visualization. Passionate about solving real-world problems with data-driven solutions and contributing to impactful projects.";
+                    if (isEditing) {
+                      setFormData((prev) => ({ ...prev, bio }));
+                    } else {
+                      startEditing({ bio });
+                    }
+                  }}
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 transition-all"
                  >
                     <span className="material-symbols-outlined text-[16px]">temp_preferences_custom</span>
@@ -333,7 +384,7 @@ export default function StudentProfilePage() {
                      <button 
                       type="button"
                       className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-indigo-200"
-                      onClick={() => setIsEditing(false)}
+                      onClick={() => handleSubmit()}
                      >
                        Save <span className="material-symbols-outlined text-[16px]">check_circle</span>
                      </button>
@@ -353,7 +404,7 @@ export default function StudentProfilePage() {
                        <p className="text-[11px] font-bold text-slate-400">Showcase your skills and tools ⚡</p>
                     </div>
                  </div>
-                 <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-500/20 hover:bg-blue-100 transition-all">
+                 <button type="button" className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-500/20 hover:bg-blue-100 transition-all">
                     <span className="material-symbols-outlined text-[16px]">add</span>
                     Add Skill
                  </button>

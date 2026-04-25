@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
+import ResumeUploadSync from '../components/ResumeUploadSync';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { userAPI } from '../services/api';
@@ -8,7 +9,6 @@ import { userAPI } from '../services/api';
 export default function CredentialsPage() {
   const { user, loading, refreshUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState('experience');
-  const [items, setItems] = useState({ experience: [], certifications: [] });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   
@@ -20,29 +20,31 @@ export default function CredentialsPage() {
     title: '', issuer: '', issueDate: '', credentialId: '', skills: '', imageUrl: '', imageDescription: '', url: '', issuerLogoUrl: ''
   });
 
-  useEffect(() => {
-    if (user) {
-      setItems({
-        experience: user.profile?.experience || [],
-        certifications: user.profile?.certifications || []
-      });
-    }
-  }, [user]);
+  const items = useMemo(() => ({
+    experience: user?.profile?.experience || [],
+    certifications: user?.profile?.certifications || [],
+  }), [user]);
 
-  // Auto-suggest Logo logic
-  useEffect(() => {
-    if (expForm.company.length > 2 && !expForm.companyLogoUrl) {
-      const suggestUrl = `https://logo.clearbit.com/${expForm.company.toLowerCase().replace(/\s+/g, '')}.com`;
-      setExpForm(prev => ({ ...prev, companyLogoUrl: suggestUrl }));
-    }
-  }, [expForm.company]);
+  const buildLogoUrl = (name) => {
+    const domain = name.toLowerCase().replace(/\s+/g, '');
+    return domain.length > 2 ? `https://logo.clearbit.com/${domain}.com` : '';
+  };
 
-  useEffect(() => {
-    if (certForm.issuer.length > 2 && !certForm.issuerLogoUrl) {
-        const suggestUrl = `https://logo.clearbit.com/${certForm.issuer.toLowerCase().replace(/\s+/g, '')}.com`;
-        setCertForm(prev => ({ ...prev, issuerLogoUrl: suggestUrl }));
-    }
-  }, [certForm.issuer]);
+  const handleCompanyChange = (company) => {
+    setExpForm((prev) => ({
+      ...prev,
+      company,
+      companyLogoUrl: prev.companyLogoUrl || buildLogoUrl(company),
+    }));
+  };
+
+  const handleIssuerChange = (issuer) => {
+    setCertForm((prev) => ({
+      ...prev,
+      issuer,
+      issuerLogoUrl: prev.issuerLogoUrl || buildLogoUrl(issuer),
+    }));
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -59,22 +61,26 @@ export default function CredentialsPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const updatedProfile = { ...user.profile };
+      const updatedProfile = { ...(user.profile || {}) };
       
       if (activeTab === 'experience') {
         const newExp = { ...expForm, skills: expForm.skills.split(',').map(s => s.trim()).filter(Boolean) };
+        const experience = [...(updatedProfile.experience || [])];
         if (editingItem !== null) {
-          updatedProfile.experience[editingItem] = newExp;
+          experience[editingItem] = newExp;
         } else {
-          updatedProfile.experience = [...(updatedProfile.experience || []), newExp];
+          experience.push(newExp);
         }
+        updatedProfile.experience = experience;
       } else {
         const newCert = { ...certForm, skills: certForm.skills.split(',').map(s => s.trim()).filter(Boolean) };
+        const certifications = [...(updatedProfile.certifications || [])];
         if (editingItem !== null) {
-          updatedProfile.certifications[editingItem] = newCert;
+          certifications[editingItem] = newCert;
         } else {
-          updatedProfile.certifications = [...(updatedProfile.certifications || []), newCert];
+          certifications.push(newCert);
         }
+        updatedProfile.certifications = certifications;
       }
 
       await userAPI.updateProfile(updatedProfile);
@@ -82,7 +88,7 @@ export default function CredentialsPage() {
       setIsModalOpen(false);
       resetForms();
       toast.success('Professional data synchronized.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to sync data.');
     }
   };
@@ -96,16 +102,18 @@ export default function CredentialsPage() {
   const deleteItem = async (index) => {
     if (!window.confirm('Delete this entry?')) return;
     try {
-      const updatedProfile = { ...user.profile };
+      const updatedProfile = { ...(user.profile || {}) };
       if (activeTab === 'experience') {
+        updatedProfile.experience = [...(updatedProfile.experience || [])];
         updatedProfile.experience.splice(index, 1);
       } else {
+        updatedProfile.certifications = [...(updatedProfile.certifications || [])];
         updatedProfile.certifications.splice(index, 1);
       }
       await userAPI.updateProfile(updatedProfile);
       await refreshUser();
       toast.info('Entry removed.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to remove entry.');
     }
   };
@@ -128,6 +136,8 @@ export default function CredentialsPage() {
       }
     >
       <div className="max-w-6xl mx-auto space-y-10">
+        <ResumeUploadSync user={user} refreshUser={refreshUser} />
+
         <div className="flex gap-4 bg-slate-100/50 dark:bg-white/5 p-2 rounded-2xl w-fit">
           <button
             onClick={() => setActiveTab('experience')}
@@ -222,7 +232,7 @@ export default function CredentialsPage() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Company</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold" value={expForm.company} onChange={e => setExpForm({...expForm, company: e.target.value})} placeholder="e.g. Google" />
+                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold" value={expForm.company} onChange={e => handleCompanyChange(e.target.value)} placeholder="e.g. Google" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Employment Type</label>
@@ -274,7 +284,7 @@ export default function CredentialsPage() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Issuing Organization</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.issuer} onChange={e => setCertForm({...certForm, issuer: e.target.value})} placeholder="e.g. Amazon Web Services" />
+                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.issuer} onChange={e => handleIssuerChange(e.target.value)} placeholder="e.g. Amazon Web Services" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Issue Date</label>

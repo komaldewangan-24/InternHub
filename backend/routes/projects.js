@@ -105,6 +105,10 @@ router.get('/', protect, async (req, res) => {
         }
 
         if (String(overdue) === 'true') {
+            if (!['faculty', 'admin'].includes(req.user.role)) {
+                return res.status(403).json({ success: false, error: 'Only faculty and admins can view overdue project reviews' });
+            }
+
             query.status = 'submitted';
             query.reviewDueAt = { $lt: new Date() };
         }

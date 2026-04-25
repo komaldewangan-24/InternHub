@@ -11,6 +11,29 @@ const { computeStudentReadiness } = require('../utils/readiness');
 const { createBulkNotifications } = require('../utils/notifications');
 const { sendCsv } = require('../utils/csv');
 
+const publicStudentProfile = (student) => ({
+    _id: student._id,
+    id: student._id,
+    name: student.name,
+    email: student.email,
+    role: student.role,
+    profile: {
+        department: student.profile?.department,
+        batch: student.profile?.batch,
+        university: student.profile?.university,
+        degree: student.profile?.degree,
+        location: student.profile?.location,
+        skills: student.profile?.skills || [],
+        resumeUrl: student.profile?.resumeUrl,
+        avatarUrl: student.profile?.avatarUrl,
+        achievementsSummary: student.profile?.achievementsSummary,
+        achievementsImageUrl: student.profile?.achievementsImageUrl,
+        certifications: student.profile?.certifications || [],
+        achievements: student.profile?.achievements || [],
+        assignedFaculty: student.profile?.assignedFaculty,
+    },
+});
+
 const getReadinessMaps = async () => {
     const [approvedProjects, applications] = await Promise.all([
         ProjectSubmission.aggregate([
@@ -168,7 +191,7 @@ router.get('/search', protect, async (req, res) => {
         }
 
         const users = await User.find(mongoQuery)
-            .select('name email role profile')
+            .select('name email role profile.department profile.designation profile.avatarUrl')
             .populate('profile.assignedFaculty', 'name email role')
             .limit(25)
             .sort('name');
@@ -198,7 +221,19 @@ router.get('/portfolio/:id', protect, async (req, res) => {
         const isAssignedFaculty =
             req.user.role === 'faculty' &&
             String(targetUser.profile?.assignedFaculty?._id || targetUser.profile?.assignedFaculty || '') === String(req.user.id);
-        const canView = req.user.role === 'admin' || req.user.role === 'recruiter' || isSelf || isAssignedFaculty;
+        let isRecruiterApplicant = false;
+        if (req.user.role === 'recruiter') {
+            const recruiterInternships = await Internship.find({ user: req.user.id }).select('_id');
+            const internshipIds = recruiterInternships.map((internship) => internship._id);
+            isRecruiterApplicant = Boolean(
+                await Application.exists({
+                    user: targetUser._id,
+                    internship: { $in: internshipIds },
+                })
+            );
+        }
+
+        const canView = req.user.role === 'admin' || isRecruiterApplicant || isSelf || isAssignedFaculty;
 
         if (!canView) {
             return res.status(403).json({ success: false, error: 'You are not allowed to view this portfolio' });
@@ -222,7 +257,9 @@ router.get('/portfolio/:id', protect, async (req, res) => {
         res.status(200).json({
             success: true,
             data: {
-                student: targetUser,
+                student: req.user.role === 'admin' || isSelf || isAssignedFaculty
+                    ? targetUser
+                    : publicStudentProfile(targetUser),
                 approvedProjects,
                 readiness,
             },

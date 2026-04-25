@@ -73,7 +73,7 @@ export default function SettingsPage() {
               {[
                  { label: 'Electronic Correspondence', val: prefEmail, set: setPrefEmail, icon: 'alternate_email', desc: 'ENABLE SYSTEM-TO-STUDENT ELECTRONIC MAIL SYNCHRONIZATION FOR STATUS UPDATES.' },
                  { label: 'System Integration Alerts', val: prefInApp, set: setPrefInApp, icon: 'hub', desc: 'RECEIVE REAL-TIME ANALYTIC ALERTS WITHIN THE CORE INTERFACE DASHBOARD.' }
-              ].map((item, index) => (
+              ].map((item) => (
                 <div key={item.label} className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 rounded-sm bg-slate-50 dark:bg-white/5 p-6 border border-slate-100 dark:border-white/5 hover:border-indigo-500/30 transition-all group-item">
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-3">

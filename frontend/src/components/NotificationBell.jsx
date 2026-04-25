@@ -22,9 +22,12 @@ export default function NotificationBell() {
   }, []);
 
   useEffect(() => {
-    fetchNotes();
+    const initialFetch = window.setTimeout(fetchNotes, 0);
     const interval = setInterval(fetchNotes, 30000); // Poll every 30s
-    return () => clearInterval(interval);
+    return () => {
+      window.clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [fetchNotes]);
 
   const markAllAsRead = async () => {
@@ -77,13 +80,13 @@ export default function NotificationBell() {
 
           <div className="space-y-4 max-h-[440px] overflow-y-auto pr-2 custom-scrollbar">
             {notifications && notifications.length > 0 ? (
-              notifications.map((note) => {
+              notifications.map((note, index) => {
                 if (!note) return null;
                 const date = note.createdAt ? new Date(note.createdAt) : null;
                 
                 return (
                   <Link
-                    key={note._id || Math.random()}
+                    key={note._id || `${note.type || 'notification'}-${note.createdAt || index}`}
                     to={note.link || '#'}
                     onClick={() => setOpen(false)}
                     className={`block rounded-sm border p-5 transition-all hover:scale-[1.02] active:scale-[0.98] ${

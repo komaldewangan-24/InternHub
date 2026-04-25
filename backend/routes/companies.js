@@ -3,12 +3,23 @@ const router = express.Router();
 const Company = require('../models/Company');
 const { protect, authorize } = require('../middleware/auth');
 
-// @desc      Get all companies
+// @desc      Get companies visible to the current role
 // @route     GET /api/companies
-// @access    Public
-router.get('/', async (req, res) => {
+// @access    Private (Student/Faculty see verified public listings, Recruiter sees own companies, Admin sees all)
+router.get('/', protect, async (req, res) => {
     try {
-        const companies = await Company.find();
+        const query = {};
+
+        if (req.user.role === 'recruiter') {
+            query.user = req.user.id;
+        } else if (req.user.role !== 'admin') {
+            query.verificationStatus = 'verified';
+        }
+
+        const companies = await Company.find(query)
+            .select('name description website logoUrl verificationStatus user createdAt')
+            .sort('name');
+
         res.status(200).json({
             success: true,
             count: companies.length,

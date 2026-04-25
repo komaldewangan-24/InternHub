@@ -22,9 +22,7 @@ export default function RecruiterApplicantsPage() {
         setPageLoading(true);
         const { data } = await applicationAPI.getAll();
         setApplications(data.data || []);
-        if ((data.data || []).length && !selectedApplication) {
-          setSelectedApplication(data.data[0]);
-        }
+        setSelectedApplication((current) => current || (data.data || [])[0] || null);
       } finally {
         setPageLoading(false);
       }
@@ -41,7 +39,7 @@ export default function RecruiterApplicantsPage() {
       try {
         const { data } = await userAPI.getPortfolio(selectedApplication.user._id);
         setPortfolio(data.data || null);
-      } catch (e) {
+      } catch {
         setPortfolio(null);
       }
     };

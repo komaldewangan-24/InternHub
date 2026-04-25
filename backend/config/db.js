@@ -24,12 +24,19 @@ const seedDemoUsers = async () => {
 
 const connectDB = async () => {
     try {
-        console.log(`Attempting to connect to MongoDB at ${process.env.MONGO_URI || 'default string'}...`);
+        console.log(`Attempting to connect to MongoDB at ${process.env.MONGO_URI || 'default connection'}...`);
         const conn = await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         await seedDemoUsers();
     } catch (error) {
-        console.warn(`External MongoDB connection failed (${error.message}). Falling back to in-memory database...`);
+        const canUseMemoryDb = (process.env.NODE_ENV || 'development') === 'development';
+
+        if (!canUseMemoryDb) {
+            console.error(`MongoDB connection failed outside development mode: ${error.message}`);
+            process.exit(1);
+        }
+
+        console.warn(`External MongoDB connection failed (${error.message}). Falling back to in-memory database for development...`);
         try {
             const { MongoMemoryServer } = require('mongodb-memory-server');
             const mongoServer = await MongoMemoryServer.create();

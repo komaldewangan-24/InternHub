@@ -2,6 +2,14 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
 
+const pickDefined = (source, keys) =>
+    keys.reduce((result, key) => {
+        if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
+            result[key] = source[key];
+        }
+        return result;
+    }, {});
+
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -51,20 +59,40 @@ export const userAPI = {
     assignFaculty: (data) => api.post('/users/faculty-assignments', data),
     getPortfolio: (id) => api.get(`/users/portfolio/${id}`),
     exportStudents: () => api.get('/users/export/students', { responseType: 'blob' }),
-    updateProfile: (data) => api.put('/auth/me', {
-        name: data.name,
-        email: data.email,
-        profile: {
-            phone: data.phone,
-            university: data.university,
-            degree: data.degree,
-            graduationDate: data.graduationDate,
-            bio: data.bio,
-            location: data.location,
-            skills: data.skills,
-            avatarUrl: data.avatarUrl,
-        }
-    }),
+    updateProfile: (data) => {
+        const profileKeys = [
+            'phone',
+            'university',
+            'degree',
+            'graduationDate',
+            'bio',
+            'location',
+            'skills',
+            'avatarUrl',
+            'department',
+            'batch',
+            'section',
+            'rollNumber',
+            'designation',
+            'resumeUrl',
+            'resumeFileName',
+            'resumeMimeType',
+            'resumeUploadedAt',
+            'githubUrl',
+            'linkedinUrl',
+            'certifications',
+            'achievements',
+            'experience',
+            'achievementsSummary',
+            'achievementsImageUrl',
+            'assignedFaculty',
+        ];
+
+        return api.put('/auth/me', {
+            ...pickDefined(data, ['name', 'email']),
+            profile: pickDefined(data, profileKeys),
+        });
+    },
 };
 
 export const applicationAPI = {
