@@ -2,6 +2,7 @@ export const navigationByRole = {
   student: [
     { to: '/student', label: 'Dashboard' },
     { to: '/student/profile', label: 'Profile' },
+    { to: '/student/resume', label: 'Resume' },
     { to: '/student/credentials', label: 'Manage Documents' },
     { to: '/student/projects', label: 'Projects' },
     { to: '/internships', label: 'Internships' },

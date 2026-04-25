@@ -28,6 +28,7 @@ import SettingsPage from './pages/SettingsPage';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfilePage from './pages/StudentProfilePage';
 import StudentProjectsPage from './pages/StudentProjectsPage';
+import StudentResumePage from './pages/StudentResumePage';
 import LegacyInternshipRedirect from './components/LegacyInternshipRedirect';
 import ProtectedRoute from './components/ProtectedRoute';
 import { getDefaultRouteForRole, getStoredUser } from './services/session';
@@ -60,6 +61,7 @@ function App() {
 
         <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
         <Route path="/student/profile" element={<ProtectedRoute allowedRoles={['student']}><StudentProfilePage /></ProtectedRoute>} />
+        <Route path="/student/resume" element={<ProtectedRoute allowedRoles={['student']}><StudentResumePage /></ProtectedRoute>} />
         <Route path="/student/credentials" element={<ProtectedRoute allowedRoles={['student']}><CredentialsPage /></ProtectedRoute>} />
         <Route path="/student/projects" element={<ProtectedRoute allowedRoles={['student']}><StudentProjectsPage /></ProtectedRoute>} />
         <Route path="/student/settings" element={<ProtectedRoute allowedRoles={['student']}><SettingsPage /></ProtectedRoute>} />

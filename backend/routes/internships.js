@@ -13,6 +13,22 @@ const normalizeArray = (value) => {
         .filter(Boolean);
 };
 
+const normalizeResumeCriteria = (criteria = {}) => ({
+    title: String(criteria.title || '').trim(),
+    requiredKeywords: normalizeArray(criteria.requiredKeywords),
+    preferredKeywords: normalizeArray(criteria.preferredKeywords),
+    requiredSections: normalizeArray(criteria.requiredSections),
+    weights: {
+        keywords: Number(criteria.weights?.keywords) || 35,
+        sections: Number(criteria.weights?.sections) || 20,
+        experience: Number(criteria.weights?.experience) || 20,
+        education: Number(criteria.weights?.education) || 10,
+        links: Number(criteria.weights?.links) || 10,
+        formatting: Number(criteria.weights?.formatting) || 5,
+    },
+    notes: String(criteria.notes || '').trim(),
+});
+
 const internshipPopulate = {
     path: 'company',
     select: 'name description logoUrl verificationStatus',
@@ -73,6 +89,7 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
         req.body.skillTags = normalizeArray(req.body.skillTags);
         req.body.eligibleDepartments = normalizeArray(req.body.eligibleDepartments);
         req.body.eligibleBatches = normalizeArray(req.body.eligibleBatches);
+        req.body.resumeAtsCriteria = normalizeResumeCriteria(req.body.resumeAtsCriteria);
 
         const internship = await Internship.create(req.body);
 
@@ -102,6 +119,7 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
         if (payload.skillTags) payload.skillTags = normalizeArray(payload.skillTags);
         if (payload.eligibleDepartments) payload.eligibleDepartments = normalizeArray(payload.eligibleDepartments);
         if (payload.eligibleBatches) payload.eligibleBatches = normalizeArray(payload.eligibleBatches);
+        if (payload.resumeAtsCriteria) payload.resumeAtsCriteria = normalizeResumeCriteria(payload.resumeAtsCriteria);
 
         internship = await Internship.findByIdAndUpdate(req.params.id, payload, {
             new: true,

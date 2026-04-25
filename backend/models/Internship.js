@@ -1,5 +1,40 @@
 const mongoose = require('mongoose');
 
+const ResumeAtsCriteriaSchema = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            default: '',
+            trim: true,
+        },
+        requiredKeywords: {
+            type: [String],
+            default: [],
+        },
+        preferredKeywords: {
+            type: [String],
+            default: [],
+        },
+        requiredSections: {
+            type: [String],
+            default: [],
+        },
+        weights: {
+            keywords: { type: Number, default: 35 },
+            sections: { type: Number, default: 20 },
+            experience: { type: Number, default: 20 },
+            education: { type: Number, default: 10 },
+            links: { type: Number, default: 10 },
+            formatting: { type: Number, default: 5 },
+        },
+        notes: {
+            type: String,
+            default: '',
+        },
+    },
+    { _id: false }
+);
+
 const InternshipSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -51,6 +86,10 @@ const InternshipSchema = new mongoose.Schema({
         type: String,
         enum: ['open', 'closed'],
         default: 'open',
+    },
+    resumeAtsCriteria: {
+        type: ResumeAtsCriteriaSchema,
+        default: () => ({}),
     },
     user: {
         type: mongoose.Schema.ObjectId,

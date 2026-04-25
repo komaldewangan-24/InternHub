@@ -75,6 +75,7 @@ export default function ResumeUploadSync({
   refreshUser,
   compact = false,
   onProfilePatch,
+  syncLabel = 'Sync Data',
 }) {
   const [parsing, setParsing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -308,7 +309,7 @@ export default function ResumeUploadSync({
             className="rounded-xl border border-slate-200 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-indigo-500 hover:text-indigo-600 dark:border-white/10 dark:text-slate-300"
             disabled={saving || parsing || !hasResume}
           >
-            {parsing ? 'Reading...' : 'Sync Data'}
+            {parsing ? 'Reading...' : syncLabel}
           </button>
           <button
             type="button"

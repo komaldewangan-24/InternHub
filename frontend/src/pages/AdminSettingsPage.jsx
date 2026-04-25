@@ -7,6 +7,16 @@ import useCurrentUser from '../hooks/useCurrentUser';
 import { settingsAPI } from '../services/api';
 
 const blankRubric = { key: '', label: '', description: '', maxScore: 5 };
+const defaultAtsWeights = { keywords: 35, sections: 20, experience: 20, education: 10, links: 10, formatting: 5 };
+
+const listToText = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
+const textToList = (value) =>
+  Array.isArray(value)
+    ? value
+    : String(value || '')
+      .split('\n')
+      .map((item) => item.trim())
+      .filter(Boolean);
 
 export default function AdminSettingsPage() {
   const { user, loading } = useCurrentUser();
@@ -38,6 +48,30 @@ export default function AdminSettingsPage() {
       reviewRubric: current.reviewRubric.map((item, itemIndex) =>
         itemIndex === index ? { ...item, [key]: value } : item
       ),
+    }));
+  };
+
+  const updateAtsCriteria = (key, value) => {
+    setSettings((current) => ({
+      ...current,
+      resumeAtsCriteria: {
+        ...(current.resumeAtsCriteria || {}),
+        [key]: value,
+      },
+    }));
+  };
+
+  const updateAtsWeight = (key, value) => {
+    setSettings((current) => ({
+      ...current,
+      resumeAtsCriteria: {
+        ...(current.resumeAtsCriteria || {}),
+        weights: {
+          ...defaultAtsWeights,
+          ...(current.resumeAtsCriteria?.weights || {}),
+          [key]: Number(value) || 0,
+        },
+      },
     }));
   };
 
@@ -73,6 +107,16 @@ export default function AdminSettingsPage() {
           .split('\n')
           .map((item) => item.trim())
           .filter(Boolean),
+        resumeAtsCriteria: {
+          ...(settings.resumeAtsCriteria || {}),
+          requiredKeywords: textToList(settings.resumeAtsCriteria?.requiredKeywords),
+          preferredKeywords: textToList(settings.resumeAtsCriteria?.preferredKeywords),
+          requiredSections: textToList(settings.resumeAtsCriteria?.requiredSections),
+          weights: {
+            ...defaultAtsWeights,
+            ...(settings.resumeAtsCriteria?.weights || {}),
+          },
+        },
       };
 
       const { data } = await settingsAPI.update(payload);
@@ -155,6 +199,51 @@ export default function AdminSettingsPage() {
             </div>
           </section>
         </div>
+
+        <section className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex size-12 items-center justify-center rounded-sm bg-indigo-500/10 text-indigo-500">
+              <span className="material-symbols-outlined text-[24px]">plagiarism</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight dark:text-white">Resume ATS Criteria</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Default scoring rules used when recruiter criteria are not available.</p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Criteria Title</label>
+              <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" placeholder="General ATS Score" value={settings.resumeAtsCriteria?.title || ''} onChange={(event) => updateAtsCriteria('title', event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Required Sections</label>
+              <textarea className="min-h-[120px] w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white font-mono" placeholder={'Contact\nSummary\nSkills\nEducation\nExperience\nProjects'} value={listToText(settings.resumeAtsCriteria?.requiredSections)} onChange={(event) => updateAtsCriteria('requiredSections', event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Required Keywords</label>
+              <textarea className="min-h-[140px] w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white font-mono" placeholder={'React\nNode.js\nMongoDB\nCommunication'} value={listToText(settings.resumeAtsCriteria?.requiredKeywords)} onChange={(event) => updateAtsCriteria('requiredKeywords', event.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Preferred Keywords</label>
+              <textarea className="min-h-[140px] w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white font-mono" placeholder={'GitHub\nLinkedIn\nImpact\nOptimized'} value={listToText(settings.resumeAtsCriteria?.preferredKeywords)} onChange={(event) => updateAtsCriteria('preferredKeywords', event.target.value)} />
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+            {Object.keys(defaultAtsWeights).map((key) => (
+              <div key={key} className="space-y-2">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">{key}</label>
+                <input className="w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-3 text-sm outline-none focus:border-primary dark:text-white" min="0" type="number" value={settings.resumeAtsCriteria?.weights?.[key] ?? defaultAtsWeights[key]} onChange={(event) => updateAtsWeight(key, event.target.value)} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Notes</label>
+            <textarea className="min-h-[90px] w-full rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-4 text-sm outline-none focus:border-primary dark:text-white" placeholder="Optional guidance shown to students and admins." value={settings.resumeAtsCriteria?.notes || ''} onChange={(event) => updateAtsCriteria('notes', event.target.value)} />
+          </div>
+        </section>
 
         <section className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">

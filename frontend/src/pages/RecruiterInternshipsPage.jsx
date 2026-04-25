@@ -22,13 +22,23 @@ const blankForm = {
   duration: '',
   applyBy: '',
   status: 'open',
+  atsTitle: '',
+  atsRequiredKeywords: '',
+  atsPreferredKeywords: '',
+  atsRequiredSections: '',
+  atsNotes: '',
+  atsWeights: { keywords: 35, sections: 20, experience: 20, education: 10, links: 10, formatting: 5 },
 };
+
+const defaultAtsWeights = { keywords: 35, sections: 20, experience: 20, education: 10, links: 10, formatting: 5 };
 
 const toRequirements = (value) =>
   value
     .split('\n')
     .map((item) => item.trim())
     .filter(Boolean);
+
+const listToText = (value) => (Array.isArray(value) ? value.join('\n') : value || '');
 
 export default function RecruiterInternshipsPage() {
   const { user, loading } = useCurrentUser();
@@ -85,6 +95,12 @@ export default function RecruiterInternshipsPage() {
       duration: internship.duration || '',
       applyBy: internship.applyBy ? new Date(internship.applyBy).toISOString().split('T')[0] : '',
       status: internship.status || 'open',
+      atsTitle: internship.resumeAtsCriteria?.title || '',
+      atsRequiredKeywords: listToText(internship.resumeAtsCriteria?.requiredKeywords),
+      atsPreferredKeywords: listToText(internship.resumeAtsCriteria?.preferredKeywords),
+      atsRequiredSections: listToText(internship.resumeAtsCriteria?.requiredSections),
+      atsNotes: internship.resumeAtsCriteria?.notes || '',
+      atsWeights: { ...defaultAtsWeights, ...(internship.resumeAtsCriteria?.weights || {}) },
     });
   };
 
@@ -105,6 +121,14 @@ export default function RecruiterInternshipsPage() {
         duration: form.duration,
         applyBy: form.applyBy || undefined,
         status: form.status,
+        resumeAtsCriteria: {
+          title: form.atsTitle,
+          requiredKeywords: toRequirements(form.atsRequiredKeywords),
+          preferredKeywords: toRequirements(form.atsPreferredKeywords),
+          requiredSections: toRequirements(form.atsRequiredSections),
+          weights: form.atsWeights,
+          notes: form.atsNotes,
+        },
       };
 
       if (form.id) {
@@ -175,6 +199,26 @@ export default function RecruiterInternshipsPage() {
               <option value="open">Open</option>
               <option value="closed">Closed</option>
             </select>
+
+            <div className="rounded-sm border border-slate-200 bg-slate-50 p-5">
+              <h3 className="text-sm font-black uppercase tracking-widest text-slate-700">Resume ATS Criteria</h3>
+              <p className="mt-1 text-xs font-medium text-slate-500">Optional scoring rules students can use for this internship.</p>
+              <div className="mt-5 space-y-4">
+                <input className="w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Criteria title" value={form.atsTitle} onChange={(event) => setForm((current) => ({ ...current, atsTitle: event.target.value }))} />
+                <textarea className="min-h-[100px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Required ATS keywords, one per line'} value={form.atsRequiredKeywords} onChange={(event) => setForm((current) => ({ ...current, atsRequiredKeywords: event.target.value }))} />
+                <textarea className="min-h-[90px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Preferred ATS keywords, one per line'} value={form.atsPreferredKeywords} onChange={(event) => setForm((current) => ({ ...current, atsPreferredKeywords: event.target.value }))} />
+                <textarea className="min-h-[90px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder={'Required resume sections, one per line'} value={form.atsRequiredSections} onChange={(event) => setForm((current) => ({ ...current, atsRequiredSections: event.target.value }))} />
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {Object.keys(defaultAtsWeights).map((key) => (
+                    <label key={key} className="space-y-1">
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-slate-400">{key}</span>
+                      <input className="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" min="0" type="number" value={form.atsWeights[key]} onChange={(event) => setForm((current) => ({ ...current, atsWeights: { ...current.atsWeights, [key]: Number(event.target.value) || 0 } }))} />
+                    </label>
+                  ))}
+                </div>
+                <textarea className="min-h-[80px] w-full rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Notes for this role criteria" value={form.atsNotes} onChange={(event) => setForm((current) => ({ ...current, atsNotes: event.target.value }))} />
+              </div>
+            </div>
           </div>
           <div className="mt-6 flex gap-3">
             <button className="rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">

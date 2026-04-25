@@ -11,6 +11,30 @@ const getOrCreateSettings = async () => {
     return settings;
 };
 
+const normalizeArray = (value) => {
+    if (!Array.isArray(value)) {
+        return [];
+    }
+
+    return value.map((item) => String(item).trim()).filter(Boolean);
+};
+
+const normalizeResumeCriteria = (criteria = {}) => ({
+    title: String(criteria.title || '').trim(),
+    requiredKeywords: normalizeArray(criteria.requiredKeywords),
+    preferredKeywords: normalizeArray(criteria.preferredKeywords),
+    requiredSections: normalizeArray(criteria.requiredSections),
+    weights: {
+        keywords: Number(criteria.weights?.keywords) || 35,
+        sections: Number(criteria.weights?.sections) || 20,
+        experience: Number(criteria.weights?.experience) || 20,
+        education: Number(criteria.weights?.education) || 10,
+        links: Number(criteria.weights?.links) || 10,
+        formatting: Number(criteria.weights?.formatting) || 5,
+    },
+    notes: String(criteria.notes || '').trim(),
+});
+
 router.get('/', protect, async (req, res) => {
     try {
         const settings = await getOrCreateSettings();
@@ -48,6 +72,10 @@ router.put('/', protect, authorize('admin'), async (req, res) => {
 
         if (Array.isArray(req.body.reviewRubric) && req.body.reviewRubric.length) {
             settings.reviewRubric = req.body.reviewRubric;
+        }
+
+        if (req.body.resumeAtsCriteria) {
+            settings.resumeAtsCriteria = normalizeResumeCriteria(req.body.resumeAtsCriteria);
         }
 
         await settings.save();
