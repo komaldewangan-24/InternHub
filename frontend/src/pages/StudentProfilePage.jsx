@@ -151,11 +151,7 @@ export default function StudentProfilePage() {
               <div className="flex-1">
                 <div className="flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
                   <div className="relative shrink-0">
-                    <div className="size-52 rounded-full p-2 bg-white dark:bg-slate-800 shadow-xl relative ring-1 ring-slate-100 dark:ring-white/5">
-                      <svg className="absolute inset-0 size-full -rotate-90 scale-[1.02]" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-slate-50 dark:text-white/5" />
-                        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="295" strokeDashoffset="153" strokeLinecap="round" className="text-indigo-600 transition-all duration-1000" />
-                      </svg>
+                    <div className="size-52 rounded-full p-1 bg-white dark:bg-slate-800 shadow-xl relative ring-1 ring-slate-100 dark:ring-white/5">
                       <div className="size-full rounded-full overflow-hidden cursor-pointer relative z-10 group" onClick={() => fileInputRef.current?.click()}>
                         {formData.avatarUrl ? (
                           <img src={formData.avatarUrl} alt="Rahul" className="size-full object-cover transition-transform group-hover:scale-110" />
@@ -167,9 +163,6 @@ export default function StudentProfilePage() {
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <span className="material-symbols-outlined text-white">photo_camera</span>
                         </div>
-                      </div>
-                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-indigo-50 dark:bg-slate-700 px-4 py-1 rounded-full shadow-lg border-4 border-white dark:border-slate-900 z-20">
-                        <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">48%</span>
                       </div>
                     </div>
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />

@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
-import ResumeUploadSync from '../components/ResumeUploadSync';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { userAPI } from '../services/api';
@@ -63,8 +62,16 @@ export default function CredentialsPage() {
     try {
       const updatedProfile = { ...(user.profile || {}) };
       
+      const cleanData = (data) => {
+        const cleaned = { ...data };
+        if (cleaned.startDate === '') cleaned.startDate = null;
+        if (cleaned.endDate === '') cleaned.endDate = null;
+        if (cleaned.issueDate === '') cleaned.issueDate = null;
+        return cleaned;
+      };
+
       if (activeTab === 'experience') {
-        const newExp = { ...expForm, skills: expForm.skills.split(',').map(s => s.trim()).filter(Boolean) };
+        const newExp = cleanData({ ...expForm, skills: expForm.skills.split(',').map(s => s.trim()).filter(Boolean) });
         const experience = [...(updatedProfile.experience || [])];
         if (editingItem !== null) {
           experience[editingItem] = newExp;
@@ -73,7 +80,7 @@ export default function CredentialsPage() {
         }
         updatedProfile.experience = experience;
       } else {
-        const newCert = { ...certForm, skills: certForm.skills.split(',').map(s => s.trim()).filter(Boolean) };
+        const newCert = cleanData({ ...certForm, skills: certForm.skills.split(',').map(s => s.trim()).filter(Boolean) });
         const certifications = [...(updatedProfile.certifications || [])];
         if (editingItem !== null) {
           certifications[editingItem] = newCert;
@@ -83,7 +90,7 @@ export default function CredentialsPage() {
         updatedProfile.certifications = certifications;
       }
 
-      await userAPI.updateProfile(updatedProfile);
+      await userAPI.updateProfile({ profile: updatedProfile });
       await refreshUser();
       setIsModalOpen(false);
       resetForms();
@@ -136,8 +143,6 @@ export default function CredentialsPage() {
       }
     >
       <div className="max-w-6xl mx-auto space-y-10">
-        <ResumeUploadSync user={user} refreshUser={refreshUser} />
-
         <div className="flex gap-4 bg-slate-100/50 dark:bg-white/5 p-2 rounded-2xl w-fit">
           <button
             onClick={() => setActiveTab('experience')}
@@ -202,7 +207,7 @@ export default function CredentialsPage() {
 
           {items[activeTab].length === 0 && (
             <div className="py-32 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[40px]">
-               <span className="material-symbols-outlined text-7xl text-slate-300 mb-6">{activeTab === 'experience' ? 'business_center' : 'auto_award'}</span>
+               <span className="material-symbols-outlined text-7xl text-slate-300 mb-6">{activeTab === 'experience' ? 'business_center' : 'military_tech'}</span>
                <p className="text-xl font-black text-slate-400 uppercase tracking-widest">No Records Found</p>
                <button onClick={() => setIsModalOpen(true)} className="mt-6 text-indigo-600 font-bold hover:underline">Add your first entry</button>
             </div>
@@ -223,110 +228,119 @@ export default function CredentialsPage() {
                  </button>
               </div>
               
-              <form onSubmit={handleSave} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
+               <form onSubmit={handleSave} className="p-10 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-hide">
                  {activeTab === 'experience' ? (
-                   <div className="grid md:grid-cols-2 gap-8">
+                   <div className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Job Title</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold" value={expForm.title} onChange={e => setExpForm({...expForm, title: e.target.value})} placeholder="e.g. Frontend Intern" />
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Job Title / Role</label>
+                        <input required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold text-sm dark:text-white" value={expForm.title} onChange={e => setExpForm({...expForm, title: e.target.value})} placeholder="e.g. Frontend Implementation Engineer" />
                       </div>
+
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Company</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold" value={expForm.company} onChange={e => handleCompanyChange(e.target.value)} placeholder="e.g. Google" />
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Company / Organization</label>
+                        <input required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 transition-all font-bold text-sm dark:text-white" value={expForm.company} onChange={e => handleCompanyChange(e.target.value)} placeholder="e.g. Google Cloud" />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Employment Type</label>
-                        <select className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.employmentType} onChange={e => setExpForm({...expForm, employmentType: e.target.value})}>
-                          <option>Full-time</option><option>Part-time</option><option>Internship</option><option>Contract</option><option>Freelance</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Location</label>
-                        <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.location} onChange={e => setExpForm({...expForm, location: e.target.value})} placeholder="City, Country" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Start Date</label>
-                        <input type="date" required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.startDate} onChange={e => setExpForm({...expForm, startDate: e.target.value})} />
-                      </div>
-                      {!expForm.isCurrent && (
+
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">End Date</label>
-                          <input type="date" className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.endDate} onChange={e => setExpForm({...expForm, endDate: e.target.value})} />
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Employment Type</label>
+                          <select className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.employmentType} onChange={e => setExpForm({...expForm, employmentType: e.target.value})}>
+                            <option>Full-time</option><option>Part-time</option><option>Internship</option><option>Contract</option><option>Freelance</option>
+                          </select>
                         </div>
-                      )}
-                      <div className="md:col-span-2 flex items-center gap-3 py-2">
-                         <input type="checkbox" className="size-5 rounded-md text-indigo-600" id="isCurrent" checked={expForm.isCurrent} onChange={e => setExpForm({...expForm, isCurrent: e.target.checked})} />
-                         <label htmlFor="isCurrent" className="text-sm font-bold text-slate-600">I am currently working in this role</label>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Location Type</label>
+                          <select className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.locationType} onChange={e => setExpForm({...expForm, locationType: e.target.value})}>
+                            <option>On-site</option><option>Remote</option><option>Hybrid</option>
+                          </select>
+                        </div>
                       </div>
-                      <div className="md:col-span-2 space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Skills (comma separated)</label>
-                        <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.skills} onChange={e => setExpForm({...expForm, skills: e.target.value})} placeholder="React, Node.js, UI/UX" />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Start Date</label>
+                          <input type="date" required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.startDate} onChange={e => setExpForm({...expForm, startDate: e.target.value})} />
+                        </div>
+                        {!expForm.isCurrent && (
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">End Date</label>
+                            <input type="date" className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.endDate} onChange={e => setExpForm({...expForm, endDate: e.target.value})} />
+                          </div>
+                        )}
                       </div>
-                      <div className="md:col-span-2 space-y-2">
+
+                      <div className="flex items-center gap-3 py-1">
+                         <input type="checkbox" className="size-5 rounded-md text-indigo-600 cursor-pointer" id="isCurrent" checked={expForm.isCurrent} onChange={e => setExpForm({...expForm, isCurrent: e.target.checked})} />
+                         <label htmlFor="isCurrent" className="text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer">I am currently working in this role</label>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Skills (comma separated)</label>
+                        <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.skills} onChange={e => setExpForm({...expForm, skills: e.target.value})} placeholder="e.g. React, Node.js, System Architecture" />
+                      </div>
+
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                           <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Company Logo URL (Optional)</label>
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Company Logo URL (Optional)</label>
                            {expForm.companyLogoUrl && (
-                             <img src={expForm.companyLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-slate-50 border border-slate-200" onError={(e) => e.target.style.display = 'none'} />
+                             <img src={expForm.companyLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" onError={(e) => e.target.style.display = 'none'} />
                            )}
                         </div>
-                        <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={expForm.companyLogoUrl} onChange={e => setExpForm({...expForm, companyLogoUrl: e.target.value})} placeholder="Auto-filled if valid domain" />
+                        <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.companyLogoUrl} onChange={e => setExpForm({...expForm, companyLogoUrl: e.target.value})} placeholder="Leave blank for auto-suggestion" />
                       </div>
-                      <div className="md:col-span-2 space-y-2">
-                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
-                         <textarea className="w-full h-32 p-6 rounded-3xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold resize-none" value={expForm.description} onChange={e => setExpForm({...expForm, description: e.target.value})} placeholder="Describe your responsibilities and achievements..." />
+
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Description / Key Responsibilities</label>
+                         <textarea className="w-full h-32 p-5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white resize-none scrollbar-hide" value={expForm.description} onChange={e => setExpForm({...expForm, description: e.target.value})} placeholder="Detail your impact and core implementation tasks..." />
                       </div>
                    </div>
                  ) : (
-                   <div className="grid md:grid-cols-2 gap-8">
+                   <div className="space-y-6">
                        <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Certificate Title</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.title} onChange={e => setCertForm({...certForm, title: e.target.value})} placeholder="e.g. AWS Solutions Architect" />
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Certificate / Achievement Title</label>
+                        <input required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.title} onChange={e => setCertForm({...certForm, title: e.target.value})} placeholder="e.g. AWS Solutions Architect" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Issuing Organization</label>
-                        <input required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.issuer} onChange={e => handleIssuerChange(e.target.value)} placeholder="e.g. Amazon Web Services" />
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Issuing Organization</label>
+                        <input required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.issuer} onChange={e => handleIssuerChange(e.target.value)} placeholder="e.g. Amazon Web Services" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Issue Date</label>
+                          <input type="date" required className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.issueDate} onChange={e => setCertForm({...certForm, issueDate: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Credential ID (Optional)</label>
+                          <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.credentialId} onChange={e => setCertForm({...certForm, credentialId: e.target.value})} placeholder="ID or Serial Number" />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Issue Date</label>
-                        <input type="date" required className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.issueDate} onChange={e => setCertForm({...certForm, issueDate: e.target.value})} />
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Associated Skills</label>
+                        <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.skills} onChange={e => setCertForm({...certForm, skills: e.target.value})} placeholder="Cloud Engineering, Security" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Credential ID</label>
-                        <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.credentialId} onChange={e => setCertForm({...certForm, credentialId: e.target.value})} placeholder="Optional ID" />
-                      </div>
-                      <div className="md:col-span-2 space-y-2">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Associated Skills (comma separated)</label>
-                        <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.skills} onChange={e => setCertForm({...certForm, skills: e.target.value})} placeholder="Cloud Engineering, Security" />
-                      </div>
-                      <div className="md:col-span-2 space-y-2">
                          <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Issuer Logo URL (Optional)</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Issuer Logo URL (Optional)</label>
                             {certForm.issuerLogoUrl && (
-                                <img src={certForm.issuerLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-slate-50 border border-slate-200" onError={(e) => e.target.style.display = 'none'} />
+                                <img src={certForm.issuerLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" onError={(e) => e.target.style.display = 'none'} />
                             )}
                          </div>
-                         <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.issuerLogoUrl} onChange={e => setCertForm({...certForm, issuerLogoUrl: e.target.value})} placeholder="Auto-filled if valid domain" />
+                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.issuerLogoUrl} onChange={e => setCertForm({...certForm, issuerLogoUrl: e.target.value})} placeholder="Auto-filled from issuer name" />
                       </div>
-                      <div className="md:col-span-2 space-y-2">
+                      <div className="space-y-2">
                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Credential Proof (URL or Upload)</label>
-                            <label className="flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-100 transition-all border border-indigo-100">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Credential Proof (URL or Upload)</label>
+                            <label className="flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all border border-indigo-100/50">
                                <span className="material-symbols-outlined text-[16px]">upload_file</span>
                                Upload File
                                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
                             </label>
                          </div>
-                         <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.imageUrl} onChange={e => setCertForm({...certForm, imageUrl: e.target.value})} placeholder="Enter URL or upload a file above" />
-                         {certForm.imageUrl?.startsWith('data:') && (
-                           <p className="text-[10px] font-bold text-emerald-500 mt-2 px-1 flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                              Local file attached successfully
-                           </p>
-                         )}
+                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.imageUrl} onChange={e => setCertForm({...certForm, imageUrl: e.target.value})} placeholder="Direct URL to certificate image" />
                       </div>
-                      <div className="md:col-span-2 space-y-2">
-                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Media Description</label>
-                         <input className="w-full h-14 px-6 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 font-bold" value={certForm.imageDescription} onChange={e => setCertForm({...certForm, imageDescription: e.target.value})} placeholder="Short caption for the preview" />
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Media Caption</label>
+                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.imageDescription} onChange={e => setCertForm({...certForm, imageDescription: e.target.value})} placeholder="Contextual description for the preview" />
                       </div>
                    </div>
                  )}

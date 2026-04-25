@@ -88,9 +88,11 @@ export const userAPI = {
             'assignedFaculty',
         ];
 
+        const profileSource = data.profile || data;
+
         return api.put('/auth/me', {
             ...pickDefined(data, ['name', 'email']),
-            profile: pickDefined(data, profileKeys),
+            profile: pickDefined(profileSource, profileKeys),
         });
     },
 };
