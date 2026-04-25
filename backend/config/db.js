@@ -24,15 +24,24 @@ const seedDemoUsers = async () => {
 
 const connectDB = async () => {
     try {
-        console.log(`Attempting to connect to MongoDB at ${process.env.MONGO_URI || 'default connection'}...`);
-        const conn = await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
+        const dbUri = process.env.MONGO_URI;
+        if (!dbUri) {
+            throw new Error('MONGO_URI is not defined in environment variables');
+        }
+
+        console.log(`Attempting to connect to MongoDB at ${dbUri}...`);
+        
+        // Mongoose 6+ always uses useNewUrlParser and useUnifiedTopology, so we don't need to pass them.
+        // If they are passed, they might cause errors in some environments/versions.
+        const conn = await mongoose.connect(dbUri);
+        
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         await seedDemoUsers();
     } catch (error) {
         const canUseMemoryDb = (process.env.NODE_ENV || 'development') === 'development';
 
         if (!canUseMemoryDb) {
-            console.error(`MongoDB connection failed outside development mode: ${error.message}`);
+            console.error(`MongoDB connection failed: ${error.message}`);
             process.exit(1);
         }
 
