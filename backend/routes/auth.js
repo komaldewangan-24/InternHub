@@ -57,14 +57,19 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access    Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
+
+        // Check for role
+        if (role && !['student', 'faculty', 'recruiter', 'admin'].includes(role)) {
+            return res.status(400).json({ success: false, error: 'Invalid role' });
+        }
 
         // Create user
         const user = await User.create({
             name,
             email,
             password,
-            role: 'student',
+            role: role || 'student',
         });
 
         sendTokenResponse(user, 200, res);
@@ -78,7 +83,7 @@ router.post('/register', async (req, res) => {
 // @access    Public
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, selectedRole } = req.body;
 
         // Validate email & password
         if (!email || !password) {
@@ -97,6 +102,17 @@ router.post('/login', async (req, res) => {
 
         if (!isMatch) {
             return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
+
+        // Role mismatch check
+        if (selectedRole && user.role !== selectedRole) {
+            return res.status(409).json({
+                success: false,
+                code: 'ROLE_MISMATCH',
+                actualRole: user.role,
+                selectedRole,
+                message: `Your account is registered as a ${user.role}.`,
+            });
         }
 
         sendTokenResponse(user, 200, res);

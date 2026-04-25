@@ -1,3 +1,5 @@
+import { getDefaultRouteForRole as getRoute } from '../constants/roles';
+
 export const getStoredUser = () => {
   try {
     const rawUser = localStorage.getItem('user');
@@ -30,9 +32,4 @@ export const clearSession = () => {
   localStorage.removeItem('user');
 };
 
-export const getDefaultRouteForRole = (role) => {
-  if (role === 'faculty') return '/faculty';
-  if (role === 'recruiter') return '/recruiter';
-  if (role === 'admin') return '/admin';
-  return '/student';
-};
+export const getDefaultRouteForRole = (role) => getRoute(role);

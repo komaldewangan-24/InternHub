@@ -54,13 +54,13 @@ export default function StudentProjectsPage() {
     setFormData({
       title: project.title,
       description: project.description,
-      githubLink: project.links?.github || '',
-      liveLink: project.links?.live || '',
+      githubLink: project.links?.find(l => l.includes('github.com')) || project.links?.[0] || '',
+      liveLink: project.links?.find(l => !l.includes('github.com') && l.startsWith('http')) || project.links?.[1] || '',
       tags: project.tags?.join(', ') || '',
     });
     setIsEditing(true);
     setIsCreating(false);
-    setCurrentStep(1);
+    setCurrentStep(5); // Start at review step for quick save, or 1 if you want
   };
 
   const handleDelete = async (projectId) => {
@@ -81,8 +81,10 @@ export default function StudentProjectsPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formattedData = {
-      ...formData,
+      title: formData.title,
+      description: formData.description,
       tags: formData.tags.split(',').map((t) => t.trim()).filter((t) => t),
+      links: [formData.githubLink, formData.liveLink].filter(Boolean),
     };
 
     try {
@@ -187,15 +189,23 @@ export default function StudentProjectsPage() {
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-50/10">
-                    <p className={`text-[8px] font-poppins font-bold uppercase tracking-widest ${isSelected ? 'text-white/40' : 'text-slate-300'}`}>NODE_LINK</p>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(project._id); }}
-                      className={`material-symbols-outlined text-[18px] transition-all hover:scale-125 ${isSelected ? 'text-rose-400' : 'text-slate-200 hover:text-rose-500'}`}
-                    >
-                      delete_forever
-                    </button>
-                  </div>
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-50/10">
+                      <p className={`text-[8px] font-poppins font-bold uppercase tracking-widest ${isSelected ? 'text-white/40' : 'text-slate-300'}`}>NODE_LINK</p>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleEdit(project); }}
+                          className={`material-symbols-outlined text-[18px] transition-all hover:scale-125 ${isSelected ? 'text-white' : 'text-slate-200 hover:text-indigo-500'}`}
+                        >
+                          edit
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(project._id); }}
+                          className={`material-symbols-outlined text-[18px] transition-all hover:scale-125 ${isSelected ? 'text-rose-400' : 'text-slate-200 hover:text-rose-500'}`}
+                        >
+                          delete_forever
+                        </button>
+                      </div>
+                    </div>
                 </div>
               )
             }) : (
@@ -380,7 +390,13 @@ export default function StudentProjectsPage() {
                     <div className="p-8 rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-6">
                       <div className="flex justify-between items-center border-b border-slate-200 dark:border-white/10 pb-4">
                         <h4 className="text-sm font-black text-[#003366] dark:text-white uppercase tracking-widest">{formData.title}</h4>
-                        <span className="text-[10px] font-bold text-indigo-500">REVIEW CONFIGURATION</span>
+                        <button 
+                          type="button"
+                          onClick={() => setCurrentStep(1)}
+                          className="text-[10px] font-bold text-indigo-500 hover:underline hover:text-indigo-600 transition-all"
+                        >
+                          EDIT CONFIGURATION
+                        </button>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
                         <div>
@@ -433,7 +449,17 @@ export default function StudentProjectsPage() {
                     onClick={handleSubmit}
                     type="button"
                   >
-                    Synchronize Node
+                    {isEditing ? 'Save Changes' : 'Synchronize Node'}
+                  </button>
+                )}
+
+                {isEditing && currentStep < 5 && (
+                  <button
+                    className="px-10 rounded-sm bg-indigo-600 text-white text-[10px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-indigo-700 transition-all active:scale-[0.98]"
+                    onClick={handleSubmit}
+                    type="button"
+                  >
+                    Quick Save
                   </button>
                 )}
 
