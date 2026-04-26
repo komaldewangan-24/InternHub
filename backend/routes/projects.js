@@ -36,7 +36,7 @@ const appendVersion = (submission, submittedBy, submittedAt = new Date()) => {
     });
 };
 
-const canViewSubmission = (submission, user) => {
+const canViewSubmission = async (submission, user) => {
     if (!submission || !user) {
         return false;
     }
@@ -50,11 +50,27 @@ const canViewSubmission = (submission, user) => {
     }
 
     if (user.role === 'faculty') {
-        return String(submission.faculty._id || submission.faculty) === String(user.id);
+        const isProjectFaculty = String(submission.faculty._id || submission.faculty) === String(user.id);
+        const isStudentAssignedFaculty = submission.student?.profile?.assignedFaculty && 
+            String(submission.student.profile.assignedFaculty._id || submission.student.profile.assignedFaculty) === String(user.id);
+        
+        return isProjectFaculty || isStudentAssignedFaculty;
     }
 
     if (user.role === 'recruiter') {
-        return submission.status === 'approved';
+        const isApproved = submission.status === 'approved';
+        if (!isApproved) return false;
+
+        const Internship = require('../models/Internship');
+        const Application = require('../models/Application');
+        const recruiterInternships = await Internship.find({ user: user.id }).select('_id');
+        const internshipIds = recruiterInternships.map((i) => i._id);
+        const hasApplied = await Application.exists({
+            user: submission.student._id || submission.student,
+            internship: { $in: internshipIds },
+        });
+
+        return hasApplied;
     }
 
     return false;
@@ -83,9 +99,20 @@ router.get('/', protect, async (req, res) => {
         if (req.user.role === 'student') {
             query.student = req.user.id;
         } else if (req.user.role === 'faculty') {
-            query.faculty = req.user.id;
+            const assignedStudents = await User.find({ 'profile.assignedFaculty': req.user.id }).select('_id');
+            const studentIds = assignedStudents.map(s => s._id);
+            query.$or = [
+                { faculty: req.user.id },
+                { student: { $in: studentIds } }
+            ];
         } else if (req.user.role === 'recruiter') {
+            const recruiterInternships = await Internship.find({ user: req.user.id }).select('_id');
+            const internshipIds = recruiterInternships.map((i) => i._id);
+            const applications = await Application.find({ internship: { $in: internshipIds } }).select('user');
+            const applicantIds = applications.map((a) => a.user);
+            
             query.status = 'approved';
+            query.student = { $in: applicantIds };
         }
 
         if (studentId && req.user.role !== 'student') {
@@ -139,7 +166,12 @@ router.get('/faculty/queue', protect, authorize('faculty', 'admin'), async (req,
     try {
         const query = { status: 'submitted' };
         if (req.user.role === 'faculty') {
-            query.faculty = req.user.id;
+            const assignedStudents = await User.find({ 'profile.assignedFaculty': req.user.id }).select('_id');
+            const studentIds = assignedStudents.map(s => s._id);
+            query.$or = [
+                { faculty: req.user.id },
+                { student: { $in: studentIds } }
+            ];
         }
 
         if (String(req.query.overdue) === 'true') {
@@ -242,7 +274,7 @@ router.get('/:id', protect, async (req, res) => {
             return res.status(404).json({ success: false, error: 'Project submission not found' });
         }
 
-        if (!canViewSubmission(submission, req.user)) {
+        if (!(await canViewSubmission(submission, req.user))) {
             return res.status(403).json({ success: false, error: 'You are not allowed to view this submission' });
         }
 

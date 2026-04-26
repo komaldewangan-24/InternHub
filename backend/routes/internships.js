@@ -39,7 +39,7 @@ const userPopulate = {
     select: 'name email role profile.department profile.designation',
 };
 
-router.get('/', async (req, res) => {
+router.get('/', protect, async (req, res) => {
     try {
         const reqQuery = { ...req.query };
         const removeFields = ['select', 'sort', 'page', 'limit'];
@@ -47,8 +47,14 @@ router.get('/', async (req, res) => {
 
         let queryStr = JSON.stringify(reqQuery);
         queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
+        const query = JSON.parse(queryStr);
 
-        const internships = await Internship.find(JSON.parse(queryStr))
+        // If recruiter, filter by their own internships
+        if (req.user.role === 'recruiter') {
+            query.user = req.user.id;
+        }
+
+        const internships = await Internship.find(query)
             .populate(internshipPopulate)
             .populate(userPopulate)
             .sort('-createdAt');
@@ -63,7 +69,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', protect, async (req, res) => {
     try {
         const internship = await Internship.findById(req.params.id)
             .populate(internshipPopulate)
@@ -71,6 +77,11 @@ router.get('/:id', async (req, res) => {
 
         if (!internship) {
             return res.status(404).json({ success: false, error: `Internship not found with id of ${req.params.id}` });
+        }
+
+        // Only owner, student, or admin can see details
+        if (req.user.role === 'recruiter' && String(internship.user) !== String(req.user.id)) {
+            return res.status(403).json({ success: false, error: 'You are not authorized to view this internship' });
         }
 
         res.status(200).json({
@@ -85,6 +96,16 @@ router.get('/:id', async (req, res) => {
 router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
         req.body.user = req.user.id;
+
+        // Verify company ownership for recruiters
+        if (req.user.role === 'recruiter' && req.body.company) {
+            const Company = require('../models/Company');
+            const company = await Company.findById(req.body.company);
+            if (!company || String(company.user) !== String(req.user.id)) {
+                return res.status(403).json({ success: false, error: 'You are not authorized to post for this company' });
+            }
+        }
+
         req.body.requirements = normalizeArray(req.body.requirements);
         req.body.skillTags = normalizeArray(req.body.skillTags);
         req.body.eligibleDepartments = normalizeArray(req.body.eligibleDepartments);

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
 import { clearSession } from '../services/session';
+import { getAssetUrl } from '../utils/assets';
 
 // Fail-safe ErrorBoundary
 class LocalErrorBoundary extends React.Component {
   render() {
-    if (this.state?.hasError) return <div className="p-4 bg-neutral border border-indigo-500/20 rounded-sm text-indigo-500 font-poppins uppercase font-bold text-[10px]">Interface interruption.</div>;
+    if (this.state?.hasError) return <div className="p-4 bg-neutral border border-indigo-500/20 rounded-lg text-indigo-500 font-poppins uppercase font-bold text-[10px]">Interface interruption.</div>;
     return this.props.children;
   }
 }
@@ -75,7 +76,7 @@ export default function AppShell({
             onClick={() => navigate('/')}
           >
             <div 
-              className="flex size-14 items-center justify-center rounded-sm text-white shadow-lg transition-all group-hover:scale-110"
+              className="flex size-14 items-center justify-center rounded-xl text-white shadow-lg transition-all group-hover:scale-110"
               style={{ backgroundImage: blueGradient }}
             >
               <span className="material-symbols-outlined text-[28px]">hub</span>
@@ -87,7 +88,7 @@ export default function AppShell({
           </div>
 
           <div 
-            className="rounded-sm border p-6 mb-16 transition-all shadow-sm hover:shadow-md group"
+            className="rounded-xl border p-6 mb-16 transition-all shadow-sm hover:shadow-md group"
             style={{ 
               backgroundColor: theme === 'light' ? '#F8FAFC' : 'rgba(255,255,255,0.03)',
               borderColor: 'rgba(99, 102, 241, 0.1)'
@@ -95,10 +96,10 @@ export default function AppShell({
           >
             <div className="flex items-center gap-4">
               <div 
-                className="flex size-12 items-center justify-center rounded-sm font-poppins font-bold shadow-sm shrink-0 transition-transform group-hover:rotate-6 overflow-hidden border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-300"
+                className="flex size-12 items-center justify-center rounded-xl font-poppins font-bold shadow-sm shrink-0 transition-transform group-hover:rotate-6 overflow-hidden border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5 text-slate-300"
               >
                 {user?.profile?.avatarUrl ? (
-                  <img src={user.profile.avatarUrl} alt="User" className="size-full object-cover" />
+                  <img src={getAssetUrl(user.profile.avatarUrl)} alt="User" className="size-full object-cover" />
                 ) : (
                   <span className="material-symbols-outlined text-[24px]">account_circle</span>
                 )}
@@ -120,7 +121,7 @@ export default function AppShell({
                   key={item.to || item.label}
                   to={item.to}
                   className={({ isActive }) =>
-                    `group flex items-center justify-between rounded-sm px-5 py-4 text-[10px] font-poppins font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
+                    `group flex items-center justify-between rounded-xl px-5 py-4 text-[10px] font-poppins font-bold uppercase tracking-[0.3em] transition-all duration-300 ${
                       isActive ? 'scale-[1.01]' : 'hover:translate-x-1 opacity-70 hover:opacity-100'
                     }`
                   }
@@ -142,7 +143,7 @@ export default function AppShell({
 
           <div className="mt-8 pt-8 border-t" style={{ borderColor: 'rgba(0, 51, 102, 0.1)' }}>
             <button
-              className="group flex w-full items-center justify-between rounded-sm px-6 py-4 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] transition-all hover:bg-rose-50 dark:hover:bg-rose-900/10 text-slate-400 hover:text-rose-500"
+              className="group flex w-full items-center justify-between rounded-xl px-6 py-4 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] transition-all hover:bg-rose-50 dark:hover:bg-rose-900/10 text-slate-400 hover:text-rose-500"
               onClick={() => { clearSession(); window.location.href = '/login'; }}
             >
                <span className="font-poppins">Logout Session</span>
@@ -197,7 +198,7 @@ export default function AppShell({
                    </div>
                    <div className="size-11 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100 dark:bg-white/10 shadow-md group-hover:shadow-indigo-500/10 group-hover:border-indigo-500/30 overflow-hidden transition-all duration-300 flex items-center justify-center text-indigo-500">
                       {user?.profile?.avatarUrl ? (
-                         <img src={user.profile.avatarUrl} alt="User" className="size-full object-cover" />
+                         <img src={getAssetUrl(user.profile.avatarUrl)} alt="User" className="size-full object-cover" />
                       ) : (
                          <span className="material-symbols-outlined text-[26px]">person</span>
                       )}

@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 import AppShell from '../components/AppShell';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { userAPI } from '../services/api';
+import { userAPI, uploadFile } from '../services/api';
+import { getAssetUrl } from '../utils/assets';
 
 export default function CredentialsPage() {
   const { user, loading, refreshUser } = useCurrentUser();
@@ -45,15 +46,42 @@ export default function CredentialsPage() {
     }));
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCertForm(prev => ({ ...prev, imageUrl: reader.result }));
-        toast.info('Local file attached.');
-      };
-      reader.readAsDataURL(file);
+      try {
+        const { data } = await uploadFile('certifications', file);
+        setCertForm(prev => ({ ...prev, imageUrl: data.url }));
+        toast.info('Proof of excellence uploaded to disk.');
+      } catch (error) {
+        toast.error('Credential upload failed.');
+      }
+    }
+  };
+
+  const handleExpLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const { data } = await uploadFile('company-logos', file);
+        setExpForm(prev => ({ ...prev, companyLogoUrl: data.url }));
+        toast.info('Corporate branding uploaded.');
+      } catch (error) {
+        toast.error('Logo upload failed.');
+      }
+    }
+  };
+
+  const handleIssuerLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const { data } = await uploadFile('company-logos', file);
+        setCertForm(prev => ({ ...prev, issuerLogoUrl: data.url }));
+        toast.info('Issuer branding uploaded.');
+      } catch (error) {
+        toast.error('Logo upload failed.');
+      }
     }
   };
 
@@ -270,7 +298,7 @@ export default function CredentialsPage() {
                       </div>
 
                       <div className="flex items-center gap-3 py-1">
-                         <input type="checkbox" className="size-5 rounded-md text-indigo-600 cursor-pointer" id="isCurrent" checked={expForm.isCurrent} onChange={e => setExpForm({...expForm, isCurrent: e.target.checked})} />
+                         <input type="checkbox" className="size-5 rounded-lg text-indigo-600 cursor-pointer" id="isCurrent" checked={expForm.isCurrent} onChange={e => setExpForm({...expForm, isCurrent: e.target.checked})} />
                          <label htmlFor="isCurrent" className="text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer">I am currently working in this role</label>
                       </div>
 
@@ -279,14 +307,20 @@ export default function CredentialsPage() {
                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.skills} onChange={e => setExpForm({...expForm, skills: e.target.value})} placeholder="e.g. React, Node.js, System Architecture" />
                       </div>
 
-                      <div className="space-y-2">
+                        <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Company Logo URL (Optional)</label>
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Company Branding (URL or Upload)</label>
                            {expForm.companyLogoUrl && (
-                             <img src={expForm.companyLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" onError={(e) => e.target.style.display = 'none'} />
+                             <img src={getAssetUrl(expForm.companyLogoUrl)} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" />
                            )}
                         </div>
-                        <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.companyLogoUrl} onChange={e => setExpForm({...expForm, companyLogoUrl: e.target.value})} placeholder="Leave blank for auto-suggestion" />
+                        <div className="flex gap-2">
+                           <input className="flex-1 h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={expForm.companyLogoUrl} onChange={e => setExpForm({...expForm, companyLogoUrl: e.target.value})} placeholder="Direct URL or auto-suggested path" />
+                           <label className="shrink-0 h-12 px-6 flex items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all border border-indigo-100/50">
+                             <span className="material-symbols-outlined">add_photo_alternate</span>
+                             <input type="file" className="hidden" accept="image/*" onChange={handleExpLogoUpload} />
+                           </label>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -320,23 +354,33 @@ export default function CredentialsPage() {
                       </div>
                       <div className="space-y-2">
                          <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Issuer Logo URL (Optional)</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Issuer Branding (URL or Upload)</label>
                             {certForm.issuerLogoUrl && (
-                                <img src={certForm.issuerLogoUrl} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" onError={(e) => e.target.style.display = 'none'} />
+                                <img src={getAssetUrl(certForm.issuerLogoUrl)} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" />
                             )}
                          </div>
-                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.issuerLogoUrl} onChange={e => setCertForm({...certForm, issuerLogoUrl: e.target.value})} placeholder="Auto-filled from issuer name" />
+                         <div className="flex gap-2">
+                           <input className="flex-1 h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.issuerLogoUrl} onChange={e => setCertForm({...certForm, issuerLogoUrl: e.target.value})} placeholder="Direct URL or auto-suggested path" />
+                           <label className="shrink-0 h-12 px-6 flex items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all border border-indigo-100/50">
+                             <span className="material-symbols-outlined">add_photo_alternate</span>
+                             <input type="file" className="hidden" accept="image/*" onChange={handleIssuerLogoUpload} />
+                           </label>
+                         </div>
                       </div>
-                      <div className="space-y-2">
+                       <div className="space-y-2">
                          <div className="flex items-center justify-between mb-1">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Credential Proof (URL or Upload)</label>
-                            <label className="flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all border border-indigo-100/50">
-                               <span className="material-symbols-outlined text-[16px]">upload_file</span>
-                               Upload File
-                               <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
-                            </label>
+                            {certForm.imageUrl && (
+                              <img src={getAssetUrl(certForm.imageUrl)} alt="Preview" className="size-8 rounded-lg object-contain bg-white border border-slate-100" />
+                            )}
                          </div>
-                         <input className="w-full h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.imageUrl} onChange={e => setCertForm({...certForm, imageUrl: e.target.value})} placeholder="Direct URL to certificate image" />
+                         <div className="flex gap-2">
+                           <input className="flex-1 h-12 px-5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 outline-none focus:border-indigo-500 font-bold text-sm dark:text-white" value={certForm.imageUrl} onChange={e => setCertForm({...certForm, imageUrl: e.target.value})} placeholder="Direct URL or uploaded path" />
+                           <label className="shrink-0 h-12 px-6 flex items-center justify-center bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-xl cursor-pointer hover:bg-indigo-100 transition-all border border-indigo-100/50">
+                              <span className="material-symbols-outlined">upload_file</span>
+                              <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                           </label>
+                         </div>
                       </div>
                       <div className="space-y-2">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Media Caption</label>

@@ -66,11 +66,11 @@ export default function AdminCompaniesPage() {
       <div className="space-y-6">
         {companies.length ? (
           companies.map((company) => (
-            <div key={company._id} className="group rounded-sm bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:border-primary/20">
+            <div key={company._id} className="group rounded-xl bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all hover:border-primary/20">
               <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="flex size-14 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-primary shadow-sm group-hover:scale-105 transition-transform">
+                    <div className="flex size-14 items-center justify-center rounded-xl bg-slate-50 dark:bg-white/5 text-primary shadow-sm group-hover:scale-105 transition-transform">
                       <span className="material-symbols-outlined text-[32px]">corporate_fare</span>
                     </div>
                     <div>
@@ -107,7 +107,7 @@ export default function AdminCompaniesPage() {
                     {['verified', 'pending', 'flagged'].map((status) => (
                       <button 
                         key={status} 
-                        className={`rounded-sm border px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`rounded-xl border px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
                           company.verificationStatus === status 
                             ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
                             : 'border-slate-100 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5'
@@ -119,7 +119,7 @@ export default function AdminCompaniesPage() {
                       </button>
                     ))}
                     <button 
-                      className="ml-2 flex size-10 items-center justify-center rounded-sm bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-thin border-rose-100 dark:border-rose-500/20 hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95" 
+                      className="ml-2 flex size-10 items-center justify-center rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-thin border-rose-100 dark:border-rose-500/20 hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95" 
                       onClick={() => handleDelete(company._id)} 
                       type="button"
                       title="Remove partner"

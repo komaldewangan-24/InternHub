@@ -13,17 +13,17 @@ export default function RegisterPage() {
     email: '',
     password: '',
   });
-  const [selectedRole, setSelectedRole] = useState('student');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       setLoading(true);
-      const { data } = await authAPI.register({ ...form, role: selectedRole });
+      // Hardened: only students can register publicly
+      const { data } = await authAPI.register({ ...form, role: 'student' });
       setStoredSession({ token: data.token, user: data.user });
-      toast.success(`${ROLES[selectedRole].label} account created`);
-      navigate(ROLES[selectedRole].route);
+      toast.success('Student account created successfully');
+      navigate(ROLES.student.route);
     } catch (error) {
       toast.error(error.response?.data?.error || 'Unable to create account');
     } finally {
@@ -42,40 +42,14 @@ export default function RegisterPage() {
           <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
           Back to Home
         </button>
-        <p className="text-[11px] font-bold uppercase tracking-[0.5em] text-indigo-500 leading-none font-poppins">INSTITUTIONAL ONBOARDING</p>
-        <h1 className="mt-6 text-3xl font-bold tracking-tighter uppercase leading-tight text-[#003366] dark:text-white font-poppins">Create your profile</h1>
+        <p className="text-[11px] font-bold uppercase tracking-[0.5em] text-indigo-500 leading-none font-poppins">STUDENT ONBOARDING</p>
+        <h1 className="mt-6 text-3xl font-bold tracking-tighter uppercase leading-tight text-[#003366] dark:text-white font-poppins">Join the Hub</h1>
 
         <form className="mt-12 space-y-8" onSubmit={handleSubmit}>
-          {/* Role Selection */}
-          <div className="space-y-4">
-            <label className="text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">Select your account role</label>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(ROLES).map(([role, config]) => (
-                <div
-                  key={role}
-                  className={`cursor-pointer rounded-xl border p-5 text-center transition-all group relative overflow-hidden ${
-                    selectedRole === role
-                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10'
-                      : 'border-slate-100 bg-slate-50/30 dark:border-white/5 dark:bg-white/5 hover:border-slate-200 dark:hover:border-white/10'
-                  }`}
-                  onClick={() => setSelectedRole(role)}
-                >
-                  <span className={`material-symbols-outlined text-[24px] mb-2 block transition-transform group-hover:scale-110 ${selectedRole === role ? 'text-indigo-500' : 'text-slate-300'}`}>{config.icon}</span>
-                  <span className={`text-[10px] font-poppins font-bold uppercase tracking-widest ${selectedRole === role ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>{config.label}</span>
-                  {selectedRole === role && (
-                    <div className="absolute top-2 right-2">
-                      <span className="material-symbols-outlined text-indigo-500 text-[16px]">check_circle</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="grid gap-6 md:grid-cols-2">
             {[
               { id: 'name', label: 'Full Name', placeholder: 'Ex: Amit Sharma' },
-              { id: 'email', label: 'Professional Email', placeholder: 'name@university.edu', type: 'email' },
+              { id: 'email', label: 'University Email', placeholder: 'name@university.edu', type: 'email' },
               { id: 'password', label: 'Secure Password', placeholder: '••••••••', type: 'password' },
             ].map((field) => (
               <div key={field.id} className={`space-y-3 ${field.id === 'password' ? 'md:col-span-1' : ''}`}>
@@ -98,13 +72,20 @@ export default function RegisterPage() {
             disabled={loading}
             type="submit"
           >
-            {loading ? 'Committing Profile...' : `Join as ${ROLES[selectedRole].label}`}
+            {loading ? 'Finalizing Profile...' : 'Create Student Account'}
           </button>
         </form>
         
         <div className="mt-12 pt-10 border-t border-slate-100 dark:border-white/5 text-center">
           <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest font-poppins">
-            Already registered?{' '}
+            Are you a Faculty or Recruiter?{' '}
+            <span className="text-indigo-500">Please contact the administrator to provision your account.</span>
+          </p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest font-poppins">
+            Already registered student?{' '}
             <Link className="text-indigo-500 hover:opacity-70 transition-opacity border-b border-indigo-500/30" to="/login">
               Sign in here
             </Link>

@@ -206,6 +206,25 @@ router.get('/search', protect, async (req, res) => {
     }
 });
 
+router.get('/faculty/assigned-students', protect, authorize('faculty', 'admin'), async (req, res) => {
+    try {
+        const facultyId = req.user.role === 'admin' && req.query.facultyId ? req.query.facultyId : req.user.id;
+        
+        const students = await User.find({
+            role: 'student',
+            'profile.assignedFaculty': facultyId
+        }).select('name email role profile');
+
+        res.status(200).json({
+            success: true,
+            count: students.length,
+            data: students
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
 router.get('/portfolio/:id', protect, async (req, res) => {
     try {
         const targetUser = await User.findById(req.params.id).populate('profile.assignedFaculty', 'name email role profile.department profile.designation');

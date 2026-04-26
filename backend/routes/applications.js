@@ -97,6 +97,13 @@ router.post('/:internshipId', protect, authorize('student'), async (req, res) =>
             return res.status(400).json({ success: false, error: 'You have already applied for this internship' });
         }
 
+        if (!req.user.profile?.resumeUrl) {
+            return res.status(400).json({
+                success: false,
+                error: 'Please upload your resume in your profile before applying for internships.',
+            });
+        }
+
         const internship = await Internship.findById(req.params.internshipId).populate('company', 'name');
         if (!internship) {
             return res.status(404).json({ success: false, error: 'Internship not found' });

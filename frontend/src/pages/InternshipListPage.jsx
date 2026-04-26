@@ -87,7 +87,7 @@ export default function InternshipListPage() {
             return (
               <div
                 key={internship._id}
-                className="group relative flex flex-col overflow-hidden rounded-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-indigo-500/30"
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-indigo-500/30"
               >
                 <div className="flex items-start justify-between gap-6 mb-8">
                   <div className="space-y-2">
@@ -97,7 +97,7 @@ export default function InternshipListPage() {
                   <div className="shrink-0 text-right">
                     <p className="text-[8px] font-poppins font-bold uppercase text-indigo-500 mb-2">{internship.fit.score}% Match</p>
                     {internship.status === 'open' ? (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                         <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                         <p className="text-[8px] font-poppins font-bold uppercase text-emerald-600">ACTIVE</p>
                       </div>
@@ -108,7 +108,7 @@ export default function InternshipListPage() {
                 </div>
 
                 <div className="flex items-center gap-4 mb-6 group/company border-b border-slate-100 dark:border-white/5 pb-6">
-                  <div className="flex size-12 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-indigo-500/40 group-hover/company:text-indigo-500 transition-all shadow-sm">
+                  <div className="flex size-12 items-center justify-center rounded-lg bg-slate-50 dark:bg-white/5 text-indigo-500/40 group-hover/company:text-indigo-500 transition-all shadow-sm">
                     <span className="material-symbols-outlined text-[20px]">corporate_fare</span>
                   </div>
                   <div>
@@ -119,7 +119,7 @@ export default function InternshipListPage() {
 
                 <div className="mb-8 flex flex-wrap gap-2 px-1">
                   {(internship.skillTags || []).slice(0, 4).map((tag) => (
-                    <span key={tag} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-1.5 text-[8px] font-poppins font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <span key={tag} className="rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-3 py-1.5 text-[8px] font-poppins font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                       {tag}
                     </span>
                   ))}
@@ -138,7 +138,7 @@ export default function InternshipListPage() {
                   </div>
                   <Link
                     to={`/internships/${internship._id}`}
-                    className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+                    className="rounded-lg text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                   >
                     Inspect Node

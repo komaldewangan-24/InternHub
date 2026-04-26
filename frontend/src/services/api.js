@@ -57,6 +57,7 @@ export const userAPI = {
     getStats: () => api.get('/users/stats'),
     search: (query = '', role = '') => api.get('/users/search', { params: { q: query, role } }),
     assignFaculty: (data) => api.post('/users/faculty-assignments', data),
+    getAssignedStudents: () => api.get('/users/faculty/assigned-students'),
     getPortfolio: (id) => api.get(`/users/portfolio/${id}`),
     exportStudents: () => api.get('/users/export/students', { responseType: 'blob' }),
     updateProfile: (data) => {
@@ -128,6 +129,21 @@ export const notificationAPI = {
     getAll: (limit = 8) => api.get('/notifications', { params: { limit } }),
     markRead: (id) => api.post(`/notifications/${id}/read`),
     markAllRead: () => api.post('/notifications/read-all'),
+};
+
+export const uploadFile = (category, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/uploads/${category}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+
+export const studentAPI = {
+    getDashboard: () => api.get('/student/dashboard'),
+    getAnalytics: () => api.get('/student/analytics'),
 };
 
 export const settingsAPI = {

@@ -23,7 +23,7 @@ export default function StatusBadge({ status }) {
   const isEmerald = ['approved', 'selected', 'open', 'verified'].includes(normalized);
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1 text-[8px] font-bold font-poppins uppercase tracking-widest ${classMap[normalized] || classMap.draft}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1 text-[8px] font-bold font-poppins uppercase tracking-widest ${classMap[normalized] || classMap.draft}`}>
       {isEmerald && <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />}
       {normalized.replaceAll('_', ' ')}
     </span>

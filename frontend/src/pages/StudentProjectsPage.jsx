@@ -133,7 +133,7 @@ export default function StudentProjectsPage() {
     <AppShell
       actions={
         <button
-          className="rounded-sm text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+          className="rounded-lg text-white px-8 py-3 text-[11px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
           style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
           onClick={handleCreate}
         >
@@ -146,7 +146,7 @@ export default function StudentProjectsPage() {
       user={user}
     >
       <div className="flex h-[calc(100vh-220px)] flex-col gap-6 lg:flex-row lg:items-stretch lg:px-4 uppercase">
-        <section className="flex-[0.85] flex flex-col overflow-hidden rounded-sm bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full lg:min-w-[340px] transition-all group hover:shadow-2xl duration-500">
+        <section className="flex-[0.85] flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full lg:min-w-[340px] transition-all group hover:shadow-2xl duration-500">
           <div className="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/10 dark:bg-transparent relative">
             <div className="flex items-center gap-4 mb-3 relative">
               <span className="size-2 rounded-full bg-indigo-500 animate-pulse" />
@@ -161,7 +161,7 @@ export default function StudentProjectsPage() {
               return (
                 <div
                   key={project._id}
-                  className={`group relative rounded-sm p-8 text-left transition-all duration-500 border-2 cursor-pointer 
+                  className={`group relative rounded-xl p-8 text-left transition-all duration-500 border-2 cursor-pointer 
                   ${isSelected
                       ? 'text-white border-transparent shadow-xl scale-[1.01]'
                       : 'bg-white dark:bg-white/5 border-slate-50 dark:border-white/5 hover:border-indigo-500/30 hover:shadow-lg'
@@ -173,7 +173,7 @@ export default function StudentProjectsPage() {
                   <div className="flex justify-between items-start mb-3">
                     <h4 className={`text-xs font-poppins font-bold tracking-tight uppercase leading-none truncate pr-4 ${isSelected ? 'text-white' : 'text-[#003366] dark:text-white'}`}>{project.title}</h4>
                     {project.status === 'approved' ? (
-                      <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                      <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                         <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                         <p className="text-[8px] font-poppins font-bold text-emerald-600">ACTIVE</p>
                       </div>
@@ -183,7 +183,7 @@ export default function StudentProjectsPage() {
                   </div>
                   <div className="flex flex-wrap gap-2 mb-5">
                     {(project.tags || []).slice(0, 3).map((tag) => (
-                      <span key={tag} className={`text-[8px] font-poppins font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm border ${isSelected ? 'border-white/20 text-white/60' : 'border-slate-100 dark:border-white/10 text-slate-400'
+                      <span key={tag} className={`text-[8px] font-poppins font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg border ${isSelected ? 'border-white/20 text-white/60' : 'border-slate-100 dark:border-white/10 text-slate-400'
                         }`}>
                         {tag}
                       </span>
@@ -220,14 +220,14 @@ export default function StudentProjectsPage() {
                 <div className="flex flex-col gap-4 w-full max-w-xs">
                   <button
                     onClick={handleCreate}
-                    className="flex items-center justify-center gap-3 px-8 py-5 rounded-sm text-white text-[12px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-105 active:scale-95 transition-all w-full"
+                    className="flex items-center justify-center gap-3 px-8 py-5 rounded-lg text-white text-[12px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-105 active:scale-95 transition-all w-full"
                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                   >
                     <span className="material-symbols-outlined text-[20px]">add</span>
                     Create New Project
                   </button>
 
-                  <button className="flex items-center justify-center gap-3 px-8 py-5 rounded-sm bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 dark:hover:bg-white/5 transition-all duration-300 w-full group">
+                  <button className="flex items-center justify-center gap-3 px-8 py-5 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 dark:hover:bg-white/5 transition-all duration-300 w-full group">
                     <span className="material-symbols-outlined text-[18px] group-hover:translate-y-0.5 transition-transform">folder_open</span>
                     Import Project (GitHub / File)
                   </button>
@@ -248,7 +248,7 @@ export default function StudentProjectsPage() {
                           e.target.value = ''; // Reset for next selection
                         }
                       }}
-                      className="w-full h-15 rounded-sm border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 outline-none focus:border-indigo-500 transition-all cursor-pointer appearance-none hover:bg-white dark:hover:bg-white/10"
+                      className="w-full h-15 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-6 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 outline-none focus:border-indigo-500 transition-all cursor-pointer appearance-none hover:bg-white dark:hover:bg-white/10"
                     >
                       <option value="" className="text-slate-400">Select Core Technology Node...</option>
                       {Object.keys(templates).map(type => (
@@ -269,13 +269,13 @@ export default function StudentProjectsPage() {
         </section>
 
         {/* Project Editor */}
-        <section className="flex-[1.2] flex flex-col overflow-hidden rounded-sm bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full relative group transition-all duration-500 hover:shadow-2xl">
+        <section className="flex-[1.2] flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-white/5 h-full relative group transition-all duration-500 hover:shadow-2xl">
           {(isEditing || isCreating) ? (
             <div className="flex h-full flex-col px-10 py-10 relative">
               <div className="flex items-start justify-between mb-8 border-b border-slate-100 dark:border-white/5 pb-8">
                 <div className="flex items-center gap-8">
                   <div
-                    className="flex size-16 items-center justify-center rounded-sm text-white text-2xl font-poppins font-bold shadow-lg transition-transform group-hover:rotate-3 shrink-0"
+                    className="flex size-16 items-center justify-center rounded-lg text-white text-2xl font-poppins font-bold shadow-lg transition-transform group-hover:rotate-3 shrink-0"
                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                   >
                     {isCreating ? 'N' : 'E'}
@@ -306,7 +306,7 @@ export default function StudentProjectsPage() {
                       </p>
                       <input
                         required
-                        className="w-full h-14 rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
+                        className="w-full h-14 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
                         placeholder="e.g. Neural Matching System"
                         type="text"
                         value={formData.title}
@@ -325,7 +325,7 @@ export default function StudentProjectsPage() {
                         Tech Stack
                       </p>
                       <input
-                        className="w-full h-14 rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
+                        className="w-full h-14 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
                         placeholder="React, Node.js, Tailwind..."
                         type="text"
                         value={formData.tags}
@@ -345,7 +345,7 @@ export default function StudentProjectsPage() {
                       </p>
                       <textarea
                         required
-                        className="w-full rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-8 py-6 text-sm font-roboto leading-relaxed outline-none focus:border-indigo-500 transition-all dark:text-white resize-none h-64 shadow-inner focus:shadow-md transition-all"
+                        className="w-full rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-8 py-6 text-sm font-roboto leading-relaxed outline-none focus:border-indigo-500 transition-all dark:text-white resize-none h-64 shadow-inner focus:shadow-md transition-all"
                         placeholder="Outline the architectural decisions and your specific implementation role..."
                         value={formData.description}
                         onChange={(event) => setFormData({ ...formData, description: event.target.value })}
@@ -362,7 +362,7 @@ export default function StudentProjectsPage() {
                         Repository Link
                       </p>
                       <input
-                        className="w-full h-14 rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
+                        className="w-full h-14 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
                         placeholder="https://github.com/..."
                         type="url"
                         value={formData.githubLink}
@@ -375,7 +375,7 @@ export default function StudentProjectsPage() {
                         Live Service URL
                       </p>
                       <input
-                        className="w-full h-14 rounded-sm border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
+                        className="w-full h-14 rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 px-6 py-4 text-sm font-medium outline-none focus:border-indigo-500 transition-all dark:text-white shadow-sm hover:shadow-md transition-all"
                         placeholder="https://..."
                         type="url"
                         value={formData.liveLink}
@@ -387,7 +387,7 @@ export default function StudentProjectsPage() {
 
                 {currentStep === 5 && (
                   <div className="space-y-8 animate-in zoom-in-95 duration-500">
-                    <div className="p-8 rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-6">
+                    <div className="p-8 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 space-y-6">
                       <div className="flex justify-between items-center border-b border-slate-200 dark:border-white/10 pb-4">
                         <h4 className="text-sm font-black text-[#003366] dark:text-white uppercase tracking-widest">{formData.title}</h4>
                         <button 
@@ -421,7 +421,7 @@ export default function StudentProjectsPage() {
               <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5 flex gap-6">
                 {currentStep > 1 && (
                   <button
-                    className="px-10 rounded-sm bg-slate-50 dark:bg-white/5 text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-all"
+                    className="px-10 rounded-lg bg-slate-50 dark:bg-white/5 text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-all"
                     onClick={() => setCurrentStep(prev => prev - 1)}
                     type="button"
                   >
@@ -431,7 +431,7 @@ export default function StudentProjectsPage() {
 
                 {currentStep < 5 ? (
                   <button
-                    className="flex-1 rounded-sm text-white py-5 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+                    className="flex-1 rounded-lg text-white py-5 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                     onClick={() => {
                       if (currentStep === 1 && !formData.title) return toast.error('Project title is required');
@@ -444,7 +444,7 @@ export default function StudentProjectsPage() {
                   </button>
                 ) : (
                   <button
-                    className="flex-1 rounded-sm text-white py-5 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
+                    className="flex-1 rounded-lg text-white py-5 text-[11px] font-poppins font-bold uppercase tracking-[0.3em] shadow-lg hover:opacity-90 transition-all active:scale-[0.98]"
                     style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                     onClick={handleSubmit}
                     type="button"
@@ -455,7 +455,7 @@ export default function StudentProjectsPage() {
 
                 {isEditing && currentStep < 5 && (
                   <button
-                    className="px-10 rounded-sm bg-indigo-600 text-white text-[10px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-indigo-700 transition-all active:scale-[0.98]"
+                    className="px-10 rounded-lg bg-indigo-600 text-white text-[10px] font-poppins font-bold uppercase tracking-[0.2em] shadow-lg hover:bg-indigo-700 transition-all active:scale-[0.98]"
                     onClick={handleSubmit}
                     type="button"
                   >
@@ -464,7 +464,7 @@ export default function StudentProjectsPage() {
                 )}
 
                 <button
-                  className="px-10 rounded-sm bg-slate-50 dark:bg-white/5 text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all ml-auto"
+                  className="px-10 rounded-lg bg-slate-50 dark:bg-white/5 text-[10px] font-poppins font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all ml-auto"
                   onClick={() => { setIsEditing(false); setIsCreating(false); }}
                   type="button"
                 >
@@ -474,7 +474,7 @@ export default function StudentProjectsPage() {
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-20 text-center relative">
-              <div className="flex size-32 items-center justify-center rounded-sm bg-[#f8fafc] dark:bg-white/5 border border-slate-100 dark:border-white/5 text-indigo-500/20 mb-10 shadow-inner">
+              <div className="flex size-32 items-center justify-center rounded-lg bg-[#f8fafc] dark:bg-white/5 border border-slate-100 dark:border-white/5 text-indigo-500/20 mb-10 shadow-inner">
                 <span className="material-symbols-outlined text-[56px] opacity-20 transition-transform group-hover:scale-110">add_task</span>
               </div>
               <h3 className="text-2xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white uppercase leading-none mb-4">No Project Selected</h3>

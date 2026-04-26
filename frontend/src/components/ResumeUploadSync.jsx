@@ -1,15 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
-import { userAPI } from '../services/api';
+import { userAPI, uploadFile } from '../services/api';
 import {
   RESUME_MAX_BYTES,
-  dataUrlToArrayBuffer,
   openResumeDataUrl,
   parseResumePdf,
-  readFileAsArrayBuffer,
-  readFileAsDataUrl,
 } from '../utils/resumeParser';
+import { getAssetUrl } from '../utils/assets';
 
 const SCALAR_FIELDS = [
   ['name', 'Full name'],
@@ -118,12 +116,17 @@ export default function ResumeUploadSync({
     }
   };
 
-  const saveResume = async (file, dataUrl) => {
+  const saveResume = async (file) => {
     setSaving(true);
     try {
+      // Step 1: Upload to disk storage
+      const { data } = await uploadFile('resumes', file);
+      const uploadedUrl = data.url;
+
+      // Step 2: Save metadata to profile
       const patch = {
         ...(profile || {}),
-        resumeUrl: dataUrl,
+        resumeUrl: uploadedUrl,
         resumeFileName: file.name,
         resumeMimeType: file.type || 'application/pdf',
         resumeUploadedAt: new Date().toISOString(),
@@ -131,9 +134,11 @@ export default function ResumeUploadSync({
       await userAPI.updateProfile(patch);
       onProfilePatch?.(patch);
       await refreshUser?.();
-      toast.success('Resume uploaded.');
+      toast.success('Resume synchronized to disk.');
+      return uploadedUrl;
     } catch (error) {
       toast.error(error.response?.data?.error || 'Unable to save resume.');
+      throw error;
     } finally {
       setSaving(false);
     }
@@ -151,14 +156,12 @@ export default function ResumeUploadSync({
     }
 
     try {
-      const [dataUrl, arrayBuffer] = await Promise.all([
-        readFileAsDataUrl(file),
-        readFileAsArrayBuffer(file),
-      ]);
-      await saveResume(file, dataUrl);
-      await parseAndPreview(arrayBuffer);
+      await saveResume(file);
+      // For parsing, we can use the local file buffer directly
+      const buffer = await file.arrayBuffer();
+      await parseAndPreview(buffer);
     } catch (error) {
-      toast.error(error?.message || 'Unable to read resume.');
+      console.error('Resume processing failed:', error);
     }
   };
 
@@ -194,8 +197,13 @@ export default function ResumeUploadSync({
     }
 
     try {
-      if (!(await openResumeDataUrl(profile.resumeUrl))) {
-        toast.error('Browser blocked the resume preview.');
+      const url = getAssetUrl(profile.resumeUrl);
+      if (url.startsWith('data:')) {
+        if (!(await openResumeDataUrl(url))) {
+          toast.error('Browser blocked the resume preview.');
+        }
+      } else {
+        window.open(url, '_blank', 'noopener,noreferrer');
       }
     } catch (error) {
       toast.error(error?.message || 'Unable to open resume.');
@@ -209,10 +217,15 @@ export default function ResumeUploadSync({
     }
 
     try {
-      const arrayBuffer = await dataUrlToArrayBuffer(profile.resumeUrl);
-      await parseAndPreview(arrayBuffer);
+      setParsing(true);
+      const url = getAssetUrl(profile.resumeUrl);
+      const response = await fetch(url);
+      const buffer = await response.arrayBuffer();
+      await parseAndPreview(buffer);
     } catch (error) {
       toast.error(error?.message || 'Unable to read uploaded resume.');
+    } finally {
+      setParsing(false);
     }
   };
 

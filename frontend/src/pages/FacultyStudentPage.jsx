@@ -46,12 +46,12 @@ export default function FacultyStudentPage() {
     >
       {portfolio ? (
         /* Header Section */
-        <div className="mb-20 rounded-sm bg-white dark:bg-[#003366] p-12 shadow-sm border border-slate-100 dark:border-white/5 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 group relative overflow-hidden">
+        <div className="mb-20 rounded-xl bg-white dark:bg-[#003366] p-12 shadow-sm border border-slate-100 dark:border-white/5 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/20 group relative overflow-hidden">
            <div className="absolute top-0 left-0 size-80 bg-primary/5 rounded-full -ml-40 -mt-40 blur-3xl opacity-60 pointer-events-none group-hover:scale-110 transition-transform" />
            
            <div className="flex flex-col sm:flex-row gap-12 items-start justify-between relative">
               <div className="flex items-center gap-8 group-user">
-                <div className="flex size-20 items-center justify-center rounded-sm bg-[#003366] dark:bg-white text-white dark:text-[#003366] shadow-2xl shadow-black/30 group-user-hover:rotate-12 transition-transform text-3xl font-black">
+                <div className="flex size-20 items-center justify-center rounded-xl bg-[#003366] dark:bg-white text-white dark:text-[#003366] shadow-2xl shadow-black/30 group-user-hover:rotate-12 transition-transform text-3xl font-black">
                    {portfolio.student?.name?.[0]}
                 </div>
                 <div className="space-y-3">
@@ -111,7 +111,7 @@ export default function FacultyStudentPage() {
                return (
                 <div 
                   key={project._id} 
-                  className="group relative rounded-sm bg-white dark:bg-[#003366] p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20"
+                  className="group relative rounded-xl bg-white dark:bg-[#003366] p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20"
                 >
                   <div className="flex flex-col h-full justify-between gap-10">
                     <div>
@@ -125,7 +125,7 @@ export default function FacultyStudentPage() {
                       <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400 font-medium italic opacity-60 group-hover:opacity-100 transition-opacity whitespace-pre-wrap line-clamp-3 mb-8 border-l-2 border-slate-50 dark:border-white/5 pl-6">{project.description}</p>
                       <div className="flex flex-wrap gap-2">
                         {(project.tags || []).slice(0, 3).map((tag) => (
-                          <span key={tag} className="rounded-sm bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-4 py-2 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-transparent transition-all">
+                          <span key={tag} className="rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-4 py-2 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-transparent transition-all">
                             {tag}
                           </span>
                         ))}
@@ -139,7 +139,7 @@ export default function FacultyStudentPage() {
                        </div>
                        <Link 
                          to={`/faculty/reviews`} 
-                         className="rounded-sm bg-[#003366] dark:bg-white px-8 py-3.5 text-[9px] font-black uppercase tracking-[0.3em] text-white dark:text-[#003366] shadow-2xl hover:bg-primary dark:hover:bg-primary hover:text-white transition-all scale-105 active:scale-95"
+                         className="rounded-xl bg-[#003366] dark:bg-white px-8 py-3.5 text-[9px] font-black uppercase tracking-[0.3em] text-white dark:text-[#003366] shadow-2xl hover:bg-primary dark:hover:bg-primary hover:text-white transition-all scale-105 active:scale-95"
                        >
                           Review Project
                        </Link>
@@ -165,13 +165,13 @@ export default function FacultyStudentPage() {
         </div>
 
         <div className="grid gap-12 lg:grid-cols-2">
-           <div className="space-y-8 rounded-sm bg-white dark:bg-[#003366] p-10 border border-slate-200 dark:border-white/5 shadow-sm">
+           <div className="space-y-8 rounded-xl bg-white dark:bg-[#003366] p-10 border border-slate-200 dark:border-white/5 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-6">Excellence Summary</p>
               <p className="text-md leading-relaxed text-slate-500 dark:text-slate-400 font-medium italic italic opacity-80 whitespace-pre-wrap border-l-4 border-primary/20 pl-8 py-2">
                  {portfolio.student?.profile?.achievementsSummary || "No achievement summary provided yet. This student is currently building their academic and professional record."}
               </p>
               {portfolio.student?.profile?.achievementsImageUrl && (
-                <div className="mt-10 rounded-sm overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl">
+                <div className="mt-10 rounded-xl overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl">
                   <img src={portfolio.student?.profile?.achievementsImageUrl} alt="Featured Achievement" className="w-full h-64 object-cover" />
                 </div>
               )}
@@ -182,9 +182,9 @@ export default function FacultyStudentPage() {
               <div className="grid gap-4">
                  {(portfolio.student?.profile?.certifications?.length > 0 || portfolio.student?.profile?.achievements?.length > 0) ? (
                    [...(portfolio.student?.profile?.certifications || []).map(c => ({...c, type: 'cert'})), ...(portfolio.student?.profile?.achievements || []).map(a => ({...a, type: 'ach'}))].map((item, idx) => (
-                     <div key={idx} className="flex items-center justify-between p-6 bg-white dark:bg-[#003366] border border-slate-200 dark:border-white/5 rounded-sm hover:border-primary/30 transition-all shadow-sm">
+                     <div key={idx} className="flex items-center justify-between p-6 bg-white dark:bg-[#003366] border border-slate-200 dark:border-white/5 rounded-xl hover:border-primary/30 transition-all shadow-sm">
                         <div className="flex items-center gap-6">
-                           <div className={`size-12 rounded-sm flex items-center justify-center ${item.type === 'cert' ? 'bg-blue-500/10 text-blue-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                           <div className={`size-12 rounded-xl flex items-center justify-center ${item.type === 'cert' ? 'bg-blue-500/10 text-blue-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
                               <span className="material-symbols-outlined text-[24px]">{item.type === 'cert' ? 'verified_user' : 'military_tech'}</span>
                            </div>
                            <div>
@@ -195,7 +195,7 @@ export default function FacultyStudentPage() {
                      </div>
                    ))
                  ) : (
-                   <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-white/5 rounded-sm border border-dashed border-slate-200 dark:border-white/10 opacity-40 text-center">
+                   <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-white/5 rounded-xl border border-dashed border-slate-200 dark:border-white/10 opacity-40 text-center">
                       <span className="material-symbols-outlined text-[40px] mb-4 text-primary">military_tech</span>
                       <p className="text-[12px] font-black uppercase tracking-widest text-slate-500">No verified credentials uploaded yet</p>
                    </div>

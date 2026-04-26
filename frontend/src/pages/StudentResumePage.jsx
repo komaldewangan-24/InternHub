@@ -76,7 +76,9 @@ export default function StudentResumePage() {
 
     try {
       setScoring(true);
-      const arrayBuffer = await dataUrlToArrayBuffer(user.profile.resumeUrl);
+      const url = getAssetUrl(user.profile.resumeUrl);
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
       const text = await extractPdfText(arrayBuffer);
 
       if (!text || text.replace(/\s+/g, '').length < 20) {

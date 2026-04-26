@@ -45,20 +45,20 @@ export default function ApplicationsPage() {
       user={user}
     >
       {/* Analytics Header */}
-      <div className="mb-12 rounded-md bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all overflow-hidden relative group uppercase">
+      <div className="mb-12 rounded-xl bg-white dark:bg-slate-900 p-10 shadow-sm border border-slate-200 dark:border-white/5 transition-all overflow-hidden relative group uppercase">
         <div className="absolute top-0 left-0 size-80 bg-indigo-500/5 rounded-full -ml-40 -mt-40 blur-3xl opacity-20 pointer-events-none group-hover:scale-110 transition-transform" />
         
         <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between relative z-10">
           <div className="space-y-4">
-             <div className="inline-flex rounded-sm bg-indigo-500/5 px-4 py-1.5 border border-indigo-500/10">
+             <div className="inline-flex rounded-lg bg-indigo-500/5 px-4 py-1.5 border border-indigo-500/10">
                 <p className="text-[10px] font-poppins font-bold uppercase tracking-[0.3em] text-indigo-500">OVERVIEW</p>
              </div>
-             <h2 className="text-3xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white leading-none uppercase">Current Node Status: <span className="text-indigo-500">{applications.length} Detected</span></h2>
+             <h2 className="text-3xl font-poppins font-bold tracking-tighter text-[#003366] dark:text-white leading-none uppercase">You’ve applied to — <span className="text-indigo-500">{applications.length} {applications.length === 1 ? 'opportunity' : 'opportunities'}</span></h2>
              <p className="max-w-2xl text-[11px] font-poppins font-bold uppercase tracking-widest text-slate-400 leading-relaxed opacity-80 decoration-indigo-500/20 underline">
                 Track the progress of your submitted institutional nodes. Your Readiness Score modulates your priority in the matching queue.
              </p>
           </div>
-          <div className="rounded-sm border border-indigo-500/20 bg-slate-50 dark:bg-white/5 p-8 shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-800">
+          <div className="rounded-lg border border-indigo-500/20 bg-slate-50 dark:bg-white/5 p-8 shadow-sm transition-all duration-500 group-hover:bg-white dark:group-hover:bg-slate-800">
               <div className="flex flex-col items-center">
                 <p className="text-[9px] font-poppins font-bold uppercase tracking-[0.4em] text-slate-400 mb-2">Readiness</p>
                 <div className="flex items-baseline gap-2">
@@ -76,11 +76,11 @@ export default function ApplicationsPage() {
             return (
               <div 
                 key={application._id} 
-                className="group relative rounded-md bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all duration-300 hover:shadow-lg hover:border-indigo-500/20"
+                className="group relative rounded-xl bg-white dark:bg-slate-900 p-8 shadow-sm border border-slate-200 dark:border-white/5 transition-all duration-300 hover:shadow-lg hover:border-indigo-500/20"
               >
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between relative z-10">
                   <div className="flex items-center gap-6">
-                    <div className="flex size-14 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 text-indigo-500/40 border border-slate-100 dark:border-white/10 shadow-sm group-hover:text-indigo-500 transition-all">
+                    <div className="flex size-14 items-center justify-center rounded-lg bg-slate-50 dark:bg-white/5 text-indigo-500/40 border border-slate-100 dark:border-white/10 shadow-sm group-hover:text-indigo-500 transition-all">
                       <span className="material-symbols-outlined text-[28px]">rocket_launch</span>
                     </div>
                     <div>
@@ -100,7 +100,7 @@ export default function ApplicationsPage() {
                     <div className="flex flex-col items-center gap-2 text-center">
                        <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-slate-400">STATUS</p>
                        {isApproved ? (
-                         <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                         <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
                            <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                            <p className="text-[9px] font-poppins font-bold uppercase tracking-widest text-emerald-600">ACCEPTED</p>
                          </div>
@@ -109,7 +109,7 @@ export default function ApplicationsPage() {
                        )}
                     </div>
                     <button 
-                      className="flex size-14 items-center justify-center rounded-sm text-white shadow-md active:scale-95 transition-all hover:opacity-90"
+                      className="flex size-14 items-center justify-center rounded-lg text-white shadow-md active:scale-95 transition-all hover:opacity-90"
                       style={{ backgroundImage: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)' }}
                     >
                       <span className="material-symbols-outlined text-[24px]">description</span>

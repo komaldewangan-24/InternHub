@@ -52,24 +52,20 @@ const sendTokenResponse = (user, statusCode, res) => {
     });
 };
 
-// @desc      Register user
+// @desc      Register user (Public - Students Only)
 // @route     POST /api/auth/register
 // @access    Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
 
-        // Check for role
-        if (role && !['student', 'faculty', 'recruiter', 'admin'].includes(role)) {
-            return res.status(400).json({ success: false, error: 'Invalid role' });
-        }
-
-        // Create user
+        // Force student role for public registration
+        // Admin, Faculty, and Recruiters must be provisioned by an administrator
         const user = await User.create({
             name,
             email,
             password,
-            role: role || 'student',
+            role: 'student',
         });
 
         sendTokenResponse(user, 200, res);

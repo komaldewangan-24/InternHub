@@ -26,13 +26,20 @@ const projects = require('./routes/projects');
 const notifications = require('./routes/notifications');
 const settings = require('./routes/settings');
 
+const path = require('path');
+const uploads = require('./routes/uploads');
+const student = require('./routes/student');
+
 const app = express();
 
-// Body parser. Resume uploads are stored as profile data URLs and capped in the UI.
+// Body parser
 app.use(express.json({ limit: '8mb' }));
 
 // Enable CORS
 app.use(cors());
+
+// Set static folder for uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Mount routers
 app.use('/api/auth', auth);
@@ -44,6 +51,8 @@ app.use('/api/messages', messages);
 app.use('/api/projects', projects);
 app.use('/api/notifications', notifications);
 app.use('/api/settings', settings);
+app.use('/api/uploads', uploads);
+app.use('/api/student', student);
 
 const PORT = process.env.PORT || 5000;
 

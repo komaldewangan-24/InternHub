@@ -26,11 +26,10 @@ export default function RecruiterDashboard() {
           projectAPI.getAll(),
           companyAPI.getAll(),
         ]);
-        const recruiterId = user?._id || user?.id;
-        setInternships((internshipResponse.data.data || []).filter((item) => item.user === recruiterId || item.user?._id === recruiterId));
+        setInternships(internshipResponse.data.data || []);
         setApplications(applicationResponse.data.data || []);
         setApprovedProjects(projectResponse.data.data || []);
-        setCompanies((companyResponse.data.data || []).filter((item) => item.user === recruiterId || item.user?._id === recruiterId));
+        setCompanies(companyResponse.data.data || []);
       } finally {
         setPageLoading(false);
       }
@@ -67,8 +66,8 @@ export default function RecruiterDashboard() {
     >
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 uppercase">
         {statCards.map((card) => (
-          <div key={card.label} className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl hover:border-indigo-500/20 hover:-translate-y-1">
-            <div className={`mb-4 flex size-12 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 ${card.color}`}>
+          <div key={card.label} className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl hover:border-indigo-500/20 hover:-translate-y-1">
+            <div className={`mb-4 flex size-12 items-center justify-center rounded-xl bg-slate-50 dark:bg-white/5 ${card.color}`}>
               <span className="material-symbols-outlined text-[24px]">{card.icon}</span>
             </div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{card.label}</p>
@@ -78,7 +77,7 @@ export default function RecruiterDashboard() {
       </div>
 
       <div className="mt-8 grid gap-8 xl:grid-cols-2 uppercase text-[#003366]">
-        <div className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl">
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold tracking-tighter text-[#003366] dark:text-white flex items-center gap-3 uppercase">
               <span className="material-symbols-outlined text-indigo-500">group</span>
@@ -89,9 +88,9 @@ export default function RecruiterDashboard() {
           <div className="space-y-4">
             {applications.length ? (
               applications.slice(0, 5).map((application) => (
-                <div key={application._id} className="group rounded-sm border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5 transition-all hover:bg-slate-50 dark:hover:bg-white/10 flex items-center justify-between hover:shadow-md">
+                <div key={application._id} className="group rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-5 transition-all hover:bg-slate-50 dark:hover:bg-white/10 flex items-center justify-between hover:shadow-md">
                   <div className="flex items-center gap-4">
-                    <div className="flex size-14 items-center justify-center rounded-sm bg-white dark:bg-slate-800 text-indigo-500 font-bold shadow-sm uppercase border border-slate-100 dark:border-white/10 transition-transform group-hover:rotate-6">
+                    <div className="flex size-14 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-indigo-500 font-bold shadow-sm uppercase border border-slate-100 dark:border-white/10 transition-transform group-hover:rotate-6">
                       {application.user?.name?.[0] || 'S'}
                     </div>
                     <div>
@@ -100,7 +99,7 @@ export default function RecruiterDashboard() {
                     </div>
                   </div>
                   {application.status === 'accepted' ? (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-sm border border-emerald-500/20">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
                       <span className="size-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                       <p className="text-[8px] font-bold uppercase text-emerald-600">ACCEPTED</p>
                     </div>
@@ -115,7 +114,7 @@ export default function RecruiterDashboard() {
           </div>
         </div>
 
-        <div className="rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl">
+        <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold tracking-tighter text-[#003366] dark:text-white flex items-center gap-3 uppercase">
               <span className="material-symbols-outlined text-emerald-500">verified</span>
@@ -126,7 +125,7 @@ export default function RecruiterDashboard() {
           <div className="space-y-4">
             {approvedProjects.length ? (
               approvedProjects.slice(0, 5).map((project) => (
-                <div key={project._id} className="group rounded-sm border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-6 transition-all hover:bg-slate-50 dark:hover:bg-white/10 hover:shadow-md">
+                <div key={project._id} className="group rounded-xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-6 transition-all hover:bg-slate-50 dark:hover:bg-white/10 hover:shadow-md">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-bold text-[#003366] dark:text-white tracking-tighter uppercase">{project.title}</h3>
@@ -138,7 +137,7 @@ export default function RecruiterDashboard() {
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {(project.tags || []).slice(0, 3).map((tag) => (
-                      <span key={tag} className="rounded-sm bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                      <span key={tag} className="rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                         {tag}
                       </span>
                     ))}

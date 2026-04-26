@@ -5,7 +5,8 @@ import LoadingState from '../components/LoadingState';
 import StatusBadge from '../components/StatusBadge';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { companyAPI } from '../services/api';
+import { companyAPI, uploadFile } from '../services/api';
+import { getAssetUrl } from '../utils/assets';
 
 const blankForm = {
   id: '',
@@ -25,10 +26,7 @@ export default function RecruiterCompanyPage() {
   const [saving, setSaving] = useState(false);
 
   const recruiterId = user?._id || user?.id;
-  const ownCompany = useMemo(
-    () => companies.find((company) => company.user === recruiterId || company.user?._id === recruiterId) || null,
-    [companies, recruiterId]
-  );
+  const ownCompany = companies[0] || null;
 
   useEffect(() => {
     const loadCompanies = async () => {
@@ -62,6 +60,22 @@ export default function RecruiterCompanyPage() {
     }
   }, [ownCompany]);
 
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        setSaving(true);
+        const { data } = await uploadFile('company-logos', file);
+        setForm(current => ({ ...current, logoUrl: data.url }));
+        toast.success('Logo uploaded and staged. Click Update to save changes.');
+      } catch (error) {
+        toast.error(error.response?.data?.error || 'Logo upload failed');
+      } finally {
+        setSaving(false);
+      }
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -77,16 +91,16 @@ export default function RecruiterCompanyPage() {
 
       if (form.id) {
         await companyAPI.update(form.id, payload);
-        toast.success('Company updated');
+        toast.success('Company identity synchronized');
       } else {
         await companyAPI.create(payload);
-        toast.success('Company created');
+        toast.success('Company identity established');
       }
 
       const { data } = await companyAPI.getAll();
       setCompanies(data.data || []);
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Unable to save company');
+      toast.error(error.response?.data?.error || 'Identity sync failed');
     } finally {
       setSaving(false);
     }
@@ -104,7 +118,7 @@ export default function RecruiterCompanyPage() {
       user={user}
     >
       {ownCompany ? (
-        <div className="mb-6 rounded-sm bg-white p-6 shadow-sm">
+        <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-slate-400">Verification</p>
@@ -121,7 +135,32 @@ export default function RecruiterCompanyPage() {
           <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Website" value={form.website} onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))} />
           <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Contact email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
           <input className="rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Phone" value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} />
-          <input className="md:col-span-2 rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Logo URL" value={form.logoUrl} onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))} />
+          <div className="md:col-span-2 flex flex-col sm:flex-row items-center gap-6 p-6 rounded-sm border border-slate-100 bg-slate-50/30">
+            <div className="size-32 shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+               {form.logoUrl ? (
+                 <img src={getAssetUrl(form.logoUrl)} alt="Company Logo" className="size-full object-contain" />
+               ) : (
+                 <span className="material-symbols-outlined text-4xl text-slate-200">corporate_fare</span>
+               )}
+            </div>
+            <div className="flex-1 space-y-4">
+               <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Institutional Logo</p>
+                  <p className="text-xs text-slate-500 mt-1">PNG, JPG or SVG. Max 2MB recommended.</p>
+               </div>
+               <div className="flex gap-3">
+                  <label className="cursor-pointer rounded-sm bg-indigo-600 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-indigo-700 shadow-sm active:scale-95">
+                    Upload Logo
+                    <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                  </label>
+                  {form.logoUrl && (
+                    <button type="button" onClick={() => setForm(c => ({ ...c, logoUrl: '' }))} className="rounded-sm border border-slate-200 bg-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50">
+                      Remove
+                    </button>
+                  )}
+               </div>
+            </div>
+          </div>
           <textarea className="md:col-span-2 min-h-[180px] rounded-sm border border-slate-200 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Company description" value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
         </div>
         <button className="mt-6 rounded-sm bg-primary px-5 py-3 text-sm font-bold text-white disabled:opacity-70" disabled={saving} type="submit">

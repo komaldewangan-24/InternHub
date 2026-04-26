@@ -58,8 +58,8 @@ export default function AdminAnalyticsPage() {
     >
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {analyticTiles.map((tile) => (
-          <div key={tile.label} className="group rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
-            <div className={`mb-4 flex size-12 items-center justify-center rounded-sm bg-slate-50 dark:bg-white/5 ${tile.color} group-hover:scale-110 transition-transform`}>
+          <div key={tile.label} className="group rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-sm transition-all hover:border-primary/20">
+            <div className={`mb-4 flex size-12 items-center justify-center rounded-xl bg-slate-50 dark:bg-white/5 ${tile.color} group-hover:scale-110 transition-transform`}>
               <span className="material-symbols-outlined text-[24px]">{tile.icon}</span>
             </div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{tile.label}</p>
@@ -68,7 +68,7 @@ export default function AdminAnalyticsPage() {
         ))}
       </div>
 
-      <div className="mt-12 rounded-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 p-10">
+      <div className="mt-12 rounded-xl border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900 p-10">
         <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
           <div>
             <h2 className="text-2xl font-black tracking-tight dark:text-white">Institutional Data Exports</h2>
@@ -83,7 +83,7 @@ export default function AdminAnalyticsPage() {
             ].map(exportType => (
               <button 
                 key={exportType.label}
-                className="flex flex-col items-center justify-center rounded-sm border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4 text-center transition-all hover:border-primary hover:bg-primary/5 group"
+                className="flex flex-col items-center justify-center rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4 text-center transition-all hover:border-primary hover:bg-primary/5 group"
                 onClick={() => downloadReport(exportType.action, `${exportType.file}-report.csv`)}
                 type="button"
               >

@@ -37,6 +37,15 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
     try {
         // Add user to req.body
         req.body.user = req.user.id;
+        
+        // Prevent multiple companies for recruiters
+        if (req.user.role === 'recruiter') {
+            const existing = await Company.findOne({ user: req.user.id });
+            if (existing) {
+                return res.status(400).json({ success: false, error: 'You have already created a company profile. Please update the existing one instead.' });
+            }
+        }
+
         if (req.user.role !== 'admin') {
             delete req.body.verificationStatus;
         }

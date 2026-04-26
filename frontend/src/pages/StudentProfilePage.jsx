@@ -5,8 +5,10 @@ import LoadingState from '../components/LoadingState';
 import ResumeUploadSync from '../components/ResumeUploadSync';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { userAPI } from '../services/api';
+import { userAPI, uploadFile } from '../services/api';
+import { computeStudentReadiness } from '../utils/readiness';
 import { openResumeDataUrl } from '../utils/resumeParser';
+import { getAssetUrl } from '../utils/assets';
 
 const emptyProfileForm = {
   name: '',
@@ -61,6 +63,12 @@ export default function StudentProfilePage() {
   const [editableFormData, setEditableFormData] = useState(emptyProfileForm);
   const formData = isEditing ? editableFormData : currentFormData;
 
+  const readiness = useMemo(() => computeStudentReadiness({
+    user,
+    approvedProjects: user?.profile?.experience?.length || 0, // Fallback if no projects view
+    applications: 0
+  }), [user]);
+
   const setFormData = (updater) => {
     setEditableFormData((current) => (typeof updater === 'function' ? updater(current) : updater));
   };
@@ -85,26 +93,23 @@ export default function StudentProfilePage() {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (file.size > 1024 * 1024) {
-        toast.error('File exceeds 1MB limit.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result;
-        setFormData((prev) => ({ ...prev, avatarUrl: base64 }));
+      try {
+        setLoading(true);
+        const { data } = await uploadFile('avatars', file);
+        const uploadedUrl = data.url;
+        
+        setFormData((prev) => ({ ...prev, avatarUrl: uploadedUrl }));
         
         if (!isEditing) {
-          try {
-            await userAPI.updateProfile({ ...currentFormData, avatarUrl: base64 });
-            await refreshUser();
-            toast.success('Profile photo synchronized.');
-          } catch {
-            toast.error('Failed to sync photo.');
-          }
+          await userAPI.updateProfile({ ...currentFormData, avatarUrl: uploadedUrl });
+          await refreshUser();
+          toast.success('Profile photo synchronized.');
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        toast.error(error.response?.data?.error || 'Failed to upload photo.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -154,7 +159,7 @@ export default function StudentProfilePage() {
                     <div className="size-52 rounded-full p-1 bg-white dark:bg-slate-800 shadow-xl relative ring-1 ring-slate-100 dark:ring-white/5">
                       <div className="size-full rounded-full overflow-hidden cursor-pointer relative z-10 group" onClick={() => fileInputRef.current?.click()}>
                         {formData.avatarUrl ? (
-                          <img src={formData.avatarUrl} alt="Rahul" className="size-full object-cover transition-transform group-hover:scale-110" />
+                          <img src={getAssetUrl(formData.avatarUrl)} alt={formData.name} className="size-full object-cover transition-transform group-hover:scale-110" />
                         ) : (
                           <div className="size-full bg-slate-50 flex items-center justify-center">
                             <span className="material-symbols-outlined text-slate-200 text-7xl">face</span>
@@ -263,7 +268,7 @@ export default function StudentProfilePage() {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Profile Strength</p>
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-end gap-2">
-                      <span className="text-4xl font-black text-[#003366] dark:text-white leading-none">48%</span>
+                      <span className="text-4xl font-black text-[#003366] dark:text-white leading-none">{readiness.score}%</span>
                       <div className="flex items-center text-emerald-500 font-bold text-[11px] pb-0.5 whitespace-nowrap">
                         <span className="material-symbols-outlined text-[16px] mr-0.5">trending_up</span>
                         12% <span className="text-slate-400 font-normal ml-1">this week</span>
@@ -302,10 +307,10 @@ export default function StudentProfilePage() {
                   </div>
                   <ul className="space-y-4">
                     {[
-                      { l: 'Basic Information', s: 'Completed', d: true },
-                      { l: 'Contact Details', s: 'Completed', d: true },
-                      { l: 'Professional Summary', s: 'Add a short summary', d: false },
-                      { l: 'Skills & Technologies', s: 'Add your skills', d: false },
+                      { l: 'Basic Information', s: user?.profile?.phone ? 'Completed' : 'Missing Phone', d: !!user?.profile?.phone },
+                      { l: 'Contact Details', s: user?.profile?.location ? 'Completed' : 'Missing Location', d: !!user?.profile?.location },
+                      { l: 'Professional Summary', s: user?.profile?.bio ? 'Completed' : 'Add a short summary', d: !!user?.profile?.bio },
+                      { l: 'Skills & Technologies', s: user?.profile?.skills?.length ? 'Completed' : 'Add your skills', d: !!user?.profile?.skills?.length },
                     ].map((item, i) => (
                       <li key={i} className="flex items-start gap-4">
                         <div className={`mt-0.5 size-5 rounded-full flex items-center justify-center shrink-0 border ${item.d ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white dark:bg-slate-800 border-slate-200'}`}>
@@ -503,7 +508,7 @@ export default function StudentProfilePage() {
                     
                     <div className="absolute left-0 size-12 md:size-16 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-center overflow-hidden">
                       {exp.companyLogoUrl ? (
-                        <img src={exp.companyLogoUrl} alt={exp.company} className="size-full object-cover" />
+                        <img src={getAssetUrl(exp.companyLogoUrl)} alt={exp.company} className="size-full object-cover" />
                       ) : (
                         <span className="material-symbols-outlined text-slate-300 text-3xl">corporate_fare</span>
                       )}
@@ -581,7 +586,7 @@ export default function StudentProfilePage() {
                   <div key={idx} className="py-10 flex flex-col md:flex-row gap-8 items-start group/cert">
                     <div className="size-16 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                       {cert.issuerLogoUrl ? (
-                         <img src={cert.issuerLogoUrl} alt={cert.issuer} className="size-full object-cover" />
+                         <img src={getAssetUrl(cert.issuerLogoUrl)} alt={cert.issuer} className="size-full object-cover" />
                       ) : (
                          <span className="material-symbols-outlined text-slate-300 text-4xl">verified</span>
                       )}
@@ -613,7 +618,7 @@ export default function StudentProfilePage() {
                       {cert.imageUrl && (
                         <div className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 group-hover/cert:border-indigo-500/20 transition-all max-w-2xl">
                           <div className="size-48 md:size-32 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shrink-0">
-                             <img src={cert.imageUrl} alt="Credential Preview" className="size-full object-cover" />
+                             <img src={getAssetUrl(cert.imageUrl)} alt="Credential Preview" className="size-full object-cover" />
                           </div>
                           <div>
                             <p className="text-[14px] font-black text-[#003366] dark:text-white mb-2">{cert.imageDescription || 'Certification Media'}</p>
