@@ -15,6 +15,10 @@ const NotificationSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        category: {
+            type: String,
+            default: 'system',
+        },
         title: {
             type: String,
             required: true,
@@ -31,6 +35,13 @@ const NotificationSchema = new mongoose.Schema(
         metadata: {
             type: mongoose.Schema.Types.Mixed,
             default: {},
+        },
+        entityType: {
+            type: String,
+            trim: true,
+        },
+        entityId: {
+            type: mongoose.Schema.Types.ObjectId,
         },
         readAt: Date,
     },

@@ -4,7 +4,7 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 const { canSendMessage } = require('../utils/permissions');
-const { createNotification } = require('../utils/notifications');
+const { notifyNewMessage } = require('../utils/notifications');
 
 // @desc      Get all messages (conversations) for current user
 // @route     GET /api/messages
@@ -89,14 +89,11 @@ router.post('/', protect, async (req, res) => {
             .populate('sender', 'name email role')
             .populate('recipient', 'name email role');
 
-        await createNotification({
-            recipient,
-            actor: req.user.id,
-            type: 'new_message',
-            title: 'New message received',
-            message: `You have a new message from ${fullMessage.sender?.name || 'a user'}.`,
-            link: '/messages',
-            metadata: { messageId: fullMessage._id },
+        await notifyNewMessage({
+            recipientUser,
+            senderName: fullMessage.sender?.name,
+            messageId: fullMessage._id,
+            actorId: req.user.id,
         });
 
         res.status(201).json({

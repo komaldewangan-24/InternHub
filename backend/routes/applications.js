@@ -3,7 +3,10 @@ const router = express.Router();
 const Application = require('../models/Application');
 const Internship = require('../models/Internship');
 const { protect, authorize } = require('../middleware/auth');
-const { createNotification } = require('../utils/notifications');
+const {
+    notifyApplicationStatusChanged,
+    notifyApplicationSubmitted,
+} = require('../utils/notifications');
 const { sendCsv } = require('../utils/csv');
 
 const applicationPopulate = [
@@ -114,14 +117,10 @@ router.post('/:internshipId', protect, authorize('student'), async (req, res) =>
             internship: req.params.internshipId,
         });
 
-        await createNotification({
-            recipient: internship.user,
-            actor: req.user.id,
-            type: 'application_submitted',
-            title: 'New applicant received',
-            message: `A student applied to "${internship.title}"${internship.company?.name ? ` at ${internship.company.name}` : ''}.`,
-            link: '/recruiter/applicants',
-            metadata: { applicationId: application._id, internshipId: internship._id },
+        await notifyApplicationSubmitted({
+            internship,
+            application,
+            actorId: req.user.id,
         });
 
         res.status(201).json({
@@ -152,14 +151,9 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
         await application.save();
         application = await Application.findById(req.params.id).populate(applicationPopulate);
 
-        await createNotification({
-            recipient: application.user?._id || application.user,
-            actor: req.user.id,
-            type: 'application_status_changed',
-            title: 'Application status updated',
-            message: `Your application for "${application.internship?.title || 'the internship'}" is now marked as ${application.status}.`,
-            link: '/applications',
-            metadata: { applicationId: application._id, status: application.status },
+        await notifyApplicationStatusChanged({
+            application,
+            actorId: req.user.id,
         });
 
         res.status(200).json({

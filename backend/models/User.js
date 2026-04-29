@@ -1,6 +1,28 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const NotificationPreferencesSchema = new mongoose.Schema(
+    {
+        inAppEnabled: {
+            type: Boolean,
+            default: true,
+        },
+        emailEnabled: {
+            type: Boolean,
+            default: true,
+        },
+        categories: {
+            internships: { type: Boolean, default: true },
+            applications: { type: Boolean, default: true },
+            projects: { type: Boolean, default: true },
+            messages: { type: Boolean, default: true },
+            company: { type: Boolean, default: true },
+            system: { type: Boolean, default: true },
+        },
+    },
+    { _id: false }
+);
+
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -88,6 +110,10 @@ const UserSchema = new mongoose.Schema({
             type: mongoose.Schema.ObjectId,
             ref: 'User',
         },
+    },
+    notificationPreferences: {
+        type: NotificationPreferencesSchema,
+        default: () => ({}),
     },
     createdAt: {
         type: Date,

@@ -1,18 +1,57 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { notificationAPI } from '../services/api';
 
-export default function NotificationBell() {
+const getSeenToastIds = () => {
+  try {
+    const raw = sessionStorage.getItem('seenNotificationToastIds');
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const persistSeenToastIds = (ids) => {
+  try {
+    sessionStorage.setItem('seenNotificationToastIds', JSON.stringify([...ids]));
+  } catch {
+    // Passive persistence failure
+  }
+};
+
+export default function NotificationBell({ xOffset = 0 }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const bellRef = useRef(null);
+  const initializedRef = useRef(false);
+  const toastedIdsRef = useRef(new Set(getSeenToastIds()));
 
   const fetchNotes = useCallback(async () => {
     try {
       const response = await notificationAPI.getAll(8);
       const data = response?.data?.data || [];
       const unread = response?.data?.unreadCount || 0;
+
+      const unreadNotifications = data.filter((note) => note && !note.readAt && note._id);
+      if (initializedRef.current) {
+        unreadNotifications.forEach((note) => {
+          if (!toastedIdsRef.current.has(note._id)) {
+            toastedIdsRef.current.add(note._id);
+            toast.info(note.title || 'New notification', {
+              toastId: `notification-${note._id}`,
+            });
+          }
+        });
+        persistSeenToastIds(toastedIdsRef.current);
+      } else {
+        unreadNotifications.forEach((note) => toastedIdsRef.current.add(note._id));
+        persistSeenToastIds(toastedIdsRef.current);
+        initializedRef.current = true;
+      }
+
       setNotifications(data);
       setUnreadCount(unread);
     } catch {
@@ -40,10 +79,28 @@ export default function NotificationBell() {
     }
   };
 
-  const toggleOpen = () => {
-    if (!open && unreadCount > 0) {
-      markAllAsRead();
+  const markOneAsRead = (notificationId) => {
+    if (!notificationId) return;
+
+    setNotifications((prev) =>
+      prev.map((note) =>
+        note._id === notificationId ? { ...note, readAt: note.readAt || new Date().toISOString() } : note
+      )
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    notificationAPI.markRead(notificationId).catch(() => {
+      fetchNotes();
+    });
+  };
+
+  const handleNotificationClick = (note) => {
+    if (!note?.readAt) {
+      markOneAsRead(note._id);
     }
+    setOpen(false);
+  };
+
+  const toggleOpen = () => {
     setOpen(!open);
   };
 
@@ -70,7 +127,10 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-16 z-50 w-[380px] rounded-sm border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-8 shadow-2xl backdrop-blur-3xl animate-in zoom-in-95 duration-200 transform origin-top-right">
+        <div
+          className="absolute right-0 top-16 z-50 w-[380px] rounded-sm border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-8 shadow-2xl backdrop-blur-3xl animate-in zoom-in-95 duration-200 transform origin-top-right"
+          style={{ marginRight: `${xOffset}px` }}
+        >
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Activity stream</h3>
             {unreadCount > 0 && (
@@ -88,7 +148,7 @@ export default function NotificationBell() {
                   <Link
                     key={note._id || `${note.type || 'notification'}-${note.createdAt || index}`}
                     to={note.link || '#'}
-                    onClick={() => setOpen(false)}
+                    onClick={() => handleNotificationClick(note)}
                     className={`block rounded-sm border p-5 transition-all hover:scale-[1.02] active:scale-[0.98] ${
                       note.readAt 
                         ? 'border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 opacity-70' 

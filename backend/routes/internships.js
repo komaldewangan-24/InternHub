@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Internship = require('../models/Internship');
 const { protect, authorize } = require('../middleware/auth');
+const {
+    hasVisibleInternshipChanges,
+    notifyInternshipClosed,
+    notifyInternshipPosted,
+    notifyInternshipUpdated,
+} = require('../utils/notifications');
 
 const normalizeArray = (value) => {
     if (!Array.isArray(value)) {
@@ -113,10 +119,18 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
         req.body.resumeAtsCriteria = normalizeResumeCriteria(req.body.resumeAtsCriteria);
 
         const internship = await Internship.create(req.body);
+        const populatedInternship = await Internship.findById(internship._id)
+            .populate(internshipPopulate)
+            .populate(userPopulate);
+
+        await notifyInternshipPosted({
+            internship: populatedInternship,
+            actorId: req.user.id,
+        });
 
         res.status(201).json({
             success: true,
-            data: internship,
+            data: populatedInternship,
         });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });
@@ -142,14 +156,32 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
         if (payload.eligibleBatches) payload.eligibleBatches = normalizeArray(payload.eligibleBatches);
         if (payload.resumeAtsCriteria) payload.resumeAtsCriteria = normalizeResumeCriteria(payload.resumeAtsCriteria);
 
+        const beforeUpdate = internship.toObject();
         internship = await Internship.findByIdAndUpdate(req.params.id, payload, {
             new: true,
             runValidators: true,
         });
+        const populatedInternship = await Internship.findById(internship._id)
+            .populate(internshipPopulate)
+            .populate(userPopulate);
+
+        const statusChangedToClosed = beforeUpdate.status !== 'closed' && populatedInternship.status === 'closed';
+
+        if (statusChangedToClosed) {
+            await notifyInternshipClosed({
+                internship: populatedInternship,
+                actorId: req.user.id,
+            });
+        } else if (hasVisibleInternshipChanges(beforeUpdate, populatedInternship)) {
+            await notifyInternshipUpdated({
+                internship: populatedInternship,
+                actorId: req.user.id,
+            });
+        }
 
         res.status(200).json({
             success: true,
-            data: internship,
+            data: populatedInternship,
         });
     } catch (err) {
         res.status(400).json({ success: false, error: err.message });

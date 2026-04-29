@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Company = require('../models/Company');
 const { protect, authorize } = require('../middleware/auth');
+const {
+    notifyCompanyVerificationChanged,
+    notifyCompanyVerificationPending,
+} = require('../utils/notifications');
 
 // @desc      Get companies visible to the current role
 // @route     GET /api/companies
@@ -52,6 +56,13 @@ router.post('/', protect, authorize('recruiter', 'admin'), async (req, res) => {
 
         const company = await Company.create(req.body);
 
+        if (req.user.role === 'recruiter') {
+            await notifyCompanyVerificationPending({
+                company,
+                actorId: req.user.id,
+            });
+        }
+
         res.status(201).json({
             success: true,
             data: company,
@@ -81,10 +92,22 @@ router.put('/:id', protect, authorize('recruiter', 'admin'), async (req, res) =>
             delete req.body.verificationStatus;
         }
 
+        const previousStatus = company.verificationStatus;
         company = await Company.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true,
         });
+
+        if (
+            req.user.role === 'admin' &&
+            previousStatus !== company.verificationStatus &&
+            ['verified', 'flagged'].includes(company.verificationStatus)
+        ) {
+            await notifyCompanyVerificationChanged({
+                company,
+                actorId: req.user.id,
+            });
+        }
 
         res.status(200).json({
             success: true,

@@ -32,6 +32,49 @@ const profileFields = [
     'assignedFaculty',
 ];
 
+const notificationCategoryKeys = [
+    'internships',
+    'applications',
+    'projects',
+    'messages',
+    'company',
+    'system',
+];
+
+const notificationPreferenceDefaults = {
+    inAppEnabled: true,
+    emailEnabled: true,
+    categories: {
+        internships: true,
+        applications: true,
+        projects: true,
+        messages: true,
+        company: true,
+        system: true,
+    },
+};
+
+const mergeNotificationPreferences = (incoming = {}, current = {}) => ({
+    inAppEnabled:
+        typeof incoming.inAppEnabled === 'boolean'
+            ? incoming.inAppEnabled
+            : (current.inAppEnabled ?? notificationPreferenceDefaults.inAppEnabled),
+    emailEnabled:
+        typeof incoming.emailEnabled === 'boolean'
+            ? incoming.emailEnabled
+            : (current.emailEnabled ?? notificationPreferenceDefaults.emailEnabled),
+    categories: notificationCategoryKeys.reduce(
+        (result, key) => ({
+            ...result,
+            [key]:
+                typeof incoming.categories?.[key] === 'boolean'
+                    ? incoming.categories[key]
+                    : (current.categories?.[key] ?? notificationPreferenceDefaults.categories[key]),
+        }),
+        {}
+    ),
+});
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token
@@ -157,6 +200,13 @@ router.put('/me', protect, async (req, res) => {
                     user.profile[field] = req.body.profile[field];
                 }
             });
+        }
+
+        if (req.body.notificationPreferences) {
+            user.notificationPreferences = mergeNotificationPreferences(
+                req.body.notificationPreferences,
+                user.notificationPreferences || {}
+            );
         }
 
         await user.save();

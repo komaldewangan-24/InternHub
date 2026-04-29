@@ -8,7 +8,7 @@ const ProjectSubmission = require('../models/ProjectSubmission');
 const { protect, authorize } = require('../middleware/auth');
 const { getAllowedRecipientRoles } = require('../utils/permissions');
 const { computeStudentReadiness } = require('../utils/readiness');
-const { createBulkNotifications } = require('../utils/notifications');
+const { notifyFacultyAssigned } = require('../utils/notifications');
 const { sendCsv } = require('../utils/csv');
 
 const publicStudentProfile = (student) => ({
@@ -367,17 +367,11 @@ router.post('/faculty-assignments', protect, authorize('admin'), async (req, res
             },
         });
 
-        await createBulkNotifications(
-            students.map((student) => ({
-                recipient: student._id,
-                actor: req.user.id,
-                type: 'faculty_assigned',
-                title: 'Faculty reviewer assigned',
-                message: `${faculty.name} has been assigned as your default faculty reviewer.`,
-                link: '/student/projects',
-                metadata: { facultyId: faculty._id },
-            }))
-        );
+        await notifyFacultyAssigned({
+            faculty,
+            students,
+            actorId: req.user.id,
+        });
 
         res.status(200).json({
             success: true,

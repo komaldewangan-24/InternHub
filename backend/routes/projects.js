@@ -4,7 +4,11 @@ const ProjectSubmission = require('../models/ProjectSubmission');
 const Setting = require('../models/Setting');
 const User = require('../models/User');
 const { protect, authorize } = require('../middleware/auth');
-const { createNotification } = require('../utils/notifications');
+const {
+    notifyProjectResubmitted,
+    notifyProjectReviewed,
+    notifyProjectSubmitted,
+} = require('../utils/notifications');
 const { sendCsv } = require('../utils/csv');
 
 const projectPopulate = [
@@ -419,14 +423,9 @@ router.post('/:id/submit', protect, authorize('student'), async (req, res) => {
 
         await submission.save();
 
-        await createNotification({
-            recipient: submission.faculty._id || submission.faculty,
-            actor: req.user.id,
-            type: 'project_submitted',
-            title: 'New project submitted for review',
-            message: `${submission.student?.name || 'A student'} submitted "${submission.title}" for review.`,
-            link: '/faculty/reviews',
-            metadata: { projectId: submission._id },
+        await notifyProjectSubmitted({
+            submission,
+            actorId: req.user.id,
         });
 
         const fullSubmission = await ProjectSubmission.findById(submission._id).populate(projectPopulate);
@@ -468,14 +467,9 @@ router.post('/:id/resubmit', protect, authorize('student'), async (req, res) => 
 
         await submission.save();
 
-        await createNotification({
-            recipient: submission.faculty._id || submission.faculty,
-            actor: req.user.id,
-            type: 'project_resubmitted',
-            title: 'Project resubmitted for review',
-            message: `${submission.student?.name || 'A student'} resubmitted "${submission.title}" for review.`,
-            link: '/faculty/reviews',
-            metadata: { projectId: submission._id },
+        await notifyProjectResubmitted({
+            submission,
+            actorId: req.user.id,
         });
 
         const fullSubmission = await ProjectSubmission.findById(submission._id).populate(projectPopulate);
@@ -551,17 +545,11 @@ router.post('/:id/review', protect, authorize('faculty', 'admin'), async (req, r
 
         await submission.save();
 
-        await createNotification({
-            recipient: submission.student._id || submission.student,
-            actor: req.user.id,
-            type: action === 'approved' ? 'project_approved' : 'project_reviewed',
-            title: action === 'approved' ? 'Project approved' : 'Project review updated',
-            message:
-                action === 'approved'
-                    ? `"${submission.title}" was approved and is now visible to recruiters.`
-                    : message || `"${submission.title}" received new faculty feedback.`,
-            link: '/student/projects',
-            metadata: { projectId: submission._id, action },
+        await notifyProjectReviewed({
+            submission,
+            actorId: req.user.id,
+            action,
+            message,
         });
 
         const fullSubmission = await ProjectSubmission.findById(submission._id).populate(projectPopulate);
