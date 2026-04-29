@@ -156,9 +156,9 @@ export default function LandingPage() {
       </section>
 
       {/* Feature Highlights Section - Perfectly Centered Container */}
-      <section id="highlights" className="py-20 mx-4 md:mx-10 lg:mx-20 my-10 bg-white dark:bg-[#002244] rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:shadow-2xl duration-500">
+      <section id="highlights" className="py-12 mx-4 md:mx-10 lg:mx-20 my-6 bg-white dark:bg-[#002244] rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-white/5 transition-all hover:shadow-2xl duration-500">
         <div className="mx-auto max-w-7xl px-8 relative z-10">
-          <div className="flex flex-col items-center justify-center text-center mb-16">
+          <div className="flex flex-col items-center justify-center text-center mb-12">
             <h2 className="text-5xl font-bold tracking-tighter text-[#003366] dark:text-white uppercase font-poppins leading-[0.9]">
               Key <span className="text-indigo-500">Features</span>
             </h2>
@@ -185,13 +185,9 @@ export default function LandingPage() {
       </section>
 
       {/* Steps to Apply Section - Premium Workflow Design */}
-      <section id="how-to-apply" className="py-32 mx-4 md:mx-10 lg:mx-20 my-16 bg-[#F8FAFC] dark:bg-[#001a33] rounded-3xl border border-slate-100 dark:border-white/5 relative overflow-hidden transition-colors shadow-2xl shadow-slate-200/50 dark:shadow-none">
+      <section id="how-to-apply" className="py-20 mx-4 md:mx-10 lg:mx-20 my-8 bg-[#F8FAFC] dark:bg-[#001a33] rounded-3xl border border-slate-100 dark:border-white/5 relative overflow-hidden transition-colors shadow-2xl shadow-slate-200/50 dark:shadow-none">
         <div className="mx-auto max-w-7xl px-8 relative z-10">
-          <div className="text-center mb-24 space-y-6">
-            <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 mb-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-500 font-poppins">Seamless Workflow</span>
-            </div>
+          <div className="text-center mb-12 space-y-6">
             <h2 className="text-5xl lg:text-6xl font-black tracking-tight text-[#003366] dark:text-white uppercase font-poppins leading-none">
               Steps to <span className="text-indigo-500">Apply</span>
             </h2>
@@ -200,7 +196,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24 relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 relative">
             {/* Connecting Connector Line - Desktop Only */}
             <div className="hidden lg:block absolute top-10 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent z-0" />
 

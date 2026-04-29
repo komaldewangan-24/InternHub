@@ -6,7 +6,7 @@ import LoadingState from '../components/LoadingState';
 import StatusBadge from '../components/StatusBadge';
 import { navigationByRole } from '../constants/navigation';
 import useCurrentUser from '../hooks/useCurrentUser';
-import { projectAPI } from '../services/api';
+import { projectAPI, userAPI } from '../services/api';
 
 export default function FacultyDashboard() {
   const { user, loading } = useCurrentUser();
@@ -83,7 +83,7 @@ export default function FacultyDashboard() {
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl uppercase">
           <div className="flex items-center justify-between mb-10 pb-6 border-b border-slate-100 dark:border-white/5">
             <div>
-              <h2 className="text-3xl font-bold tracking-tighter text-[#003366] dark:text-white uppercase">Review Workflow Queue</h2>
+              <h2 className="text-3xl font-bold tracking-tighter text-[#003366] dark:text-white uppercase">Review Workflow</h2>
               <p className="mt-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest italic leading-relaxed">Strictly following chronological submission order.</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function FacultyDashboard() {
 
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none uppercase overflow-hidden">
           <div className="mb-8 pb-4 border-b border-slate-100 dark:border-white/5">
-            <h3 className="text-xl font-bold tracking-tighter text-[#003366] dark:text-white uppercase">Assigned Roster</h3>
+            <h3 className="text-xl font-bold tracking-tighter text-[#003366] dark:text-white uppercase">Assigned Student</h3>
             <p className="mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">{assignedStudents.length} Active Students</p>
           </div>
 

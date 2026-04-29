@@ -91,8 +91,8 @@ export default function AdminDashboard() {
         <div className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-500 hover:shadow-2xl">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold tracking-tighter text-[#003366] dark:text-white flex items-center gap-3 uppercase">
-              <span className="material-symbols-outlined text-indigo-500">health_metrics</span>
-              Review Health
+              <span className="material-symbols-outlined text-indigo-500">fact_check</span>
+              Review
             </h2>
             <div className="flex items-center gap-2 rounded-xl bg-indigo-500/10 px-4 py-2 border border-indigo-500/20">
               <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Avg TAT: {stats?.averageReviewTurnaroundDays || 0} Days</span>
