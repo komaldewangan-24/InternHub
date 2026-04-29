@@ -15,7 +15,7 @@ const SCALAR_FIELDS = [
   ['phone', 'Phone'],
   ['location', 'Location'],
   ['university', 'College / University'],
-  ['degree', 'Academic designation'],
+  ['degree', 'Course'],
   ['graduationDate', 'Graduation year'],
   ['bio', 'Professional summary'],
   ['githubUrl', 'GitHub'],
@@ -120,8 +120,8 @@ export default function ResumeUploadSync({
     setSaving(true);
     try {
       // Step 1: Upload to disk storage
-      const { data } = await uploadFile('resumes', file);
-      const uploadedUrl = data.url;
+      const { data: responseData } = await uploadFile('resumes', file);
+      const uploadedUrl = responseData.data.url;
 
       // Step 2: Save metadata to profile
       const patch = {

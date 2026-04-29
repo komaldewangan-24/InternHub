@@ -70,6 +70,7 @@ export const userAPI = {
             'location',
             'skills',
             'avatarUrl',
+            'tagline',
             'department',
             'batch',
             'section',

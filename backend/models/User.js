@@ -46,6 +46,7 @@ const UserSchema = new mongoose.Schema({
         githubUrl: String,
         linkedinUrl: String,
         avatarUrl: String,
+        tagline: String,
         achievementsSummary: String,
         achievementsImageUrl: String,
         certifications: [

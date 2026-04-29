@@ -21,6 +21,7 @@ const emptyProfileForm = {
   degree: '',
   skills: [],
   avatarUrl: '',
+  tagline: '',
   resumeUrl: '',
   resumeFileName: '',
   resumeMimeType: '',
@@ -44,6 +45,7 @@ const buildProfileFormData = (user) => ({
   degree: user?.profile?.degree || '',
   skills: user?.profile?.skills || [],
   avatarUrl: user?.profile?.avatarUrl || '',
+  tagline: user?.profile?.tagline || '',
   resumeUrl: user?.profile?.resumeUrl || '',
   resumeFileName: user?.profile?.resumeFileName || '',
   resumeMimeType: user?.profile?.resumeMimeType || '',
@@ -59,6 +61,7 @@ export default function StudentProfilePage() {
   const { user, loading, refreshUser } = useCurrentUser();
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const currentFormData = useMemo(() => buildProfileFormData(user), [user]);
   const [editableFormData, setEditableFormData] = useState(emptyProfileForm);
   const formData = isEditing ? editableFormData : currentFormData;
@@ -94,9 +97,9 @@ export default function StudentProfilePage() {
     const file = event.target.files[0];
     if (file) {
       try {
-        setLoading(true);
-        const { data } = await uploadFile('avatars', file);
-        const uploadedUrl = data.url;
+        setUploading(true);
+        const { data: responseData } = await uploadFile('avatars', file);
+        const uploadedUrl = responseData.data.url;
         
         setFormData((prev) => ({ ...prev, avatarUrl: uploadedUrl }));
         
@@ -108,7 +111,7 @@ export default function StudentProfilePage() {
       } catch (error) {
         toast.error(error.response?.data?.error || 'Failed to upload photo.');
       } finally {
-        setLoading(false);
+        setUploading(false);
       }
     }
   };
@@ -176,14 +179,34 @@ export default function StudentProfilePage() {
                   <div className="flex-1 space-y-4 pt-2">
                     <div className="space-y-1">
                       <div className="flex items-center justify-center md:justify-start gap-3">
-                        <h2 className="text-[44px] font-poppins font-black text-[#003366] dark:text-white leading-tight tracking-tight">
-                          {formData.name || 'Anonymous'}
-                        </h2>
-                        <span className="material-symbols-outlined text-indigo-500 text-3xl">verified</span>
+                        {isEditing ? (
+                          <input
+                            className="text-[44px] font-poppins font-black text-[#003366] dark:text-white leading-tight tracking-tight bg-transparent border-b-4 border-indigo-500/20 focus:border-indigo-500 outline-none w-full max-w-xl"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="Your Name"
+                          />
+                        ) : (
+                          <>
+                            <h2 className="text-[44px] font-poppins font-black text-[#003366] dark:text-white leading-tight tracking-tight">
+                              {formData.name || 'Anonymous'}
+                            </h2>
+                            <span className="material-symbols-outlined text-indigo-500 text-3xl">verified</span>
+                          </>
+                        )}
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 font-medium text-[16px] leading-relaxed max-w-md mx-auto md:mx-0">
-                        Aspiring Data Scientist | Turning data into insights <span className="animate-pulse">🚀</span>
-                      </p>
+                      {isEditing ? (
+                        <input
+                          className="w-full max-w-md text-slate-500 dark:text-slate-400 font-medium text-[16px] leading-relaxed bg-transparent border-b-2 border-indigo-500/10 focus:border-indigo-500 outline-none py-1"
+                          value={formData.tagline}
+                          onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                          placeholder="Your Professional Tagline (e.g. Aspiring Data Scientist)"
+                        />
+                      ) : (
+                        <p className="text-slate-500 dark:text-slate-400 font-medium text-[16px] leading-relaxed max-w-md mx-auto md:mx-0">
+                          {formData.tagline || 'Aspiring Professional | Open to opportunities'} <span className="animate-pulse">🚀</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
@@ -217,22 +240,31 @@ export default function StudentProfilePage() {
                 <div className="mt-14 group/grid">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-y-10">
                     {[
-                      { label: 'Full Name', val: formData.name, icon: 'person', color: 'bg-indigo-50 text-indigo-500' },
-                      { label: 'Email Address', val: formData.email, icon: 'alternate_email', color: 'text-indigo-500 bg-indigo-50' },
-                      { label: 'Phone Number', val: formData.phone, icon: 'call', color: 'text-emerald-500 bg-emerald-50' },
-                      { label: 'College / University', val: formData.university, icon: 'school', color: 'text-indigo-500 bg-indigo-50' },
-                      { label: 'Academic Designation', val: formData.degree, icon: 'bookmark', color: 'text-amber-500 bg-amber-50' },
-                      { label: 'Graduation Window', val: formData.graduationDate, icon: 'event', color: 'text-rose-500 bg-rose-50' },
+                      { label: 'Full Name', val: formData.name, key: 'name', icon: 'person', color: 'bg-indigo-50 text-indigo-500' },
+                      { label: 'Email Address', val: formData.email, key: 'email', icon: 'alternate_email', color: 'text-indigo-500 bg-indigo-50' },
+                      { label: 'Phone Number', val: formData.phone, key: 'phone', icon: 'call', color: 'text-emerald-500 bg-emerald-50' },
+                      { label: 'College / University', val: formData.university, key: 'university', icon: 'school', color: 'text-indigo-500 bg-indigo-50' },
+                      { label: 'Course', val: formData.degree, key: 'degree', icon: 'bookmark', color: 'text-amber-500 bg-amber-50' },
+                      { label: 'Graduation Window', val: formData.graduationDate, key: 'graduationDate', icon: 'event', color: 'text-rose-500 bg-rose-50', type: 'date' },
                     ].map((field, idx) => (
                       <div key={field.label} className={`flex items-center gap-5 px-6 ${idx % 3 !== 2 ? 'md:border-r border-slate-100 dark:border-white/5' : ''} group/field`}>
                         <div className={`size-14 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all group-hover/field:scale-110 ${field.color} dark:bg-white/5`}>
                           <span className="material-symbols-outlined text-[24px]">{field.icon}</span>
                         </div>
-                        <div className="space-y-0.5">
+                        <div className="space-y-0.5 flex-1">
                           <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">{field.label}</p>
-                          <p className="text-[15px] font-black text-[#003366] dark:text-white leading-tight">
-                            {field.val || '—'}
-                          </p>
+                          {isEditing ? (
+                            <input
+                              type={field.type || 'text'}
+                              className="w-full bg-transparent text-[15px] font-black text-[#003366] dark:text-white leading-tight outline-none border-b-2 border-indigo-500/0 focus:border-indigo-500 transition-all py-1"
+                              value={field.val}
+                              onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                            />
+                          ) : (
+                            <p className="text-[15px] font-black text-[#003366] dark:text-white leading-tight">
+                              {field.val || '—'}
+                            </p>
+                          )}
                         </div>
                       </div>
                     ))}
